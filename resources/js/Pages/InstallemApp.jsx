@@ -1,6 +1,5 @@
 import InstallemDashboard from "../installem/InstallemDashboard";
 import { useLocation } from "@tanstack/react-router";
-import { AppShell } from "@/components/layout/AppShell";
 import { EntityPage } from "@/components/EntityPage";
 import { ComingSoon } from "@/components/ComingSoon";
 import { ContractsFunnelView } from "@/components/ContractsFunnelView";
@@ -9,17 +8,6 @@ import { CompensationTabs } from "@/components/hr/CompensationTabs";
 import { OperationsTabs } from "@/components/hr/OperationsTabs";
 import { OrgStructureTabs } from "@/components/hr/OrgStructureTabs";
 import { TimeOffTabs } from "@/components/hr/TimeOffTabs";
-import { SettingsTabs } from "@/components/settings/SettingsTabs";
-import { MasterSettingsPage } from "@/components/settings/MasterSettingsPage";
-import { IntegrationsPage } from "@/components/settings/IntegrationsPage";
-import { BranchesPage } from "@/components/settings/BranchesPage";
-import { SubscriptionPlanPage } from "@/components/settings/SubscriptionPlanPage";
-import { UserAccessPage } from "@/components/settings/UserAccessPage";
-import { WebsitePlatformPage } from "@/components/settings/WebsitePlatformPage";
-import { MobileAppsPage } from "@/components/settings/MobileAppsPage";
-import { CampaignsPage } from "@/components/settings/CampaignsPage";
-import { BannersPage } from "@/components/settings/BannersPage";
-import { AllCustomersPage, ActiveCustomersPage, GuarantorsPage, BlacklistPage } from "@/components/customers/CustomerRouteViews";
 import { InstallemRoutePages } from "./InstallemRoutePages";
 import * as entities from "@/lib/entities";
 
@@ -84,11 +72,7 @@ const entityRoutes = {
     "/settings": entities.masterSettingsConfig,
     "/settings/master": entities.masterSettingsConfig,
     "/settings/integrations": entities.integrationSettingsConfig,
-    "/support/hp-cases": {
-        ...entities.hpCasesConfig,
-        addHref: "/support/hp-cases/new",
-        addLabel: "Add HP Case",
-    },
+    "/support/hp-cases": entities.hpCasesConfig,
     "/support/tickets": entities.supportTicketsConfig,
     "/support/complaints": entities.customerComplaintsConfig,
     "/support/warranty": entities.warrantyClaimsConfig,
@@ -181,76 +165,6 @@ function PaymentsRoute({ pathname }) {
     return route ? <DueInstallmentsView {...route} /> : null;
 }
 
-function SettingsRoute({ pathname }) {
-    if (pathname === "/security/user-access" || pathname === "/settings/users") {
-        return (
-            <AppShell>
-                <UserAccessPage />
-            </AppShell>
-        );
-    }
-
-    if (pathname === "/settings" || pathname === "/settings/master" || pathname === "/settings/notifications") {
-        return (
-            <AppShell>
-                <MasterSettingsPage />
-            </AppShell>
-        );
-    }
-
-    if (pathname === "/settings/integrations") {
-        return (
-            <AppShell>
-                <IntegrationsPage />
-            </AppShell>
-        );
-    }
-
-    if (pathname === "/branches" || pathname === "/settings/branches") {
-        return (
-            <AppShell>
-                <BranchesPage />
-            </AppShell>
-        );
-    }
-
-    const settingsMap = {
-        "/settings/appearance": "appearance",
-    };
-
-    const initial = settingsMap[pathname];
-
-    if (!initial) {
-        return null;
-    }
-
-    return (
-        <AppShell>
-            <SettingsTabs initial={initial} />
-        </AppShell>
-    );
-}
-
-function CustomerRoute({ pathname }) {
-    if (pathname === "/customers") {
-        return <AllCustomersPage />;
-    }
-
-    if (pathname === "/customers/active") {
-        return <ActiveCustomersPage />;
-    }
-
-    if (pathname === "/customers/guarantors") {
-        return <GuarantorsPage />;
-    }
-
-    if (pathname === "/customers/blacklist") {
-        return <BlacklistPage />;
-    }
-
-    return null;
-}
-
 function HrTabbedRoute({ pathname }) {
     if (pathname === "/hr/departments" || pathname === "/hr/designations") {
         return <OrgStructureTabs initial={pathname === "/hr/designations" ? "desig" : "dept"} />;
@@ -302,22 +216,6 @@ export default function InstallemApp() {
         return paymentsRoute;
     }
 
-    const customerRoute = pathname === "/customers" || pathname.startsWith("/customers/")
-        ? CustomerRoute({ pathname })
-        : null;
-
-    if (customerRoute) {
-        return customerRoute;
-    }
-
-    const settingsRoute = (pathname.startsWith("/settings") || pathname === "/branches" || pathname === "/security/user-access")
-        ? SettingsRoute({ pathname })
-        : null;
-
-    if (settingsRoute) {
-        return settingsRoute;
-    }
-
     const hrTabbedRoute = pathname.startsWith("/hr/")
         ? HrTabbedRoute({ pathname })
         : null;
@@ -326,48 +224,9 @@ export default function InstallemApp() {
         return hrTabbedRoute;
     }
 
-    if (pathname === "/platforms/subscription") {
-        return (
-            <AppShell>
-                <SubscriptionPlanPage />
-            </AppShell>
-        );
-    }
-
-    if (pathname === "/platforms/website") {
-        return (
-            <AppShell>
-                <WebsitePlatformPage />
-            </AppShell>
-        );
-    }
-
-    if (pathname === "/platforms/mobile-apps") {
-        return (
-            <AppShell>
-                <MobileAppsPage />
-            </AppShell>
-        );
-    }
-
-    if (pathname === "/platforms/campaigns") {
-        return (
-            <AppShell>
-                <CampaignsPage />
-            </AppShell>
-        );
-    }
-
-    if (pathname === "/platforms/banners") {
-        return (
-            <AppShell>
-                <BannersPage />
-            </AppShell>
-        );
-    }
-
     const prefixRoutes = [
         ["/purchases/suppliers/", entities.suppliersConfig],
+        ["/customers/", entities.customersConfig],
         ["/support/", null],
     ];
 

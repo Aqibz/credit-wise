@@ -2,8 +2,8 @@ import { Link, useLocation } from "@tanstack/react-router";
 import {
   LayoutDashboard, Package, Boxes, ShoppingCart, ShoppingBag, CreditCard,
   HandCoins, Users, Truck, Wallet, Briefcase, BarChart3,
-  Bell, Settings, ChevronRight, ShieldCheck, LogOut, Crown, Globe,
-  MonitorSmartphone, LifeBuoy, AlertTriangle, FileSignature, BookOpen,
+  Bell, Settings, ChevronRight, ShieldCheck, LogOut, Crown,
+  Plug, MonitorSmartphone, LifeBuoy, AlertTriangle, FileSignature, BookOpen,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useSidebarState } from "./sidebar-context";
@@ -144,27 +144,16 @@ const SECURITY: Item = {
 };
 const SETTINGS: Item = {
   label: "Settings", icon: Settings, children: [
-    { label: "Overview", to: "/settings" },
+    { label: "Branches", to: "/branches" },
     { label: "Master Settings", to: "/settings/master" },
-    { label: "Integrations", to: "/settings/integrations" },
-    { label: "Appearance", to: "/settings/appearance" },
-    { label: "Notifications", to: "/settings/notifications" },
-    { label: "Users & Access", to: "/settings/users" },
-    { label: "Branches", to: "/settings/branches" },
   ],
 };
 
 const SUBSCRIPTION: Item = { label: "Subscription Plan", to: "/platforms/subscription", icon: Crown };
-const PLATFORMS: Item = {
-  label: "Platforms", icon: Globe, children: [
-    { label: "Website", to: "/platforms/website" },
-    { label: "Mobile Apps", to: "/platforms/mobile-apps" },
-    { label: "Campaigns", to: "/platforms/campaigns" },
-    { label: "Banners", to: "/platforms/banners" },
-    { label: "Subscription Plan", to: "/platforms/subscription" },
-  ],
-};
 const INSTALLMENT_PLANS: Item = { label: "Installment Plans", to: "/installments/plans", icon: CreditCard };
+
+const INTEGRATION_HUB: Item = { label: "Integration Hub", to: "/settings/integrations", icon: Plug };
+
 
 const SUPPORT: Item = {
   label: "Support", icon: LifeBuoy, children: [
@@ -181,7 +170,7 @@ const NAV_SECTIONS: NavSection[] = [
   { title: "Purchases", items: [PRODUCT_CATALOG, INVENTORY, PURCHASE_SUPPLIERS, PURCHASE_ORDERS, PURCHASE_GRN, PURCHASE_RETURNS, PURCHASE_BILLS, PURCHASE_PAYMENTS, PURCHASE_EXPENSES] },
   { title: "Accounts", items: [ACCOUNTS_COA, ACCOUNTS_TAX_CENTER, ACCOUNTS_FIN_STMT, ACCOUNTS_AUDIT_TRAIL, ACCOUNTS_TXN_LOCK] },
   { title: "Workforce", items: [HR_MANAGEMENT] },
-  { title: "System", items: [PLATFORMS, INSTALLMENT_PLANS, SUPPORT, SECURITY, SETTINGS] },
+  { title: "System", items: [SUBSCRIPTION, INSTALLMENT_PLANS, SUPPORT, SECURITY, INTEGRATION_HUB, SETTINGS] },
 ];
 
 export function Sidebar() {

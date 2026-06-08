@@ -8,7 +8,7 @@ import { UnderlineTabBar, UnderlineTab } from "@/components/ui/underline-tabs";
 import {
   Palette, PanelTop, PanelBottom, Menu as MenuIcon, ShoppingBag, Globe, Image as ImageIcon,
   Upload, Save, Settings2, Smartphone, Apple, Link2,
-  Music2, Ghost, Trash2,
+  Instagram, Twitter, Linkedin, Youtube, Music2, Ghost, Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -281,12 +281,12 @@ export function AppearanceConfig({ mode }: { mode: Mode }) {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <SocialField icon={<span className="text-[11px] font-bold">f</span>} color="text-blue-600"   label="Facebook Link"  value={social.facebook}  onChange={(v) => setSocial({ ...social, facebook: v })} />
-            <SocialField icon={<span className="text-[11px] font-bold">ig</span>} color="text-pink-600"   label="Instagram Link" value={social.instagram} onChange={(v) => setSocial({ ...social, instagram: v })} />
-            <SocialField icon={<span className="text-[11px] font-bold">x</span>}  color="text-sky-600"    label="Twitter Link"   value={social.twitter}   onChange={(v) => setSocial({ ...social, twitter: v })} />
-            <SocialField icon={<span className="text-[11px] font-bold">in</span>} color="text-blue-700"   label="LinkedIn Link"  value={social.linkedin}  onChange={(v) => setSocial({ ...social, linkedin: v })} />
+            <SocialField icon={<Instagram className="w-3.5 h-3.5" />} color="text-pink-600"   label="Instagram Link" value={social.instagram} onChange={(v) => setSocial({ ...social, instagram: v })} />
+            <SocialField icon={<Twitter className="w-3.5 h-3.5" />}   color="text-sky-600"    label="Twitter Link"   value={social.twitter}   onChange={(v) => setSocial({ ...social, twitter: v })} />
+            <SocialField icon={<Linkedin className="w-3.5 h-3.5" />}  color="text-blue-700"   label="LinkedIn Link"  value={social.linkedin}  onChange={(v) => setSocial({ ...social, linkedin: v })} />
             <SocialField icon={<Music2 className="w-3.5 h-3.5" />}    color="text-fuchsia-600"label="TikTok Link"    value={social.tiktok}    onChange={(v) => setSocial({ ...social, tiktok: v })} />
             <SocialField icon={<Ghost className="w-3.5 h-3.5" />}     color="text-yellow-500" label="Snapchat Link"  value={social.snapchat}  onChange={(v) => setSocial({ ...social, snapchat: v })} />
-            <SocialField icon={<span className="text-[11px] font-bold">yt</span>} color="text-red-600"    label="Youtube Link"   value={social.youtube}   onChange={(v) => setSocial({ ...social, youtube: v })} />
+            <SocialField icon={<Youtube className="w-3.5 h-3.5" />}   color="text-red-600"    label="Youtube Link"   value={social.youtube}   onChange={(v) => setSocial({ ...social, youtube: v })} />
           </div>
           <div className="flex justify-center pt-2">
             <Button onClick={saveAll} className="gap-1.5"><Save className="w-4 h-4" /> Save All Config</Button>
