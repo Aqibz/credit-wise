@@ -8,6 +8,7 @@ import { CompensationTabs } from "@/components/hr/CompensationTabs";
 import { OperationsTabs } from "@/components/hr/OperationsTabs";
 import { OrgStructureTabs } from "@/components/hr/OrgStructureTabs";
 import { TimeOffTabs } from "@/components/hr/TimeOffTabs";
+import { InstallemRoutePages } from "./InstallemRoutePages";
 import * as entities from "@/lib/entities";
 
 const entityRoutes = {
@@ -191,6 +192,12 @@ export default function InstallemApp() {
 
     if (pathname === "/") {
         return <InstallemDashboard />;
+    }
+
+    const routedPage = InstallemRoutePages({ pathname });
+
+    if (routedPage) {
+        return routedPage;
     }
 
     const contractsRoute = pathname.startsWith("/contracts/") || pathname === "/contracts"

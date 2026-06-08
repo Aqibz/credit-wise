@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { ReactNode } from "react";
-import { Mail, Phone, Smartphone, UploadCloud, ChevronDown, Globe, Facebook } from "lucide-react";
+import { Mail, Phone, Smartphone, UploadCloud, ChevronDown, Globe } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
@@ -238,7 +238,7 @@ export function NewVendorModal({
                   </FieldRow>
                   <FieldRow label="Facebook">
                     <div>
-                      <PrefixInput icon={<Facebook className="h-3.5 w-3.5 text-blue-600" />} value={v.facebook} onChange={(x) => set("facebook", x)} />
+                      <PrefixInput icon={<span className="text-xs font-bold text-blue-600">f</span>} value={v.facebook} onChange={(x) => set("facebook", x)} />
                       <p className="mt-1 text-xs text-muted-foreground">http://www.facebook.com/</p>
                     </div>
                   </FieldRow>

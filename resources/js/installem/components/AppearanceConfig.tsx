@@ -8,7 +8,7 @@ import { UnderlineTabBar, UnderlineTab } from "@/components/ui/underline-tabs";
 import {
   Palette, PanelTop, PanelBottom, Menu as MenuIcon, ShoppingBag, Globe, Image as ImageIcon,
   Upload, Save, Settings2, Smartphone, Apple, Link2,
-  Facebook, Instagram, Twitter, Linkedin, Youtube, Music2, Ghost, Trash2,
+  Instagram, Twitter, Linkedin, Youtube, Music2, Ghost, Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -280,7 +280,7 @@ export function AppearanceConfig({ mode }: { mode: Mode }) {
             <Link2 className="w-4 h-4 text-primary" /> Social Media Links
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <SocialField icon={<Facebook className="w-3.5 h-3.5" />}  color="text-blue-600"   label="Facebook Link"  value={social.facebook}  onChange={(v) => setSocial({ ...social, facebook: v })} />
+            <SocialField icon={<span className="text-[11px] font-bold">f</span>} color="text-blue-600"   label="Facebook Link"  value={social.facebook}  onChange={(v) => setSocial({ ...social, facebook: v })} />
             <SocialField icon={<Instagram className="w-3.5 h-3.5" />} color="text-pink-600"   label="Instagram Link" value={social.instagram} onChange={(v) => setSocial({ ...social, instagram: v })} />
             <SocialField icon={<Twitter className="w-3.5 h-3.5" />}   color="text-sky-600"    label="Twitter Link"   value={social.twitter}   onChange={(v) => setSocial({ ...social, twitter: v })} />
             <SocialField icon={<Linkedin className="w-3.5 h-3.5" />}  color="text-blue-700"   label="LinkedIn Link"  value={social.linkedin}  onChange={(v) => setSocial({ ...social, linkedin: v })} />

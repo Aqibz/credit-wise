@@ -44,6 +44,18 @@ Any agent or engineer working in this codebase must follow the rules below.
 - Avoid fake abstractions, premature microservices, and unnecessary client-only state machines.
 - Prefer explicit Laravel routes, controllers, Form Requests, policies, actions, and small React modules over clever indirection.
 
+### `Performance and Collections`
+
+- Prefer official Laravel collections, query builder, eager loading, cursor iteration, `chunkById`, `lazy`, and `cursorPaginate` where they fit the access pattern.
+- Prefer core PHP arrays / loops / strict comparisons in hot paths when they are measurably simpler or faster than collection chaining.
+- Avoid N+1 queries by default.
+- Push filtering, aggregation, sorting, and pagination to the database when the dataset is not trivially small.
+- Prefer immutable DTO/value-object style transformations for complex response shaping.
+- Use the latest stable Laravel 12/13 syntax and framework APIs available in the installed version.
+- Never invent framework helpers or methods; prefer official documented Laravel methods and PHP standard library behavior.
+- Use packages only when they reduce complexity materially and fit Laravel conventions; prefer first-party Laravel packages first.
+- Treat DSA and asymptotic cost as real concerns for listing queries, schedule generation, ledger posting, and batch jobs.
+
 ## Architecture Rules
 
 ### Backend
@@ -512,3 +524,203 @@ Every meaningful change should be evaluated against:
 - Bias toward modular refactoring over adding more code into existing large files.
 - Bias toward thin controllers and thin models.
 - Bias toward services, requests, events, jobs, and explicit contracts for non-trivial flows.
+
+## Laravel Official Features (Mandatory Evaluation)
+
+- Before introducing custom solutions, evaluate whether the requirement can be solved using official Laravel features first.
+- Preferred evaluation order:
+  - authentication -> `Sanctum`, `Fortify`, `Passport`
+  - authorization -> `Policies`, `Gates`
+  - realtime -> `Reverb`
+  - search -> `Scout`
+  - billing -> `Cashier`
+  - queues -> `Horizon`
+  - monitoring -> `Pulse`
+  - feature flags -> `Pennant`
+  - debugging -> `Telescope`
+  - testing -> `Pest`, `PHPUnit`, `Dusk`
+  - validation -> `Form Requests`, `Precognition`
+  - notifications -> `Laravel Notifications`
+  - mail -> `Mailables`
+  - scheduling -> `Laravel Scheduler`
+  - storage -> `Filesystem`
+  - concurrency -> `Laravel Concurrency`
+  - context -> `Laravel Context`
+- Always prefer official Laravel solutions first unless there is a clear technical reason not to.
+
+## Database Standards
+
+- Default database is `PostgreSQL`.
+- Always evaluate:
+  - proper indexes
+  - composite indexes
+  - foreign key constraints
+  - unique constraints
+  - partial indexes when useful
+  - soft deletes only when they have real business value
+- For large datasets prefer:
+  - `cursorPaginate`
+  - `chunkById`
+  - lazy collections
+- Avoid:
+  - loading entire tables into memory
+  - offset pagination on huge datasets
+
+## Transaction Rules
+
+- Critical business workflows must use `DB::transaction()` when multiple writes must succeed or fail together.
+- Examples include:
+  - payments
+  - subscriptions
+  - wallet updates
+  - invoices
+  - payroll
+  - inventory adjustments
+  - tenant provisioning
+
+## Event Driven Architecture
+
+- Important business actions should emit explicit domain events.
+- Examples:
+  - `UserRegistered`
+  - `SubscriptionActivated`
+  - `InvoicePaid`
+  - `PaymentFailed`
+  - `TenantCreated`
+  - `FileUploaded`
+  - `TeamMemberInvited`
+- Use listeners for:
+  - notifications
+  - integrations
+  - analytics
+  - projections
+  - audit logging
+
+## Notification Standards
+
+- Default notification channels:
+  - database
+  - mail
+- Additional channels may include:
+  - Slack
+  - SMS
+  - broadcast
+- Notifications should be queued by default.
+
+## Mail Standards
+
+- Use:
+  - Markdown mailables
+  - queued mail
+  - attachments
+  - tags and metadata where supported
+- Never send heavy email synchronously.
+
+## Search Standards
+
+- Search selection order:
+  1. database search
+  2. full-text search
+  3. `Scout`
+  4. vector search
+- Vector search should only be used when semantic understanding is actually required.
+- Do not use AI search for simple filtering.
+
+## API Standards
+
+- Every API should include:
+  - validation
+  - authorization
+  - API resources
+  - pagination
+  - rate limiting
+  - error handling
+  - request logging
+- Response shape should remain consistent across the application.
+
+## Queue Standards
+
+- Queue by default:
+  - emails
+  - notifications
+  - reports
+  - exports
+  - imports
+  - AI requests
+  - external APIs
+  - file processing
+  - webhooks
+- Jobs must define and consider:
+  - retries
+  - backoff
+  - timeout
+  - failed-job handling
+  - Horizon monitoring
+- Jobs must be idempotent.
+
+## Logging Standards
+
+- Use structured logs.
+- Every meaningful log should include when available:
+  - tenant_id
+  - user_id
+  - request_id
+  - correlation_id
+- Never log:
+  - passwords
+  - tokens
+  - secrets
+  - payment credentials
+
+## SaaS Recommended Stack
+
+- Default stack:
+  - latest stable Laravel
+  - PostgreSQL
+  - Redis
+  - Sanctum
+  - Horizon
+  - Scout
+  - Pennant
+  - Pulse
+  - Reverb
+  - Telescope
+  - Cashier
+  - Spatie Permission when it fits the authorization model
+  - Filament where an internal admin surface is justified
+  - Scramble for API documentation where useful
+- Do not replace these tools without clear justification.
+
+## AI Agent Output Rules
+
+- When generating production-ready code or implementation plans, include evaluation for:
+  1. architecture decision
+  2. database design
+  3. migration
+  4. models
+  5. relationships
+  6. validation
+  7. policies
+  8. services/actions
+  9. events
+  10. jobs
+  11. notifications
+  12. API resources
+  13. routes
+  14. tests
+  15. performance considerations
+  16. security considerations
+- Do not stop at a partial implementation when a production-ready solution is explicitly expected.
+
+## Final Decision Rule
+
+- When multiple solutions exist, choose the one that is:
+  1. official Laravel
+  2. secure
+  3. multi-tenant safe
+  4. testable
+  5. queue-friendly
+  6. observable
+  7. scalable
+  8. maintainable
+- Never choose a clever solution over a maintainable one.

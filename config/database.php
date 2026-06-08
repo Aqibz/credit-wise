@@ -17,7 +17,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'sqlite'),
+    'default' => env('DB_CONNECTION', 'landlord'),
 
     /*
     |--------------------------------------------------------------------------
@@ -97,6 +97,36 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => env('DB_SSLMODE', 'prefer'),
+        ],
+
+        'landlord' => [
+            'driver' => env('DB_LANDLORD_DRIVER', env('DB_DRIVER', 'pgsql')),
+            'url' => env('DB_LANDLORD_URL'),
+            'host' => env('DB_LANDLORD_HOST', env('DB_HOST', '127.0.0.1')),
+            'port' => env('DB_LANDLORD_PORT', env('DB_PORT', '5432')),
+            'database' => env('DB_LANDLORD_DATABASE', env('DB_DATABASE', 'installem_landlord')),
+            'username' => env('DB_LANDLORD_USERNAME', env('DB_USERNAME', 'postgres')),
+            'password' => env('DB_LANDLORD_PASSWORD', env('DB_PASSWORD', '')),
+            'charset' => env('DB_CHARSET', 'utf8'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'search_path' => env('DB_LANDLORD_SCHEMA', 'public'),
+            'sslmode' => env('DB_SSLMODE', 'prefer'),
+        ],
+
+        'tenant' => [
+            'driver' => env('TENANT_DB_DRIVER', 'pgsql'),
+            'url' => env('TENANT_DB_URL'),
+            'host' => env('TENANT_DB_HOST', '127.0.0.1'),
+            'port' => env('TENANT_DB_PORT', '5432'),
+            'database' => env('TENANT_DB_DATABASE', 'installem_template'),
+            'username' => env('TENANT_DB_USERNAME', 'postgres'),
+            'password' => env('TENANT_DB_PASSWORD', ''),
+            'charset' => env('TENANT_DB_CHARSET', 'utf8'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'search_path' => env('TENANT_DB_SCHEMA', 'public'),
+            'sslmode' => env('TENANT_DB_SSLMODE', env('DB_SSLMODE', 'prefer')),
         ],
 
         'sqlsrv' => [
