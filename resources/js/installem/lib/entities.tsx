@@ -655,6 +655,7 @@ export const productsConfig: EntityPageProps<any> = {
   title: "Products",
   description: "Manage your product catalog, pricing & installment plans.",
   storageKey: "qcrm.products",
+  addHref: "/catalog/products/new",
   
   searchKeys: ["name", "sku", "category", "brand", "season", "theme"],
   filters: [
@@ -1611,6 +1612,7 @@ export const suppliersConfig: EntityPageProps<any> = {
   title: "Suppliers",
   description: "Supplier directory, contracts and ledgers.",
   storageKey: "qcrm.suppliers",
+  addHref: "/purchases/suppliers/new",
   withAvatar: { nameKey: "name", subKey: "code" },
   searchKeys: ["name", "code", "phone", "ntn"],
   kpis: [
@@ -1861,6 +1863,7 @@ export const billsConfig: EntityPageProps<any> = {
   title: "Bills / Purchase Invoices",
   description: "Supplier invoices, outstanding payables and due dates.",
   storageKey: "qcrm.bills",
+  addHref: "/purchases/bills/new",
   withAvatar: { nameKey: "ref", subKey: "supplier" },
   searchKeys: ["ref", "supplier", "po"],
   kpis: [
@@ -1941,6 +1944,7 @@ export const paymentsMadeConfig: EntityPageProps<any> = {
   title: "Payments Made",
   description: "Vendor payments — partial, full and advance payments.",
   storageKey: "qcrm.payments-made",
+  addHref: "/purchases/payments/new",
   withAvatar: { nameKey: "ref", subKey: "supplier" },
   searchKeys: ["ref", "supplier", "bill"],
   kpis: [
@@ -1986,6 +1990,7 @@ export const expensesConfig: EntityPageProps<any> = {
   title: "Expenses",
   description: "All operating expenses — one-time and recurring (rent, salaries, utilities, freight).",
   storageKey: "qcrm.expenses",
+  addHref: "/purchases/expenses/new",
   withAvatar: { nameKey: "ref", subKey: "category" },
   searchKeys: ["ref", "category", "vendor", "description"],
   kpis: [
@@ -2078,6 +2083,8 @@ export const salesConfig: EntityPageProps<any> = {
   title: "Sales",
   description: "All sales — cash and installment.",
   storageKey: "qcrm.sales",
+  addHref: "/sales/invoices/new",
+  addLabel: "Add Sale",
   withAvatar: { nameKey: "invoice", subKey: "customer" },
   searchKeys: ["invoice", "customer", "salesman"],
   kpis: [
@@ -2354,6 +2361,7 @@ export const paymentsReceivedConfig: EntityPageProps<any> = {
   description: "Installment collections received against active contracts.",
   addLabel: "Record Payment",
   storageKey: "qcrm.payments-received",
+  addHref: "/payments-received/new",
   withAvatar: {
     nameKey: "ref",
     subKey: "at",
@@ -2730,6 +2738,7 @@ export const customersConfig: EntityPageProps<any> = {
   title: "Customers",
   description: "All customers with CNIC, KYC and risk score.",
   storageKey: "qcrm.customers",
+  addHref: "/customers/new",
   withAvatar: { nameKey: "name", subKey: "cnic", nameHref: (i: any) => `/customers/${i.id}` },
   searchKeys: ["name", "cnic", "phone", "area", "city"],
   kpis: [
@@ -3227,6 +3236,7 @@ export const employeesConfig: EntityPageProps<any> = {
   title: "Employees",
   description: "Employee directory and documents.",
   storageKey: "qcrm.employees",
+  addHref: "/hr/employees/new",
   withAvatar: { nameKey: "name", subKey: "designation" },
   searchKeys: ["name", "code", "cnic", "designation"],
   kpis: [

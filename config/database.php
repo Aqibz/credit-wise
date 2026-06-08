@@ -17,7 +17,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'landlord'),
+    'default' => env('DB_CONNECTION', 'sqlite'),
 
     /*
     |--------------------------------------------------------------------------
@@ -100,33 +100,47 @@ return [
         ],
 
         'landlord' => [
-            'driver' => env('DB_LANDLORD_DRIVER', env('DB_DRIVER', 'pgsql')),
+            'driver' => env('DB_LANDLORD_DRIVER', env('DB_DRIVER', env('DB_CONNECTION', 'sqlite'))),
             'url' => env('DB_LANDLORD_URL'),
-            'host' => env('DB_LANDLORD_HOST', env('DB_HOST', '127.0.0.1')),
-            'port' => env('DB_LANDLORD_PORT', env('DB_PORT', '5432')),
-            'database' => env('DB_LANDLORD_DATABASE', env('DB_DATABASE', 'installem_landlord')),
-            'username' => env('DB_LANDLORD_USERNAME', env('DB_USERNAME', 'postgres')),
-            'password' => env('DB_LANDLORD_PASSWORD', env('DB_PASSWORD', '')),
+            'database' => env('DB_LANDLORD_DATABASE', env('DB_DATABASE', database_path('landlord.sqlite'))),
             'charset' => env('DB_CHARSET', 'utf8'),
             'prefix' => '',
             'prefix_indexes' => true,
-            'search_path' => env('DB_LANDLORD_SCHEMA', 'public'),
-            'sslmode' => env('DB_SSLMODE', 'prefer'),
+            'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
+            'busy_timeout' => null,
+            'journal_mode' => null,
+            'synchronous' => null,
+            'transaction_mode' => 'DEFERRED',
+            ...(env('DB_LANDLORD_DRIVER', env('DB_DRIVER', env('DB_CONNECTION', 'sqlite'))) === 'sqlite' ? [] : [
+                'host' => env('DB_LANDLORD_HOST', env('DB_HOST')),
+                'port' => env('DB_LANDLORD_PORT', env('DB_PORT')),
+                'username' => env('DB_LANDLORD_USERNAME', env('DB_USERNAME')),
+                'password' => env('DB_LANDLORD_PASSWORD', env('DB_PASSWORD', '')),
+                'search_path' => env('DB_LANDLORD_SCHEMA', env('TENANT_DB_SCHEMA', 'public')),
+                'sslmode' => env('DB_SSLMODE', 'prefer'),
+            ]),
         ],
 
         'tenant' => [
-            'driver' => env('TENANT_DB_DRIVER', 'pgsql'),
+            'driver' => env('TENANT_DB_DRIVER', 'sqlite'),
             'url' => env('TENANT_DB_URL'),
-            'host' => env('TENANT_DB_HOST', '127.0.0.1'),
-            'port' => env('TENANT_DB_PORT', '5432'),
-            'database' => env('TENANT_DB_DATABASE', 'installem_template'),
-            'username' => env('TENANT_DB_USERNAME', 'postgres'),
-            'password' => env('TENANT_DB_PASSWORD', ''),
+            'database' => env('TENANT_DB_DATABASE', database_path('tenant.sqlite')),
             'charset' => env('TENANT_DB_CHARSET', 'utf8'),
             'prefix' => '',
             'prefix_indexes' => true,
-            'search_path' => env('TENANT_DB_SCHEMA', 'public'),
-            'sslmode' => env('TENANT_DB_SSLMODE', env('DB_SSLMODE', 'prefer')),
+            'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
+            'busy_timeout' => null,
+            'journal_mode' => null,
+            'synchronous' => null,
+            'transaction_mode' => 'DEFERRED',
+            ...(env('TENANT_DB_DRIVER', 'sqlite') === 'sqlite' ? [] : [
+                'host' => env('TENANT_DB_HOST'),
+                'port' => env('TENANT_DB_PORT'),
+                'username' => env('TENANT_DB_USERNAME'),
+                'password' => env('TENANT_DB_PASSWORD', ''),
+                'search_path' => env('TENANT_DB_SCHEMA', 'public'),
+                'sslmode' => env('TENANT_DB_SSLMODE', env('DB_SSLMODE', 'prefer')),
+            ]),
         ],
 
         'sqlsrv' => [
