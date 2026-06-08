@@ -4,8 +4,9 @@ import '../css/app.css';
 import React from 'react';
 import { createInertiaApp } from '@inertiajs/react';
 import { createRoot } from 'react-dom/client';
+import { GenericErrorPage } from './installem/shared/components/shared/GenericErrorPage';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = import.meta.env.VITE_APP_NAME || 'CreditWise';
 
 class AppErrorBoundary extends React.Component {
     constructor(props) {
@@ -18,23 +19,18 @@ class AppErrorBoundary extends React.Component {
     }
 
     componentDidCatch(error, errorInfo) {
-        console.error('Installem runtime error:', error, errorInfo);
+        console.error('CreditWise runtime error:', error, errorInfo);
     }
 
     render() {
         if (this.state.error) {
             return (
-                <div className="min-h-screen bg-background text-foreground p-6">
-                    <div className="mx-auto max-w-3xl rounded-xl border border-destructive/30 bg-card p-5">
-                        <h1 className="text-lg font-semibold text-destructive">Frontend runtime error</h1>
-                        <p className="mt-2 text-sm text-muted-foreground">
-                            The app crashed while rendering. The message below is the actual browser error.
-                        </p>
-                        <pre className="mt-4 overflow-auto rounded-lg bg-muted p-4 text-xs whitespace-pre-wrap">
-                            {String(this.state.error?.stack || this.state.error?.message || this.state.error)}
-                        </pre>
-                    </div>
-                </div>
+                <GenericErrorPage
+                    code="500"
+                    title="CreditWise hit a runtime error"
+                    message="This screen could not finish loading."
+                    detail={String(this.state.error?.message || this.state.error || 'Unexpected frontend error')}
+                />
             );
         }
 
@@ -45,11 +41,11 @@ class AppErrorBoundary extends React.Component {
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
     resolve: async (name) => {
-        if (name !== 'InstallemApp') {
+        if (name !== 'CreditWiseApp') {
             throw new Error(`Unknown page: ${name}`);
         }
 
-        return import('./Pages/InstallemApp.jsx');
+        return import('./Pages/CreditWiseApp.jsx');
     },
     setup({ el, App, props }) {
         const root = createRoot(el);

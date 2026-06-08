@@ -1,0 +1,22 @@
+// Active route-backed commercial configs.
+export {
+  salesConfig,
+  cashSaleConfig,
+  installmentSaleConfig,
+  hpCasesConfig,
+  deliveriesConfig,
+  salesReturnsConfig,
+  receiptsConfig,
+  paymentsReceivedConfig,
+  salesTeamConfig,
+  salesTargetsConfig,
+  installmentsActiveConfig,
+  installmentsTodayConfig,
+  installmentsOverdueConfig,
+  installmentPlansConfig,
+  recoveryAgentsConfig,
+  recoveryDailyConfig,
+  recoveryShortfallsConfig,
+  targetsConfig,
+  reportsListConfig,
+} from "./_legacy-core";
