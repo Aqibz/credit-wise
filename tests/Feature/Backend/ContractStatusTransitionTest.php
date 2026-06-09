@@ -3,8 +3,8 @@
 namespace Tests\Feature\Backend;
 
 use App\Models\User;
-use App\Modules\Contracts\Models\Contract;
-use App\Modules\Customers\Models\Customer;
+use App\Modules\Tenant\Contracts\Models\Contract;
+use App\Modules\Tenant\Customers\Models\Customer;
 use App\Shared\Authz\Models\Permission;
 use App\Shared\Authz\Models\Role;
 use App\Shared\Authz\Models\TenantMembership;
@@ -74,3 +74,4 @@ class ContractStatusTransitionTest extends TestCase
             ->assertJsonPath('data.status', 'Under Verification');
     }
 }
+

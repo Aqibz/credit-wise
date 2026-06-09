@@ -81,6 +81,9 @@ Any agent or engineer working in this codebase must follow the rules below.
 ### Frontend
 
 - React pages should stay thin.
+- The frontend is one shared codebase for two app surfaces:
+  - `tenant`
+  - `super-admin`
 - Large screens must be split into:
   - page container
   - feature components
@@ -97,25 +100,133 @@ Any agent or engineer working in this codebase must follow the rules below.
   - `resources/js/shared/lib`
   - `resources/js/shared/hooks`
 
+### Frontend App Boundary Standard
+
+- Treat `tenant` and `super-admin` as two application shells inside the same frontend codebase.
+- They must share primitives, contracts, and reusable business components where appropriate.
+- They must not duplicate shared UI or utility logic only because the navigation or module list differs.
+- The default structure should be:
+  - `resources/js/credit-wise/apps/tenant`
+    - tenant-only navigation
+    - tenant-only route registry
+    - tenant-only app wiring
+  - `resources/js/credit-wise/apps/super-admin`
+    - super-admin-only navigation
+    - super-admin-only route registry
+    - super-admin-only app wiring
+  - `resources/js/credit-wise/pages/tenant/...`
+    - route pages for the tenant app
+  - `resources/js/credit-wise/pages/super-admin/...`
+    - route pages for the super-admin app
+  - `resources/js/credit-wise/components/...`
+    - reusable business components grouped by domain
+  - `resources/js/credit-wise/shared/...`
+    - reusable shared primitives, types, hooks, helpers, app-agnostic UI
+- Use `apps/*` only for app-shell concerns:
+  - navigation
+  - route maps
+  - app-specific visibility rules
+  - app-specific composition
+- Do not place general business components inside `apps/*`.
+- Use `pages/tenant/*` and `pages/super-admin/*` for route-owned screens only.
+- If a screen is conceptually the same between tenant and super-admin, prefer:
+  - one shared component in `components/*`
+  - thin route pages in each app that compose the shared component
+- If a module exists only for one app surface, keep its page and navigation inside that app boundary, but still reuse shared primitives and domain widgets.
+- Current direction:
+  - tenant app owns the operational CreditWise modules already visible in the current sidebar
+  - super-admin app owns landlord/control-plane modules such as pricing, tenants, subscriptions, support access, rollout control, and cross-tenant oversight
+- Do not create separate duplicate folder trees like `shared/components`, `components/shared`, `pages/shared`, `common/components`, etc.
+- Prefer one obvious home:
+  - app shell logic -> `apps/*`
+  - route pages -> `pages/*`
+  - domain/business components -> `components/*`
+  - cross-app shared code -> `shared/*`
+- Frontend architecture rules for this shared-codebase model:
+  - route pages stay thin
+  - navigation metadata stays centralized
+  - vendor wrappers stay centralized
+  - app boundaries stay explicit
+  - shared contracts stay framework-safe and app-agnostic where possible
+  - no frontend README files should be used as architecture source of truth; `AGENT.md` is the canonical instruction file
+
+### Frontend Stack Standard
+
+- The frontend stack must follow these standards consistently across all new work and refactors:
+  - icons -> `lucide-react`
+  - UI primitives -> `shadcn/ui`
+  - styling -> `Tailwind CSS`
+  - global styling -> shared global CSS tokens/utilities only through `resources/css/app.css` and the shared CreditWise stylesheet imports it owns
+  - tables -> `TanStack Table` with `shadcn` table primitives
+  - forms -> Inertia `useForm`
+  - validation -> Laravel backend validation through `FormRequest` classes
+  - toasts -> `sonner`
+  - charts -> `recharts`
+  - date handling -> `date-fns`
+  - date picker -> `shadcn` `Calendar`
+- Do not introduce parallel UI kits, icon packs, table libraries, chart libraries, form libraries, or date libraries without a strong documented reason.
+- Prefer one frontend implementation path:
+  - icons come from `lucide-react`
+  - buttons, dialogs, dropdowns, inputs, switches, selects, tables, calendars, and related primitives come from `shadcn/ui` wrappers in shared UI
+  - global colors, spacing tokens, typography ramps, and utility overrides belong in the shared global stylesheet layer, not scattered ad-hoc page CSS
+  - table behavior comes from `@tanstack/react-table`
+  - page-level form submission uses Inertia `useForm`
+  - server validation errors come from Laravel and should be rendered directly in the UI contract
+  - toast notifications use `sonner`
+  - analytical charts use `recharts`
+  - date parsing, formatting, and manipulation use `date-fns`
+- Avoid:
+  - `Formik`
+  - `React Hook Form`
+  - `MUI`
+  - `Ant Design`
+  - `Chart.js`
+  - `Moment.js`
+  - ad-hoc handcrafted table state when `TanStack Table` is the correct fit
+  - random per-page CSS files or inline visual systems that bypass the shared Tailwind/global-style contract
+- If an existing screen still uses older local patterns, new changes should move it toward this standard instead of expanding the inconsistency.
+- Shared wrappers should be preferred where they exist, so feature code depends on local shared primitives instead of vendor imports spread everywhere.
+
 ### Routing
 
 - Use one routing strategy consistently.
 - Do not mix fake SPA shims and full-page navigation unless there is a documented migration plan.
 - New routes should be explicit and testable.
+- Laravel routes and Inertia are the only application routing contract.
+- Do not add TanStack Router, React Router, router shims, or file-route declarations.
+- Use `resources/js/credit-wise/shared/navigation` for Inertia links and programmatic visits.
+- React root state must survive Vite HMR; never create a second root for the same Inertia mount element.
+
+### Frontend Migration Boundaries
+
+- `EntityPage` is a compatibility renderer for existing config-driven screens, not the default for new route pages.
+- `LegacyEntityRoute` and `createLegacyEntityRoutePage` exist only to migrate current config-driven screens safely.
+- Do not use legacy entity route factories for new screens.
+- New production routes must use dedicated, thin page components with feature-owned components and types.
+- Do not add new configs to `lib/entities/_legacy-core.tsx`; move touched configs toward their owning feature.
+- Shared table, toolbar, pagination, and form primitives belong under `shared/ui`.
+- Remove mixed-era router, page, and config code once no active route imports it.
 
 ## Backend Modular Monolith Standard
 
 - This codebase should follow a `modular monolith` backend architecture.
 - Use one codebase, one deployable Laravel app, and clear business modules.
+- Backend module ownership should be split conceptually into two top-level application spaces:
+  - `app/Modules/Tenant`
+  - `app/Modules/SuperAdmin`
 - Each domain should have a dedicated module boundary, for example:
-  - `app/Modules/Customers`
-  - `app/Modules/Contracts`
-  - `app/Modules/Payments`
-  - `app/Modules/Inventory`
-  - `app/Modules/HR`
-  - `app/Modules/Accounts`
-  - `app/Modules/Reports`
-  - `app/Modules/Support`
+  - `app/Modules/Tenant/Customers`
+  - `app/Modules/Tenant/Contracts`
+  - `app/Modules/Tenant/Payments`
+  - `app/Modules/Tenant/Inventory`
+  - `app/Modules/Tenant/HR`
+  - `app/Modules/Tenant/Accounts`
+  - `app/Modules/Tenant/Reports`
+  - `app/Modules/Tenant/Support`
+  - `app/Modules/SuperAdmin/Pricing`
+  - `app/Modules/SuperAdmin/Tenants`
+  - `app/Modules/SuperAdmin/Subscriptions`
+  - `app/Modules/SuperAdmin/SupportAccess`
 - Shared cross-cutting concerns should live under explicit shared namespaces, for example:
   - `app/Shared/Tenancy`
   - `app/Shared/Media`
@@ -123,6 +234,18 @@ Any agent or engineer working in this codebase must follow the rules below.
   - `app/Shared/Notifications`
   - `app/Shared/Queueing`
   - `app/Shared/Support`
+
+### Backend App Boundary Standard
+
+- `Tenant` modules are for operational business domains that run inside tenant context.
+- `SuperAdmin` modules are for landlord / control-plane concerns only.
+- Do not mix landlord orchestration with tenant operational modules in the same domain folder.
+- Future backend modules should follow:
+  - tenant-facing business domain -> `app/Modules/Tenant/<Domain>`
+  - super-admin / landlord control-plane domain -> `app/Modules/SuperAdmin/<Domain>`
+- `app/Modules/Tenant/*` is the canonical home for tenant business modules.
+- New code must not introduce flat top-level tenant business modules directly under `app/Modules`.
+- `app/Modules/SuperAdmin` may start sparse and grow only when landlord features are actually implemented.
 
 ### Suggested Module Shape
 

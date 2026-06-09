@@ -1,10 +1,13 @@
 <?php
 
+use App\Shared\Logging\RequestContext;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Middleware\SubstituteBindings;
+use Inertia\Inertia;
+use Symfony\Component\HttpFoundation\Response;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -34,4 +37,24 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*'),
         );
+
+        $exceptions->respond(function (Response $response): Response {
+            $request = request();
+            $status = $response->getStatusCode();
+            $props = [
+                'status' => $status,
+                'path' => '/'.$request->path(),
+                'requestId' => app(RequestContext::class)->requestId(),
+            ];
+
+            if ($request->is('api/*') || ! in_array($status, [403, 404, 419, 429, 500, 503], true)) {
+                return $response;
+            }
+
+            if (! is_file(public_path('hot')) && ! is_file(public_path('build/manifest.json'))) {
+                return response()->view('errors.creditwise', $props, $status);
+            }
+
+            return Inertia::render('Error', $props)->toResponse($request)->setStatusCode($status);
+        });
     })->create();

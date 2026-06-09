@@ -2,10 +2,10 @@
 
 namespace Tests\Feature\Backend;
 
-use App\Modules\Contracts\Models\Contract;
-use App\Modules\Customers\Models\Customer;
-use App\Modules\Installments\Models\Installment;
-use App\Modules\Installments\Services\InstallmentScheduleService;
+use App\Modules\Tenant\Contracts\Models\Contract;
+use App\Modules\Tenant\Customers\Models\Customer;
+use App\Modules\Tenant\Installments\Models\Installment;
+use App\Modules\Tenant\Installments\Services\InstallmentScheduleService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\Feature\Backend\Concerns\CreatesTenantContext;
@@ -80,3 +80,4 @@ class ReceiptDueTrackingFlowTest extends TestCase
             ->assertJsonPath('data.0.id', $secondInstallment->id);
     }
 }
+

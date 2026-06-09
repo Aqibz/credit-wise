@@ -2,10 +2,10 @@
 
 namespace Tests\Feature\Backend;
 
-use App\Modules\Accounts\Models\Account;
-use App\Modules\Contracts\Models\Contract;
-use App\Modules\Customers\Models\Customer;
-use App\Modules\Installments\Services\InstallmentScheduleService;
+use App\Modules\Tenant\Accounts\Models\Account;
+use App\Modules\Tenant\Contracts\Models\Contract;
+use App\Modules\Tenant\Customers\Models\Customer;
+use App\Modules\Tenant\Installments\Services\InstallmentScheduleService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\Feature\Backend\Concerns\CreatesTenantContext;
@@ -94,3 +94,4 @@ class AccountsLedgerPostingFlowTest extends TestCase
         $this->assertDatabaseCount('journal_entries', 1, 'tenant');
     }
 }
+

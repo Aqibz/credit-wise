@@ -2,4 +2,4 @@
 @plugin "@tailwindcss/forms";
 @source "../views/**/*.blade.php";
 @source "../js/**/*.{js,jsx,ts,tsx}";
-@import "../js/installem/styles.css";
+@import "../js/credit-wise/styles.css";

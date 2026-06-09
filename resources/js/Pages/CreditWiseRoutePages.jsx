@@ -1,8 +1,8 @@
-import { WizardPageShell } from "@/shared/components/wizards/WizardPageShell";
-import { useRouter } from "@tanstack/react-router";
-import { useToast } from "@/shared/components/shared/Toaster";
-import { useEntityStore } from "@/lib/useEntityStore";
-import { RouteNotFoundPage } from "@/pages/routes/RouteNotFoundPage";
+﻿import { WizardPageShell } from "@/shared/ui/wizards/WizardPageShell";
+import { useRouter } from "@/shared/navigation";
+import { useToast } from "@/shared/ui/core/Toaster";
+import { useEntityStore } from "@/lib/state/useEntityStore";
+import { RouteNotFoundPage } from "@/pages/common/RouteNotFoundPage";
 import {
   billsConfig,
   expensesConfig,
@@ -27,21 +27,21 @@ import {
 import {
   productsConfig,
 } from "@/lib/entities/catalog";
-import { ContractFormPage } from "@/components/contract-wizard/ContractFormPage";
-import { BillForm } from "@/shared/components/forms/BillForm";
-import { ExpenseForm } from "@/shared/components/forms/ExpenseForm";
-import { InvoiceForm } from "@/shared/components/forms/InvoiceForm";
-import { PaymentForm } from "@/shared/components/forms/PaymentForm";
-import { ReceiptForm } from "@/shared/components/forms/ReceiptForm";
-import { PurchaseOrderForm } from "@/shared/components/forms/PurchaseOrderForm";
-import { GrnForm } from "@/shared/components/forms/GrnForm";
-import { PurchaseReturnForm } from "@/shared/components/forms/PurchaseReturnForm";
-import { ProductWizard } from "@/components/wizards/ProductWizard";
-import { CustomerWizard } from "@/components/wizards/CustomerWizard";
-import { EmployeeWizard } from "@/components/wizards/EmployeeWizard";
-import { InstallmentPlanWizard } from "@/components/wizards/InstallmentPlanWizard";
-import { SupplierWizard } from "@/components/wizards/SupplierWizard";
-import { NewHpCaseWizard } from "@/components/hp-wizard/NewHpCaseWizard";
+import { ContractFormPage } from "@/components/sales/contracts/ContractFormPage";
+import { BillForm } from "@/components/purchases/bills/BillForm";
+import { ExpenseForm } from "@/components/purchases/expenses/ExpenseForm";
+import { InvoiceForm } from "@/components/sales/invoices/InvoiceForm";
+import { PaymentForm } from "@/components/purchases/payments/PaymentForm";
+import { ReceiptForm } from "@/components/sales/payments/ReceiptForm";
+import { PurchaseOrderForm } from "@/components/purchases/orders/PurchaseOrderForm";
+import { GrnForm } from "@/components/purchases/receipts/GrnForm";
+import { PurchaseReturnForm } from "@/components/purchases/returns/PurchaseReturnForm";
+import { ProductWizard } from "@/components/purchases/catalog/ProductWizard";
+import { CustomerWizard } from "@/components/sales/customers/CustomerWizard";
+import { EmployeeWizard } from "@/components/workforce/hr/EmployeeWizard";
+import { InstallmentPlanWizard } from "@/components/sales/installments/InstallmentPlanWizard";
+import { SupplierWizard } from "@/components/purchases/suppliers/SupplierWizard";
+import { NewHpCaseWizard } from "@/components/system/support/NewHpCaseWizard";
 
 function MissingRecordPage({ title, backTo }) {
   const router = useRouter();

@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Backend;
 
-use App\Modules\Contracts\Models\Contract;
-use App\Modules\Customers\Models\Customer;
-use App\Modules\Installments\Models\Installment;
+use App\Modules\Tenant\Contracts\Models\Contract;
+use App\Modules\Tenant\Customers\Models\Customer;
+use App\Modules\Tenant\Installments\Models\Installment;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\Feature\Backend\Concerns\CreatesTenantContext;
@@ -54,3 +54,4 @@ class InstallmentScheduleGenerationTest extends TestCase
         $this->assertSame(5, Installment::query()->where('contract_id', $contract->id)->count());
     }
 }
+

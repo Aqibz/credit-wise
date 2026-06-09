@@ -1,8 +1,13 @@
 {
     "compilerOptions": {
         "baseUrl": ".",
+        "checkJs": false,
+        "jsx": "react-jsx",
+        "moduleResolution": "bundler",
         "paths": {
-            "@/*": ["resources/js/*"],
+            "@/Components/*": ["resources/js/Components/*"],
+            "@/Layouts/*": ["resources/js/Layouts/*"],
+            "@/*": ["resources/js/credit-wise/*"],
             "ziggy-js": ["./vendor/tightenco/ziggy"]
         }
     },

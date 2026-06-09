@@ -3,22 +3,21 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+/*
+|--------------------------------------------------------------------------
+| Website Routes
+|--------------------------------------------------------------------------
+|
+| Public marketing, landing, documentation, and future non-tenant website
+| pages belong in this file. Tenant app routes are loaded from tenant.php,
+| auth routes from auth.php, and landlord routes from super-admin.php.
+|
+*/
+
 Route::get('/', function () {
     return Inertia::render('CreditWiseApp');
 })->name('home');
 
-Route::get('/dashboard', function () {
-    return Inertia::render('CreditWiseApp');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
-Route::middleware('auth')->group(function (): void {
-    Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [\App\Http\Controllers\ProfileController::class, 'destroy'])->name('profile.destroy');
-});
-
 require __DIR__.'/auth.php';
-
-Route::get('/{path}', function () {
-    return Inertia::render('CreditWiseApp');
-})->where('path', '.*');
+require __DIR__.'/super-admin.php';
+require __DIR__.'/tenant.php';

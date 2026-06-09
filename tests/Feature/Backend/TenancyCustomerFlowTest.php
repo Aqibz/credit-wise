@@ -3,7 +3,7 @@
 namespace Tests\Feature\Backend;
 
 use App\Models\User;
-use App\Modules\Customers\Models\Customer;
+use App\Modules\Tenant\Customers\Models\Customer;
 use App\Shared\Authz\Models\Permission;
 use App\Shared\Authz\Models\Role;
 use App\Shared\Authz\Models\TenantMembership;
@@ -69,3 +69,4 @@ class TenancyCustomerFlowTest extends TestCase
             ->assertJsonPath('data.name', 'Ali Raza');
     }
 }
+

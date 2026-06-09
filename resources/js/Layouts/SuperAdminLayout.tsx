@@ -1,1 +1,1 @@
-export { AppShell as SuperAdminLayout } from '../installem/layouts/tenant/AppShell';
+export { AppShell as SuperAdminLayout } from '../credit-wise/layouts/super-admin/AppShell';

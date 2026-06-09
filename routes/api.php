@@ -1,35 +1,46 @@
 <?php
 
-use App\Modules\Accounts\Http\Controllers\AccountController;
-use App\Modules\Accounts\Http\Controllers\JournalEntryController;
-use App\Modules\Accounts\Http\Controllers\PurchaseReceiptLedgerPostingController;
-use App\Modules\Accounts\Http\Controllers\ReceiptLedgerPostingController;
-use App\Modules\Catalog\Http\Controllers\BrandController;
-use App\Modules\Catalog\Http\Controllers\CategoryController;
-use App\Modules\Catalog\Http\Controllers\PricingPlanController;
-use App\Modules\Catalog\Http\Controllers\ProductController;
-use App\Modules\Contracts\Http\Controllers\ContractController;
-use App\Modules\Contracts\Http\Controllers\ContractStatusController;
-use App\Modules\Customers\Http\Controllers\BlacklistEntryController;
-use App\Modules\Customers\Http\Controllers\CustomerController;
-use App\Modules\HR\Http\Controllers\AttendanceRecordController;
-use App\Modules\HR\Http\Controllers\EmployeeController;
-use App\Modules\HR\Http\Controllers\PayrollRunController;
-use App\Modules\Installments\Http\Controllers\ContractInstallmentScheduleController;
-use App\Modules\Installments\Http\Controllers\DueTrackingController;
-use App\Modules\Installments\Http\Controllers\InstallmentController;
-use App\Modules\Inventory\Http\Controllers\InventoryBalanceController;
-use App\Modules\Inventory\Http\Controllers\StockMovementController;
-use App\Modules\Inventory\Http\Controllers\WarehouseController;
-use App\Modules\Purchases\Http\Controllers\PurchaseOrderController;
-use App\Modules\Purchases\Http\Controllers\PurchaseOrderReceiptController;
-use App\Modules\Purchases\Http\Controllers\SupplierController;
-use App\Modules\Receipts\Http\Controllers\ReceiptController;
-use App\Modules\Recovery\Http\Controllers\RecoveryActionController;
-use App\Modules\Recovery\Http\Controllers\RecoveryCaseController;
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+|
+| Mobile apps and external integrations should consume this API surface.
+| Keep tenant-safe business APIs here and keep web Inertia routes out of this
+| file. If the API grows, split v1 internals by domain under routes/api/.
+|
+*/
+
+use App\Modules\Tenant\Accounts\Http\Controllers\AccountController;
+use App\Modules\Tenant\Accounts\Http\Controllers\JournalEntryController;
+use App\Modules\Tenant\Accounts\Http\Controllers\PurchaseReceiptLedgerPostingController;
+use App\Modules\Tenant\Accounts\Http\Controllers\ReceiptLedgerPostingController;
+use App\Modules\Tenant\Catalog\Http\Controllers\BrandController;
+use App\Modules\Tenant\Catalog\Http\Controllers\CategoryController;
+use App\Modules\Tenant\Catalog\Http\Controllers\PricingPlanController;
+use App\Modules\Tenant\Catalog\Http\Controllers\ProductController;
+use App\Modules\Tenant\Contracts\Http\Controllers\ContractController;
+use App\Modules\Tenant\Contracts\Http\Controllers\ContractStatusController;
+use App\Modules\Tenant\Customers\Http\Controllers\BlacklistEntryController;
+use App\Modules\Tenant\Customers\Http\Controllers\CustomerController;
+use App\Modules\Tenant\HR\Http\Controllers\AttendanceRecordController;
+use App\Modules\Tenant\HR\Http\Controllers\EmployeeController;
+use App\Modules\Tenant\HR\Http\Controllers\PayrollRunController;
+use App\Modules\Tenant\Installments\Http\Controllers\ContractInstallmentScheduleController;
+use App\Modules\Tenant\Installments\Http\Controllers\DueTrackingController;
+use App\Modules\Tenant\Installments\Http\Controllers\InstallmentController;
+use App\Modules\Tenant\Inventory\Http\Controllers\InventoryBalanceController;
+use App\Modules\Tenant\Inventory\Http\Controllers\StockMovementController;
+use App\Modules\Tenant\Inventory\Http\Controllers\WarehouseController;
+use App\Modules\Tenant\Purchases\Http\Controllers\PurchaseOrderController;
+use App\Modules\Tenant\Purchases\Http\Controllers\PurchaseOrderReceiptController;
+use App\Modules\Tenant\Purchases\Http\Controllers\SupplierController;
+use App\Modules\Tenant\Receipts\Http\Controllers\ReceiptController;
+use App\Modules\Tenant\Recovery\Http\Controllers\RecoveryActionController;
+use App\Modules\Tenant\Recovery\Http\Controllers\RecoveryCaseController;
 use App\Modules\SuperAdmin\Http\Controllers\TenantController;
-use App\Modules\Support\Http\Controllers\SupportTicketController;
-use App\Modules\Support\Http\Controllers\SupportTicketMessageController;
+use App\Modules\Tenant\Support\Http\Controllers\SupportTicketController;
+use App\Modules\Tenant\Support\Http\Controllers\SupportTicketMessageController;
 use App\Shared\Tenancy\Http\Middleware\IdentifyTenant;
 use Illuminate\Support\Facades\Route;
 
@@ -79,3 +90,4 @@ Route::middleware(['auth:sanctum'])->prefix('v1')->group(function (): void {
         Route::apiResource('payroll-runs', PayrollRunController::class)->only(['index', 'store', 'show'])->parameters(['payroll-runs' => 'payroll_run']);
     });
 });
+

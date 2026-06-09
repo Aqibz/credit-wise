@@ -4,9 +4,13 @@ import '../css/app.css';
 import React from 'react';
 import { createInertiaApp } from '@inertiajs/react';
 import { createRoot } from 'react-dom/client';
-import { GenericErrorPage } from './installem/shared/components/shared/GenericErrorPage';
+import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
+import { GenericErrorPage } from './credit-wise/shared/ui/core/GenericErrorPage';
+import { ToastProvider } from './credit-wise/shared/ui/core/Toaster';
 
 const appName = import.meta.env.VITE_APP_NAME || 'CreditWise';
+const pages = import.meta.glob('./Pages/**/*.{js,jsx,ts,tsx}');
+const rootRegistry = globalThis.__creditWiseReactRoots ??= new WeakMap();
 
 class AppErrorBoundary extends React.Component {
     constructor(props) {
@@ -26,10 +30,11 @@ class AppErrorBoundary extends React.Component {
         if (this.state.error) {
             return (
                 <GenericErrorPage
-                    code="500"
-                    title="CreditWise hit a runtime error"
-                    message="This screen could not finish loading."
-                    detail={String(this.state.error?.message || this.state.error || 'Unexpected frontend error')}
+                    status="500"
+                    title="This screen could not finish loading"
+                    message="CreditWise encountered an unexpected frontend problem."
+                    detail="Refresh the page once. If the issue continues, contact support and include the page address."
+                    path={window.location.pathname}
                 />
             );
         }
@@ -41,18 +46,33 @@ class AppErrorBoundary extends React.Component {
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
     resolve: async (name) => {
-        if (name !== 'CreditWiseApp') {
-            throw new Error(`Unknown page: ${name}`);
+        if (name === 'CreditWiseApp') {
+            return import('./Pages/CreditWiseApp.jsx');
         }
 
-        return import('./Pages/CreditWiseApp.jsx');
+        if (name === 'SuperAdminApp') {
+            return import('./Pages/SuperAdminApp.jsx');
+        }
+
+        return resolvePageComponent(
+            [
+                `./Pages/${name}.jsx`,
+                `./Pages/${name}.tsx`,
+                `./Pages/${name}.js`,
+                `./Pages/${name}.ts`,
+            ],
+            pages,
+        );
     },
     setup({ el, App, props }) {
-        const root = createRoot(el);
+        const root = rootRegistry.get(el) ?? createRoot(el);
+        rootRegistry.set(el, root);
 
         root.render(
             <AppErrorBoundary>
-                <App {...props} />
+                <ToastProvider>
+                    <App {...props} />
+                </ToastProvider>
             </AppErrorBoundary>,
         );
     },

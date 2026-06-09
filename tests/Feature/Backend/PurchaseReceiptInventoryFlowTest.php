@@ -2,13 +2,13 @@
 
 namespace Tests\Feature\Backend;
 
-use App\Modules\Catalog\Models\Brand;
-use App\Modules\Catalog\Models\Category;
-use App\Modules\Catalog\Models\Product;
-use App\Modules\Inventory\Models\InventoryBalance;
-use App\Modules\Inventory\Models\Warehouse;
-use App\Modules\Purchases\Models\PurchaseOrder;
-use App\Modules\Purchases\Models\Supplier;
+use App\Modules\Tenant\Catalog\Models\Brand;
+use App\Modules\Tenant\Catalog\Models\Category;
+use App\Modules\Tenant\Catalog\Models\Product;
+use App\Modules\Tenant\Inventory\Models\InventoryBalance;
+use App\Modules\Tenant\Inventory\Models\Warehouse;
+use App\Modules\Tenant\Purchases\Models\PurchaseOrder;
+use App\Modules\Tenant\Purchases\Models\Supplier;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\Feature\Backend\Concerns\CreatesTenantContext;
@@ -87,3 +87,4 @@ class PurchaseReceiptInventoryFlowTest extends TestCase
         $this->assertSame('received', $purchaseOrder->fresh()->status);
     }
 }
+

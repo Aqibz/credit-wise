@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Backend;
 
-use App\Modules\Contracts\Models\Contract;
-use App\Modules\Customers\Models\Customer;
-use App\Modules\Installments\Models\Installment;
+use App\Modules\Tenant\Contracts\Models\Contract;
+use App\Modules\Tenant\Customers\Models\Customer;
+use App\Modules\Tenant\Installments\Models\Installment;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\Feature\Backend\Concerns\CreatesTenantContext;
@@ -76,6 +76,7 @@ class RecoveryCaseFlowTest extends TestCase
             ]);
 
         $actionResponse->assertCreated()->assertJsonPath('data.outcome', 'resolved');
-        $this->assertSame('resolved', \App\Modules\Recovery\Models\RecoveryCase::query()->findOrFail($caseId)->status);
+        $this->assertSame('resolved', \App\Modules\Tenant\Recovery\Models\RecoveryCase::query()->findOrFail($caseId)->status);
     }
 }
+

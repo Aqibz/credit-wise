@@ -1,0 +1,24 @@
+import type { ReactNode } from "react";
+import { Sidebar } from "./Sidebar";
+
+export function AppShell({ children }: { children?: ReactNode }) {
+  return (
+    <div className="min-h-screen flex bg-background text-foreground">
+      <Sidebar />
+      <div className="flex-1 min-w-0 flex flex-col min-h-screen">
+        <header className="h-16 border-b border-border bg-card/70 backdrop-blur px-4 xl:px-6 flex items-center justify-between">
+          <div>
+            <div className="text-sm font-semibold text-foreground">Super Admin</div>
+            <div className="text-[11px] text-muted-foreground">Landlord control plane</div>
+          </div>
+          <div className="text-xs text-muted-foreground">
+            Tenant provisioning, subscriptions, support access
+          </div>
+        </header>
+        <main className="flex-1 px-4 xl:px-6 py-4 xl:py-6 text-[13px] xl:text-sm">
+          {children}
+        </main>
+      </div>
+    </div>
+  );
+}

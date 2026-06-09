@@ -1,1 +1,1 @@
-export { AppShell as AppLayout } from '../installem/layouts/tenant/AppShell';
+export { AppShell as AppLayout } from '../credit-wise/layouts/tenant/AppShell';
