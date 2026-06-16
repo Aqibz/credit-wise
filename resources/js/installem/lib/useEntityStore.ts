@@ -49,11 +49,12 @@ function write<T extends Entity>(key: string, items: T[]) {
 
 export function useEntityStore<T extends Entity>(key: string, seed: T[]) {
   const [items, setItems] = useState<T[]>(seed);
+  const seedSignature = JSON.stringify(seed);
 
   useEffect(() => {
     setItems(read<T>(key, seed));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key]);
+  }, [key, seedSignature]);
 
   const create = useCallback((data: Omit<T, "id">) => {
     setItems((prev) => {
