@@ -1,5 +1,47 @@
-/* Manrope is loaded from the app shell head so shared styles can consume the
-   same family without introducing a CSS import waterfall. */
+@font-face {
+  font-family: "Manrope";
+  src: url("/fonts/manrope/Manrope-Regular.woff2") format("woff2"),
+       url("/fonts/manrope/Manrope-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Manrope";
+  src: url("/fonts/manrope/Manrope-Medium.woff2") format("woff2"),
+       url("/fonts/manrope/Manrope-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Manrope";
+  src: url("/fonts/manrope/Manrope-SemiBold.woff2") format("woff2"),
+       url("/fonts/manrope/Manrope-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Manrope";
+  src: url("/fonts/manrope/Manrope-Bold.woff2") format("woff2"),
+       url("/fonts/manrope/Manrope-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Manrope";
+  src: url("/fonts/manrope/Manrope-ExtraBold.ttf") format("truetype");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
 @import "tw-animate-css";
 
 html, body {

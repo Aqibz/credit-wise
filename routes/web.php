@@ -14,9 +14,7 @@ use Inertia\Inertia;
 |
 */
 
-Route::get('/', function () {
-    return Inertia::render('CreditWiseApp');
-})->name('home');
+Route::redirect('/', '/login')->name('home');
 
 require __DIR__.'/auth.php';
 require __DIR__.'/super-admin.php';
