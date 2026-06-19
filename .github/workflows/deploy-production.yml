@@ -22,6 +22,7 @@ jobs:
       PROD_HOST: ${{ secrets.PROD_HOST }}
       PROD_PORT: ${{ secrets.PROD_PORT }}
       PROD_USER: ${{ secrets.PROD_USER }}
+      DEPLOY_SHA: ${{ github.sha }}
 
     steps:
       - name: Checkout repository
@@ -79,8 +80,9 @@ jobs:
           ssh -p "${DEPLOY_PORT}" "${PROD_USER}@${PROD_HOST}" <<EOF
           set -e
           cd "${APP_PATH}"
-          git fetch origin main
-          git reset --hard origin/main
+          git fetch --prune origin
+          git rev-parse --verify "${DEPLOY_SHA}" >/dev/null 2>&1 || git fetch origin "${DEPLOY_SHA}"
+          git reset --hard "${DEPLOY_SHA}"
           composer install --no-interaction --no-dev --prefer-dist --optimize-autoloader
           php artisan migrate --force
           php artisan storage:link || true
@@ -103,6 +105,7 @@ jobs:
           set -e
           cd "${APP_PATH}"
           printf '%s\n' "${RELEASE_TAG}" > storage/app/current-release.txt
+          printf '%s\n' "${DEPLOY_SHA}" > storage/app/current-release-sha.txt
           EOF
 
       - name: Create and push release tag
