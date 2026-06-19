@@ -6,7 +6,7 @@ on:
       - main
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: production-deploy
@@ -26,6 +26,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -33,10 +35,23 @@ jobs:
           node-version: 22
           cache: npm
 
-      - name: Compute release version
+      - name: Compute next release version
         run: |
-          APP_VERSION="$(node -p "require('./package.json').version")"
-          RELEASE_TAG="v${APP_VERSION}"
+          git fetch --tags --force
+          BASE_VERSION="$(node -p "require('./package.json').version")"
+          LATEST_TAG="$(git tag -l 'v*' --sort=-version:refname | head -n 1)"
+
+          if [ -n "${LATEST_TAG}" ]; then
+            CURRENT_VERSION="${LATEST_TAG#v}"
+          else
+            CURRENT_VERSION="${BASE_VERSION}"
+          fi
+
+          IFS='.' read -r MAJOR MINOR PATCH <<< "${CURRENT_VERSION}"
+          PATCH="${PATCH:-0}"
+          NEXT_PATCH=$((PATCH + 1))
+          RELEASE_TAG="v${MAJOR}.${MINOR}.${NEXT_PATCH}"
+
           echo "VITE_APP_RELEASE=${RELEASE_TAG}" >> "$GITHUB_ENV"
           echo "RELEASE_TAG=${RELEASE_TAG}" >> "$GITHUB_ENV"
 
@@ -89,3 +104,13 @@ jobs:
           cd "${APP_PATH}"
           printf '%s\n' "${RELEASE_TAG}" > storage/app/current-release.txt
           EOF
+
+      - name: Create and push release tag
+        shell: bash
+        run: |
+          if git rev-parse "${RELEASE_TAG}" >/dev/null 2>&1; then
+            echo "Tag ${RELEASE_TAG} already exists locally."
+          else
+            git tag "${RELEASE_TAG}"
+          fi
+          git push origin "${RELEASE_TAG}"
