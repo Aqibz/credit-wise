@@ -122,8 +122,8 @@ export function EmployeeWizard({
       render: () => (
         <div className="space-y-4">
           <WGrid>
-            <WField label="Mobile" required><WInput value={v.phone} onChange={(e) => set("phone", e.target.value)} placeholder="+92 300 1234567" /></WField>
-            <WField label="Alt Phone"><WInput value={v.altPhone} onChange={(e) => set("altPhone", e.target.value)} /></WField>
+            <WField label="Mobile" required><WInput type="tel" value={v.phone} onChange={(e) => set("phone", e.target.value)} placeholder="300 1234567" /></WField>
+            <WField label="Alt Phone"><WInput type="tel" value={v.altPhone} onChange={(e) => set("altPhone", e.target.value)} /></WField>
             <WField label="Email"><WInput type="email" value={v.email} onChange={(e) => set("email", e.target.value)} placeholder="employee@company.com" /></WField>
             <WField label="City"><WInput value={v.city} onChange={(e) => set("city", e.target.value)} /></WField>
           </WGrid>
@@ -133,7 +133,7 @@ export function EmployeeWizard({
             <WGrid>
               <WField label="Name"><WInput value={v.emergencyName} onChange={(e) => set("emergencyName", e.target.value)} /></WField>
               <WField label="Relation"><WInput value={v.emergencyRelation} onChange={(e) => set("emergencyRelation", e.target.value)} placeholder="Father / Spouse / Brother" /></WField>
-              <WField label="Phone"><WInput value={v.emergencyPhone} onChange={(e) => set("emergencyPhone", e.target.value)} /></WField>
+              <WField label="Phone"><WInput type="tel" value={v.emergencyPhone} onChange={(e) => set("emergencyPhone", e.target.value)} /></WField>
             </WGrid>
           </div>
         </div>
@@ -145,12 +145,12 @@ export function EmployeeWizard({
       render: () => (
         <div className="space-y-5">
           <WGrid>
-            <WField label="Basic Salary (Rs.)" required><WInput type="number" value={v.salary} onChange={(e) => set("salary", Number(e.target.value))} /></WField>
-            <WField label="Fuel Allowance"><WInput type="number" value={v.allowanceFuel} onChange={(e) => set("allowanceFuel", Number(e.target.value))} /></WField>
-            <WField label="Medical Allowance"><WInput type="number" value={v.allowanceMedical} onChange={(e) => set("allowanceMedical", Number(e.target.value))} /></WField>
-            <WField label="Mobile Allowance"><WInput type="number" value={v.allowanceMobile} onChange={(e) => set("allowanceMobile", Number(e.target.value))} /></WField>
-            <WField label="EOBI Deduction"><WInput type="number" value={v.deductionEobi} onChange={(e) => set("deductionEobi", Number(e.target.value))} /></WField>
-            <WField label="Tax Deduction"><WInput type="number" value={v.deductionTax} onChange={(e) => set("deductionTax", Number(e.target.value))} /></WField>
+            <WField label="Basic Salary (Rs.)" required><WInput type="number" moneyField value={v.salary} onChange={(e) => set("salary", Number(e.target.value))} /></WField>
+            <WField label="Fuel Allowance"><WInput type="number" moneyField value={v.allowanceFuel} onChange={(e) => set("allowanceFuel", Number(e.target.value))} /></WField>
+            <WField label="Medical Allowance"><WInput type="number" moneyField value={v.allowanceMedical} onChange={(e) => set("allowanceMedical", Number(e.target.value))} /></WField>
+            <WField label="Mobile Allowance"><WInput type="number" moneyField value={v.allowanceMobile} onChange={(e) => set("allowanceMobile", Number(e.target.value))} /></WField>
+            <WField label="EOBI Deduction"><WInput type="number" moneyField value={v.deductionEobi} onChange={(e) => set("deductionEobi", Number(e.target.value))} /></WField>
+            <WField label="Tax Deduction"><WInput type="number" moneyField value={v.deductionTax} onChange={(e) => set("deductionTax", Number(e.target.value))} /></WField>
           </WGrid>
           <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
             <div className="text-xs font-bold uppercase tracking-wider text-primary mb-3">Salary Disbursement</div>

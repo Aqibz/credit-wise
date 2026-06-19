@@ -82,7 +82,7 @@ export function VendorDetailsSheet({ open, vendorName, onClose }: Props) {
                 <div className="text-xs font-medium text-muted-foreground">Vendor</div>
                 <div className="flex items-center gap-1.5 min-w-0">
                   <h2 className="text-xl font-bold text-foreground truncate">
-                    {vendorName || "â€”"}
+                    {vendorName || "-"}
                   </h2>
                   {vendor && (
                     <Link
@@ -98,7 +98,7 @@ export function VendorDetailsSheet({ open, vendorName, onClose }: Props) {
                 </div>
                 {vendor?.code && (
                   <div className="text-xs text-muted-foreground font-medium mt-0.5">
-                    {vendor.code} Â· {vendor.category || "â€”"}
+                    {vendor.code} - {vendor.category || "-"}
                   </div>
                 )}
               </div>
@@ -174,7 +174,7 @@ export function VendorDetailsSheet({ open, vendorName, onClose }: Props) {
                           : "bg-muted text-muted-foreground"
                       }`}
                     >
-                      {vendor.status || "â€”"}
+                      {vendor.status || "-"}
                     </span>
                   }
                 />
@@ -188,7 +188,7 @@ export function VendorDetailsSheet({ open, vendorName, onClose }: Props) {
                 <Field
                   icon={<CalendarClock />}
                   label="Last Bill"
-                  value={vendor.lastBillDate || "â€”"}
+                  value={vendor.lastBillDate || "-"}
                 />
               </Section>
 
@@ -208,7 +208,7 @@ export function VendorDetailsSheet({ open, vendorName, onClose }: Props) {
                               {vendor.country && <span className="text-muted-foreground">, {vendor.country}</span>}
                             </>
                           ) : (
-                            <span className="text-muted-foreground">â€”</span>
+                            <span className="text-muted-foreground"> - </span>
                           )}
                         </div>
                       </div>
@@ -284,7 +284,7 @@ function Field({
         {icon && <span className="[&>svg]:h-3.5 [&>svg]:w-3.5">{icon}</span>}
         {label}
       </div>
-      <div className="text-foreground font-medium break-words">{value || <span className="text-muted-foreground">â€”</span>}</div>
+      <div className="text-foreground font-medium break-words">{value || <span className="text-muted-foreground"> - </span>}</div>
     </div>
   );
 }

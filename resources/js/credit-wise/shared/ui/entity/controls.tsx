@@ -1,6 +1,12 @@
 import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, MoreVertical } from "lucide-react";
+import {
+  dropdownMenuItemActiveClass,
+  dropdownMenuItemClass,
+  dropdownMenuItemIdleClass,
+  dropdownMenuSurfaceClass,
+} from "@/shared/ui/primitives/dropdown-theme";
 
 export function SafeSelect({
   value,
@@ -51,7 +57,7 @@ export function SafeSelect({
         <ChevronDown className="h-4 w-4 text-muted-foreground" />
       </button>
       {open && (
-        <div className="absolute left-0 top-[calc(100%+4px)] z-[100] min-w-full rounded-lg border border-border bg-popover shadow-lg overflow-hidden p-1">
+        <div className={`absolute left-0 top-[calc(100%+6px)] z-[100] min-w-full ${dropdownMenuSurfaceClass}`}>
           {options.map((option) => (
             <button
               key={option.value}
@@ -60,8 +66,8 @@ export function SafeSelect({
                 onChange(option.value);
                 setOpen(false);
               }}
-              className={`w-full text-left px-3 py-1.5 rounded-md text-sm font-medium hover:bg-muted whitespace-nowrap ${
-                option.value === value ? "bg-primary/10 text-primary" : "text-foreground"
+              className={`${dropdownMenuItemClass} whitespace-nowrap ${
+                option.value === value ? dropdownMenuItemActiveClass : dropdownMenuItemIdleClass
               }`}
             >
               {option.label}
@@ -73,9 +79,14 @@ export function SafeSelect({
   );
 }
 
-export function RowActionMenu({ children }: { children: ReactNode }) {
+export function RowActionMenu({
+  children,
+}: {
+  children: ReactNode | ((ctx: { close: () => void }) => ReactNode);
+}) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
+  const close = () => setOpen(false);
 
   useEffect(() => {
     if (!open) return;
@@ -119,10 +130,9 @@ export function RowActionMenu({ children }: { children: ReactNode }) {
       </button>
       {open ? (
         <div
-          className="absolute right-0 top-full z-50 mt-1 w-48 rounded-lg border border-border bg-popover text-popover-foreground shadow-lg overflow-hidden"
-          onClick={() => setOpen(false)}
+          className={`absolute right-0 top-full z-50 mt-1 w-56 ${dropdownMenuSurfaceClass}`}
         >
-          {children}
+          {typeof children === "function" ? children({ close }) : children}
         </div>
       ) : null}
     </div>

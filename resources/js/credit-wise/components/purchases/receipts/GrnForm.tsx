@@ -534,7 +534,7 @@ function BaseInput({ className = "", ...props }: React.InputHTMLAttributes<HTMLI
   return (
     <input
       {...props}
-      className={`h-9 px-2.5 rounded-md border border-border bg-card text-sm w-full focus:outline-none focus:ring-1 focus:ring-primary ${className}`}
+      className={`h-9 px-3 rounded-md border border-border bg-card text-sm w-full focus:outline-none focus:ring-1 focus:ring-primary ${className}`}
     />
   );
 }
@@ -553,7 +553,7 @@ function NativeSelect({
       <select
         value={value}
         onChange={onChange}
-        className="appearance-none w-full h-9 pl-2.5 pr-8 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+        className="appearance-none w-full h-9 pl-3 pr-8 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary"
       >
         {placeholder && <option value="">{placeholder}</option>}
         {options.map((o) => <option key={o} value={o}>{o}</option>)}

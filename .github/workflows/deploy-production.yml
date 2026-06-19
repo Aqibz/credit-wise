@@ -1,0 +1,91 @@
+name: Deploy Production
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+
+    env:
+      APP_PATH: ${{ secrets.PROD_APP_PATH }}
+      PROD_HOST: ${{ secrets.PROD_HOST }}
+      PROD_PORT: ${{ secrets.PROD_PORT }}
+      PROD_USER: ${{ secrets.PROD_USER }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Compute release version
+        run: |
+          APP_VERSION="$(node -p "require('./package.json').version")"
+          RELEASE_TAG="v${APP_VERSION}"
+          echo "VITE_APP_RELEASE=${RELEASE_TAG}" >> "$GITHUB_ENV"
+          echo "RELEASE_TAG=${RELEASE_TAG}" >> "$GITHUB_ENV"
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build frontend assets
+        run: npm run build
+
+      - name: Prepare SSH
+        shell: bash
+        run: |
+          DEPLOY_PORT="${PROD_PORT:-22}"
+          echo "DEPLOY_PORT=${DEPLOY_PORT}" >> "$GITHUB_ENV"
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "${{ secrets.PROD_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "${{ secrets.PROD_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Deploy application code on server
+        shell: bash
+        run: |
+          ssh -p "${DEPLOY_PORT}" "${PROD_USER}@${PROD_HOST}" <<EOF
+          set -e
+          cd "${APP_PATH}"
+          git fetch origin main
+          git reset --hard origin/main
+          composer install --no-interaction --no-dev --prefer-dist --optimize-autoloader
+          php artisan migrate --force
+          php artisan storage:link || true
+          php artisan optimize:clear
+          php artisan config:cache
+          php artisan view:cache
+          php artisan event:cache
+          php artisan queue:restart || true
+          EOF
+
+      - name: Upload built assets
+        shell: bash
+        run: |
+          rsync -az --delete -e "ssh -p ${DEPLOY_PORT}" public/build/ "${PROD_USER}@${PROD_HOST}:${APP_PATH}/public/build/"
+
+      - name: Publish release marker on server
+        shell: bash
+        run: |
+          ssh -p "${DEPLOY_PORT}" "${PROD_USER}@${PROD_HOST}" <<EOF
+          set -e
+          cd "${APP_PATH}"
+          printf '%s\n' "${RELEASE_TAG}" > storage/app/current-release.txt
+          EOF

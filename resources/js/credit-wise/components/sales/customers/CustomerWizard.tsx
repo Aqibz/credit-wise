@@ -98,9 +98,9 @@ export function CustomerWizard({
       validate: () => !v.phone ? "Mobile number is required" : null,
       render: () => (
         <WGrid>
-          <WField label="Mobile" required><WInput value={v.phone} onChange={(e) => set("phone", e.target.value)} placeholder="+92 300 1234567" /></WField>
-          <WField label="WhatsApp"><WInput value={v.whatsapp} onChange={(e) => set("whatsapp", e.target.value)} placeholder="+92 300 1234567" /></WField>
-          <WField label="Alt Phone"><WInput value={v.altPhone} onChange={(e) => set("altPhone", e.target.value)} /></WField>
+          <WField label="Mobile" required><WInput type="tel" value={v.phone} onChange={(e) => set("phone", e.target.value)} placeholder="300 1234567" /></WField>
+          <WField label="WhatsApp"><WInput type="tel" value={v.whatsapp} onChange={(e) => set("whatsapp", e.target.value)} placeholder="300 1234567" /></WField>
+          <WField label="Alt Phone"><WInput type="tel" value={v.altPhone} onChange={(e) => set("altPhone", e.target.value)} /></WField>
           <WField label="Email"><WInput type="email" value={v.email} onChange={(e) => set("email", e.target.value)} placeholder="customer@example.com" /></WField>
         </WGrid>
       ),
@@ -130,8 +130,8 @@ export function CustomerWizard({
           <WField label="Employer / Business"><WInput value={v.employer} onChange={(e) => set("employer", e.target.value)} placeholder="Company / Shop name" /></WField>
           <WField label="Designation"><WInput value={v.designation} onChange={(e) => set("designation", e.target.value)} /></WField>
           <WField label="Years of Experience"><WInput type="number" value={v.yearsExperience} onChange={(e) => set("yearsExperience", Number(e.target.value))} /></WField>
-          <WField label="Monthly Income (Rs.)"><WInput type="number" value={v.income} onChange={(e) => set("income", Number(e.target.value))} /></WField>
-          <WField label="Other Income (Rs.)"><WInput type="number" value={v.otherIncome} onChange={(e) => set("otherIncome", Number(e.target.value))} /></WField>
+          <WField label="Monthly Income (Rs.)"><WInput type="number" moneyField value={v.income} onChange={(e) => set("income", Number(e.target.value))} /></WField>
+          <WField label="Other Income (Rs.)"><WInput type="number" moneyField value={v.otherIncome} onChange={(e) => set("otherIncome", Number(e.target.value))} /></WField>
         </WGrid>
       ),
     },

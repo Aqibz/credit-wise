@@ -11,9 +11,6 @@ const ContractsIndexPage = lazyNamed(() => import("@/pages/sales/contracts/Contr
 const ContractsFunnelView = lazyNamed(() => import("@/pages/sales/contracts/ContractsFunnelView"), "ContractsFunnelView");
 const DueInstallmentsView = lazyNamed(() => import("@/pages/sales/payments/DueInstallmentsView"), "DueInstallmentsView");
 const AllCustomersPage = lazyNamed(() => import("@/pages/sales/customers/CustomerRouteViews"), "AllCustomersPage");
-const ActiveCustomersPage = lazyNamed(() => import("@/pages/sales/customers/CustomerRouteViews"), "ActiveCustomersPage");
-const GuarantorsPage = lazyNamed(() => import("@/pages/sales/customers/CustomerRouteViews"), "GuarantorsPage");
-const BlacklistPage = lazyNamed(() => import("@/pages/sales/customers/CustomerRouteViews"), "BlacklistPage");
 const MasterSettingsPage = lazyNamed(() => import("@/pages/system/settings/MasterSettingsPage"), "MasterSettingsPage");
 const IntegrationsPage = lazyNamed(() => import("@/pages/system/settings/IntegrationsPage"), "IntegrationsPage");
 const BranchesPage = lazyNamed(() => import("@/pages/system/settings/BranchesPage"), "BranchesPage");
@@ -30,6 +27,7 @@ const TimeOffTabs = lazyNamed(() => import("@/components/hr/TimeOffTabs"), "Time
 const CompensationTabs = lazyNamed(() => import("@/components/hr/CompensationTabs"), "CompensationTabs");
 const OperationsTabs = lazyNamed(() => import("@/components/hr/OperationsTabs"), "OperationsTabs");
 const CustomerProfilePage = lazyNamed(() => import("@/pages/sales/customers/CustomerProfilePage"), "CustomerProfilePage");
+const ContractProfilePage = lazyNamed(() => import("@/pages/sales/contracts/ContractProfilePage"), "ContractProfilePage");
 const EmployeeProfilePage = lazyNamed(() => import("@/pages/workforce/hr/EmployeeProfilePage"), "EmployeeProfilePage");
 const SupplierProfilePage = lazyNamed(() => import("@/pages/purchases/suppliers/SupplierProfilePage"), "SupplierProfilePage");
 const StockValueDrilldownPage = lazyNamed(() => import("@/pages/purchases/inventory/StockValueDrilldownPage"), "StockValueDrilldownPage");
@@ -41,6 +39,7 @@ const AttendanceDrilldownPage = lazyNamed(() => import("@/pages/workforce/hr/Att
 const LeavesDrilldownPage = lazyNamed(() => import("@/pages/workforce/hr/LeavesDrilldownPage"), "LeavesDrilldownPage");
 const DeviceManagementPage = lazyNamed(() => import("@/pages/system/platforms/DeviceManagementPage"), "DeviceManagementPage");
 const GalleryPage = lazyNamed(() => import("@/pages/purchases/catalog/GalleryPage"), "GalleryPage");
+const LeadsPage = lazyNamed(() => import("@/pages/sales/leads/LeadEntityPages"), "LeadsPage");
 const BrandsPage = lazyNamed(() => import("@/pages/purchases/catalog/CatalogEntityPages"), "BrandsPage");
 const CategoriesPage = lazyNamed(() => import("@/pages/purchases/catalog/CatalogEntityPages"), "CategoriesPage");
 const SubCategoriesPage = lazyNamed(() => import("@/pages/purchases/catalog/CatalogEntityPages"), "SubCategoriesPage");
@@ -78,6 +77,7 @@ const CashSalesPage = lazyNamed(() => import("@/pages/sales/invoices/SalesEntity
 const SalesTargetsPage = lazyNamed(() => import("@/pages/sales/invoices/SalesEntityPages"), "SalesTargetsPage");
 const SalesReportsPage = lazyNamed(() => import("@/pages/sales/invoices/SalesEntityPages"), "SalesReportsPage");
 const SalesInvoicesPage = lazyNamed(() => import("@/pages/sales/invoices/SalesEntityPages"), "SalesInvoicesPage");
+const DeliveriesPage = lazyNamed(() => import("@/pages/sales/invoices/SalesEntityPages"), "DeliveriesPage");
 const SalesReceiptsPage = lazyNamed(() => import("@/pages/sales/invoices/SalesEntityPages"), "SalesReceiptsPage");
 const SalesReturnsPage = lazyNamed(() => import("@/pages/sales/invoices/SalesEntityPages"), "SalesReturnsPage");
 const PaymentsReceivedPage = lazyNamed(() => import("@/pages/sales/invoices/SalesEntityPages"), "PaymentsReceivedPage");
@@ -151,9 +151,11 @@ const ENTITY_PAGE_ROUTES = {
   "/sales/reports": SalesReportsPage,
   "/sales/gate-pass": GatePassPage,
   "/sales/invoices": SalesInvoicesPage,
+  "/logistics/deliveries": DeliveriesPage,
   "/sales/receipts": SalesReceiptsPage,
   "/sales/bike-registration": BikeRegistrationPage,
   "/sales/returns": SalesReturnsPage,
+  "/leads": LeadsPage,
   "/payments-received": PaymentsReceivedPage,
   "/installments": InstallmentsPage,
   "/installments/today": InstallmentsTodayPage,
@@ -189,37 +191,37 @@ function renderContractsRoute(pathname) {
 
   const routeMap = {
     "/contracts/under-process": {
-      title: "Contracts Â· Under Process",
+      title: "Contracts - Under Process",
       description: "Contracts currently in process.",
       viewKey: "qcrm.contracts.under-process",
       statuses: ["Under Process"],
     },
     "/contracts/under-verification": {
-      title: "Contracts Â· Under Verification",
+      title: "Contracts - Under Verification",
       description: "Contracts waiting for verification.",
       viewKey: "qcrm.contracts.under-verification",
       statuses: ["Under Verification"],
     },
     "/contracts/under-approval": {
-      title: "Contracts Â· Under Approval",
+      title: "Contracts - Under Approval",
       description: "Contracts waiting for approval.",
       viewKey: "qcrm.contracts.under-approval",
       statuses: ["Under Approval"],
     },
     "/contracts/approved": {
-      title: "Contracts Â· Approved",
+      title: "Contracts - Approved",
       description: "Approved contracts.",
       viewKey: "qcrm.contracts.approved",
       statuses: ["Approved"],
     },
     "/contracts/rejected": {
-      title: "Contracts Â· Rejected",
+      title: "Contracts - Rejected",
       description: "Rejected contracts.",
       viewKey: "qcrm.contracts.rejected",
       statuses: ["Rejected"],
     },
     "/contracts/closed": {
-      title: "Contracts Â· Closed",
+      title: "Contracts - Closed",
       description: "Closed contracts.",
       viewKey: "qcrm.contracts.closed",
       statuses: ["Closed"],
@@ -234,22 +236,22 @@ function renderContractsRoute(pathname) {
 function renderPaymentsRoute(pathname) {
   const routeMap = {
     "/payments/due-today": {
-      title: "Payments Â· Due Today",
+      title: "Payments - Due Today",
       description: "Installments due today.",
       windowDays: 0,
     },
     "/payments/due-3-days": {
-      title: "Payments Â· Due In 3 Days",
+      title: "Payments - Due In 3 Days",
       description: "Installments due within the next 3 days.",
       windowDays: 3,
     },
     "/payments/due-7-days": {
-      title: "Payments Â· Due In 7 Days",
+      title: "Payments - Due In 7 Days",
       description: "Installments due within the next 7 days.",
       windowDays: 7,
     },
     "/payments/due-closing": {
-      title: "Payments Â· Due Till Closing",
+      title: "Payments - Due Till Closing",
       description: "All unpaid installments due till closing.",
       windowDays: null,
     },
@@ -263,18 +265,6 @@ function renderPaymentsRoute(pathname) {
 function renderCustomerRoute(pathname) {
   if (pathname === "/customers") {
     return <LazyPage component={AllCustomersPage} />;
-  }
-
-  if (pathname === "/customers/active") {
-    return <LazyPage component={ActiveCustomersPage} />;
-  }
-
-  if (pathname === "/customers/guarantors") {
-    return <LazyPage component={GuarantorsPage} />;
-  }
-
-  if (pathname === "/customers/blacklist") {
-    return <LazyPage component={BlacklistPage} />;
   }
 
   return null;
@@ -325,6 +315,11 @@ function renderHrTabbedRoute(pathname) {
 }
 
 function renderProfileRoute(pathname) {
+  const contractMatch = pathname.match(/^\/contracts\/([^/]+)\/?$/);
+  if (contractMatch) {
+    return <LazyPage component={ContractProfilePage} contractId={contractMatch[1]} />;
+  }
+
   const customerMatch = pathname.match(/^\/customers\/([^/]+)\/?$/);
   if (customerMatch) {
     return <LazyPage component={CustomerProfilePage} customerId={customerMatch[1]} />;
@@ -396,7 +391,7 @@ export default function CreditWiseApp() {
     }
   }
 
-  if (pathname === "/customers" || pathname === "/customers/active" || pathname === "/customers/guarantors" || pathname === "/customers/blacklist") {
+  if (pathname === "/customers") {
     return renderCustomerRoute(pathname);
   }
 

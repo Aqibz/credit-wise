@@ -157,7 +157,7 @@ export function DueInstallmentsView({
                 onChange={(e) => { setSearch(e.target.value); setPage(1); }}
                 onBlur={() => { if (!search) setSearchOpen(false); }}
                 onKeyDown={(e) => { if (e.key === "Escape") { setSearch(""); setSearchOpen(false); } }}
-                placeholder="Search contract, customerâ€¦"
+                placeholder="Search contract, customer..."
                 className="w-full h-10 pl-9 pr-9 rounded-lg border border-border bg-card text-sm focus:outline-none focus:ring-2 focus:ring-ring/30"
               />
               {search && (
@@ -271,7 +271,7 @@ export function DueInstallmentsView({
         {filtered.length > 0 && (
           <div className="flex items-center justify-between gap-3 px-4 py-3 border-t border-border bg-muted/20">
             <div className="text-xs text-muted-foreground">
-              Showing {(safePage - 1) * perPage + 1}â€“{Math.min(safePage * perPage, filtered.length)} of {filtered.length}
+              Showing {(safePage - 1) * perPage + 1}-{Math.min(safePage * perPage, filtered.length)} of {filtered.length}
             </div>
             <div className="flex items-center gap-1">
               <button

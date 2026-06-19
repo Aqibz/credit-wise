@@ -3,12 +3,15 @@ import {
   Plus, Search, Building2, MapPin, Phone, Mail, User, Clock, Eye, Pencil, Trash2,
   Power, Package, X, Save, ChevronRight, Calendar, Users, Target,
 } from "lucide-react";
+import { AppShell } from "@/components/layout/AppShell";
 import { PageHeader, StatCard, Badge, ui } from "@/components/ui-kit";
 import { useEntityStore } from "@/lib/state/useEntityStore";
 import { useToast } from "@/components/Toaster";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { KpiIcons, KpiIcon } from "@/components/kpi-icons";
 import { SettingsTabs } from "@/pages/system/settings/SettingsTabs";
+import { CountryCodePhoneInput } from "@/shared/ui/primitives/country-code-phone-input";
+import { CurrencyAmountInput } from "@/shared/ui/primitives/currency-amount-input";
 
 type Day = "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";
 type Branch = {
@@ -79,32 +82,34 @@ export function BranchesPage() {
   }
 
   return (
-    <>
-      <PageHeader
-        title="Branches"
-        description="Manage every shop, warehouse and head office - profile, timings, manager and item availability."
-        actions={<button onClick={() => setAdding(true)} className="h-10 px-4 inline-flex items-center gap-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 shadow-sm shadow-primary/30"><Plus className="h-4 w-4" /> Add Branch</button>}
-      />
-      <SettingsTabs initial="branches" />
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
-        <StatCard label="Total Branches" value={items.length} icon={<KpiIcons.branch />} tone="primary" />
-        <StatCard label="Currently Open" value={items.filter((b) => b.open && b.status === "Active").length} icon={<KpiIcon icon={Power} />} tone="success" />
-        <StatCard label="Closed Today" value={items.filter((b) => !b.open).length} icon={<KpiIcons.clock />} tone="warning" />
-        <StatCard label="Target Achievement" value={(() => { const t = items.reduce((s, b) => s + b.monthlyTarget, 0); const a = items.reduce((s, b) => s + b.achieved, 0); return t ? `${Math.round((a / t) * 100)}%` : "-"; })()} hint={`${daysLeftInMonth()} days left`} icon={<KpiIcon icon={Target} />} tone="primary" />
-      </div>
-      <div className="flex items-center gap-3 mb-4">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search branches..." className="w-full h-10 pl-9 pr-3 rounded-lg border border-border bg-card text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+    <AppShell>
+      <div className="space-y-5">
+        <PageHeader
+          title="Branches"
+          description="Manage every shop, warehouse and head office - profile, timings, manager and item availability."
+          actions={<button onClick={() => setAdding(true)} className="h-10 px-4 inline-flex items-center gap-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 shadow-sm shadow-primary/30"><Plus className="h-4 w-4" /> Add Branch</button>}
+        />
+        <SettingsTabs initial="branches" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+          <StatCard label="Total Branches" value={items.length} icon={<KpiIcons.branch />} tone="primary" />
+          <StatCard label="Currently Open" value={items.filter((b) => b.open && b.status === "Active").length} icon={<KpiIcon icon={Power} />} tone="success" />
+          <StatCard label="Closed Today" value={items.filter((b) => !b.open).length} icon={<KpiIcons.clock />} tone="warning" />
+          <StatCard label="Target Achievement" value={(() => { const t = items.reduce((s, b) => s + b.monthlyTarget, 0); const a = items.reduce((s, b) => s + b.achieved, 0); return t ? `${Math.round((a / t) * 100)}%` : "-"; })()} hint={`${daysLeftInMonth()} days left`} icon={<KpiIcon icon={Target} />} tone="primary" />
         </div>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search branches..." className="w-full h-10 pl-9 pr-3 rounded-lg border border-border bg-card text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {filtered.map((b) => <BranchCard key={b.id} branch={b} onView={() => setView(b)} onEdit={() => setEditing(b)} onToggle={() => toggleOpen(b)} onDelete={() => setConfirmDel(b)} />)}
+        </div>
+        {view && <BranchProfileDrawer branch={view} onClose={() => setView(null)} onEdit={() => { setEditing(view); setView(null); }} />}
+        {(adding || editing) && <BranchFormModal initial={editing ?? undefined} onClose={() => { setEditing(null); setAdding(false); }} onSave={save} />}
+        <ConfirmDialog open={!!confirmDel} title="Delete branch?" description={<>You're about to permanently delete <span className="font-semibold text-foreground">{confirmDel?.name}</span>. All linked data will remain but this branch will no longer be selectable.</>} confirmLabel="Yes, delete branch" onConfirm={doDelete} onCancel={() => setConfirmDel(null)} />
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {filtered.map((b) => <BranchCard key={b.id} branch={b} onView={() => setView(b)} onEdit={() => setEditing(b)} onToggle={() => toggleOpen(b)} onDelete={() => setConfirmDel(b)} />)}
-      </div>
-      {view && <BranchProfileDrawer branch={view} onClose={() => setView(null)} onEdit={() => { setEditing(view); setView(null); }} />}
-      {(adding || editing) && <BranchFormModal initial={editing ?? undefined} onClose={() => { setEditing(null); setAdding(false); }} onSave={save} />}
-      <ConfirmDialog open={!!confirmDel} title="Delete branch?" description={<>You're about to permanently delete <span className="font-semibold text-foreground">{confirmDel?.name}</span>. All linked data will remain but this branch will no longer be selectable.</>} confirmLabel="Yes, delete branch" onConfirm={doDelete} onCancel={() => setConfirmDel(null)} />
-    </>
+    </AppShell>
   );
 }
 
@@ -206,9 +211,9 @@ function BranchFormModal({ initial, onClose, onSave }: { initial?: Branch; onClo
         <div className="px-6 py-5 bg-gradient-to-r from-primary to-primary text-primary-foreground flex items-center justify-between"><div className="flex items-center gap-3"><div className="h-11 w-11 rounded-xl bg-white/15 grid place-items-center"><Building2 className="h-5 w-5" /></div><div><h2 className="font-semibold text-lg leading-tight">{initial ? `Edit ${initial.name}` : "Add New Branch"}</h2><p className="text-[12px] opacity-90">Profile, manager, timings and contact</p></div></div><button type="button" onClick={onClose} className="h-9 w-9 grid place-items-center rounded-lg bg-white/15 hover:bg-white/25"><X className="h-4 w-4" /></button></div>
         <div className="flex-1 overflow-y-auto p-6 space-y-6 no-scrollbar">
           <FormSection title="Basics"><Field label="Branch Name" required><input className={inputCls} value={b.name} onChange={(e) => set("name", e.target.value)} required /></Field><Field label="Branch Code" required><input className={inputCls} value={b.code} onChange={(e) => set("code", e.target.value)} required /></Field><Field label="Type"><select className={inputCls} value={b.type} onChange={(e) => set("type", e.target.value as any)}>{["Shop", "Warehouse", "Head Office", "Service Center"].map((o) => <option key={o}>{o}</option>)}</select></Field><Field label="Status"><select className={inputCls} value={b.status} onChange={(e) => set("status", e.target.value as any)}>{["Active", "Inactive"].map((o) => <option key={o}>{o}</option>)}</select></Field></FormSection>
-          <FormSection title="Manager"><Field label="Manager Name"><input className={inputCls} value={b.manager} onChange={(e) => set("manager", e.target.value)} /></Field><Field label="Manager Phone"><input className={inputCls} value={b.managerPhone} onChange={(e) => set("managerPhone", e.target.value)} /></Field><Field label="Manager Email"><input className={inputCls} value={b.managerEmail} onChange={(e) => set("managerEmail", e.target.value)} /></Field><Field label="Staff Count"><input type="number" className={inputCls} value={b.staff} onChange={(e) => set("staff", Number(e.target.value))} /></Field></FormSection>
-          <FormSection title="Contact & Address"><Field label="Branch Phone"><input className={inputCls} value={b.phone} onChange={(e) => set("phone", e.target.value)} /></Field><Field label="City"><input className={inputCls} value={b.city} onChange={(e) => set("city", e.target.value)} /></Field><Field label="Province"><input className={inputCls} value={b.province} onChange={(e) => set("province", e.target.value)} /></Field><Field label="Address" full><textarea rows={2} className={`${inputCls} py-2 h-auto resize-none`} value={b.address} onChange={(e) => set("address", e.target.value)} /></Field></FormSection>
-          <FormSection title="Sales Target (merged from Add Target)"><Field label="Period"><input className={inputCls} value={b.targetPeriod} onChange={(e) => set("targetPeriod", e.target.value)} placeholder="May 2026" /></Field><Field label="Monthly Target (Rs.)"><input type="number" className={inputCls} value={b.monthlyTarget} onChange={(e) => set("monthlyTarget", Number(e.target.value))} /></Field><Field label="Achieved So Far (Rs.)"><input type="number" className={inputCls} value={b.achieved} onChange={(e) => set("achieved", Number(e.target.value))} /></Field><Field label="Live Progress"><div className="rounded-lg border border-border bg-muted/30 p-3">{b.monthlyTarget > 0 ? <><div className="flex items-baseline justify-between text-[12px] mb-1.5"><span className="font-bold text-foreground tabular-nums">{Math.round((b.achieved / Math.max(1, b.monthlyTarget)) * 100)}%</span><span className="text-muted-foreground font-semibold">{fmtMoney(Math.max(0, b.monthlyTarget - b.achieved))} left</span></div><div className="h-2 rounded-full bg-muted overflow-hidden"><div className="h-full bg-gradient-to-r from-primary to-primary transition-all" style={{ width: `${Math.min(100, Math.round((b.achieved / Math.max(1, b.monthlyTarget)) * 100))}%` }} /></div></> : <span className="text-[12px] text-muted-foreground font-medium">Set a target above to see live progress.</span>}</div></Field></FormSection>
+          <FormSection title="Manager"><Field label="Manager Name"><input className={inputCls} value={b.manager} onChange={(e) => set("manager", e.target.value)} /></Field><Field label="Manager Phone"><CountryCodePhoneInput value={b.managerPhone} onChange={(value) => set("managerPhone", value)} /></Field><Field label="Manager Email"><input className={inputCls} value={b.managerEmail} onChange={(e) => set("managerEmail", e.target.value)} /></Field><Field label="Staff Count"><input type="number" className={inputCls} value={b.staff} onChange={(e) => set("staff", Number(e.target.value))} /></Field></FormSection>
+          <FormSection title="Contact & Address"><Field label="Branch Phone"><CountryCodePhoneInput value={b.phone} onChange={(value) => set("phone", value)} /></Field><Field label="City"><input className={inputCls} value={b.city} onChange={(e) => set("city", e.target.value)} /></Field><Field label="Province"><input className={inputCls} value={b.province} onChange={(e) => set("province", e.target.value)} /></Field><Field label="Address" full><textarea rows={2} className={`${inputCls} py-2 h-auto resize-none`} value={b.address} onChange={(e) => set("address", e.target.value)} /></Field></FormSection>
+          <FormSection title="Sales Target (merged from Add Target)"><Field label="Period"><input className={inputCls} value={b.targetPeriod} onChange={(e) => set("targetPeriod", e.target.value)} placeholder="May 2026" /></Field><Field label="Monthly Target (Rs.)"><CurrencyAmountInput value={b.monthlyTarget} onChange={(value) => set("monthlyTarget", Number(value || 0))} /></Field><Field label="Achieved So Far (Rs.)"><CurrencyAmountInput value={b.achieved} onChange={(value) => set("achieved", Number(value || 0))} /></Field><Field label="Live Progress"><div className="rounded-lg border border-border bg-muted/30 p-3">{b.monthlyTarget > 0 ? <><div className="flex items-baseline justify-between text-[12px] mb-1.5"><span className="font-bold text-foreground tabular-nums">{Math.round((b.achieved / Math.max(1, b.monthlyTarget)) * 100)}%</span><span className="text-muted-foreground font-semibold">{fmtMoney(Math.max(0, b.monthlyTarget - b.achieved))} left</span></div><div className="h-2 rounded-full bg-muted overflow-hidden"><div className="h-full bg-gradient-to-r from-primary to-primary transition-all" style={{ width: `${Math.min(100, Math.round((b.achieved / Math.max(1, b.monthlyTarget)) * 100))}%` }} /></div></> : <span className="text-[12px] text-muted-foreground font-medium">Set a target above to see live progress.</span>}</div></Field></FormSection>
           <FormSection title="Timings"><Field label="Open Time"><input type="time" className={inputCls} value={b.openTime} onChange={(e) => set("openTime", e.target.value)} /></Field><Field label="Close Time"><input type="time" className={inputCls} value={b.closeTime} onChange={(e) => set("closeTime", e.target.value)} /></Field><Field label="Open On" full><div className="flex flex-wrap gap-1.5">{DAYS.map((d) => <button key={d} type="button" onClick={() => toggleDay(d)} className={`h-9 w-14 rounded-md text-[11px] font-bold ${b.daysOpen.includes(d) ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>{d}</button>)}</div></Field><Field label="Branch is Open Now" full><button type="button" onClick={() => set("open", !b.open)} className={`inline-flex items-center gap-2 h-10 px-4 rounded-lg text-sm font-bold ${b.open ? "bg-success/20 text-success-foreground" : "bg-destructive/15 text-destructive"}`}><Power className="h-4 w-4" /> {b.open ? "OPEN" : "CLOSED"} - click to toggle</button></Field></FormSection>
         </div>
         <div className="flex items-center justify-end gap-2 px-6 py-4 border-t border-border bg-muted/30"><button type="button" onClick={onClose} className="h-10 px-5 rounded-lg border border-border bg-card text-sm font-semibold hover:bg-muted">Cancel</button><button type="submit" className="h-10 px-5 inline-flex items-center gap-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90"><Save className="h-4 w-4" /> {initial ? "Save Changes" : "Create Branch"}</button></div>
@@ -217,7 +222,7 @@ function BranchFormModal({ initial, onClose, onSave }: { initial?: Branch; onClo
   );
 }
 
-const inputCls = "w-full h-11 px-3 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30";
+const inputCls = "w-full h-9 px-3 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30";
 
 function FormSection({ title, children }: { title: string; children: React.ReactNode }) {
   return <div><div className={`${ui.textKpiLabel} ${ui.textMuted} text-[10px] tracking-[0.14em] mb-3`}>{title}</div><div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-4">{children}</div></div>;

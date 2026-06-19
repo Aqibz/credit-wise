@@ -45,6 +45,10 @@ const SPECS: Record<string, CountSpec> = {
     key: "qcrm.hp-cases",
     match: (i) => ["Pending", "In Review", "Open"].includes(i.status),
   },
+  "/contracts": {
+    key: "qcrm.hp-cases",
+    match: (i) => ["Under Process", "Under Verification", "Under Approval"].includes(i.status),
+  },
   "/contracts/under-process": {
     key: "qcrm.hp-cases",
     match: (i) => i.status === "Under Process",

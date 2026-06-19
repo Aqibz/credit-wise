@@ -46,7 +46,7 @@ export function Topbar() {
   const unread = NOTIFS.filter((n) => n.unread).length;
 
   return (
-    <header className="sticky top-0 z-20 bg-background/80 backdrop-blur border-b border-border">
+    <header className="sticky top-0 z-20 bg-white/95 backdrop-blur border-b border-border">
       <div className="flex items-center gap-3 px-6 h-16">
         <button
           onClick={toggle}
@@ -59,7 +59,7 @@ export function Topbar() {
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
-            placeholder="Search products, customers, CNIC, IMEIâ€¦"
+            placeholder="Search products, customers, CNIC, IMEI..."
             className="w-full h-10 pl-9 pr-3 rounded-lg bg-muted/60 border border-transparent focus:bg-card focus:border-border focus:outline-none text-sm"
           />
         </div>
@@ -102,7 +102,7 @@ export function Topbar() {
                   })}
                 </div>
                 <Link to="/branches" onClick={() => setBranchOpen(false)} className="block px-3 py-2.5 text-xs font-semibold text-primary hover:bg-muted border-t border-border text-center">
-                  Manage all branches â†’
+                  Manage all branches -&gt;
                 </Link>
               </div>
             )}
@@ -139,7 +139,7 @@ export function Topbar() {
                 <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-gradient-to-r from-primary to-primary text-primary-foreground">
                   <div>
                     <div className="font-semibold text-sm">Notifications</div>
-                    <div className="text-[11px] opacity-90">{unread} unread â€¢ {NOTIFS.length} total</div>
+                    <div className="text-[11px] opacity-90">{unread} unread - {NOTIFS.length} total</div>
                   </div>
                   <button className="text-[11px] font-semibold underline-offset-2 hover:underline">
                     Mark all read

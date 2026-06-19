@@ -473,12 +473,12 @@ export function InvoiceForm({
                 <div>
                   <label className="block text-xs text-muted-foreground mb-1">Prefix</label>
                   <input value={invPrefix} onChange={(e) => setInvPrefix(e.target.value)}
-                    className="h-9 w-full px-2.5 rounded-md border border-border bg-card text-sm" />
+                    className="h-9 w-full px-3 rounded-md border border-border bg-card text-sm" />
                 </div>
                 <div>
                   <label className="block text-xs text-muted-foreground mb-1">Next Number</label>
                   <input value={invNext} onChange={(e) => setInvNext(e.target.value)}
-                    className="h-9 w-full px-2.5 rounded-md border border-border bg-card text-sm" />
+                    className="h-9 w-full px-3 rounded-md border border-border bg-card text-sm" />
                 </div>
               </div>
             )}
@@ -529,13 +529,13 @@ function RowSplit({ left, right }: { left: { label: string; required?: boolean; 
   );
 }
 function BaseInput({ className = "", ...props }: React.InputHTMLAttributes<HTMLInputElement>) {
-  return <input {...props} className={`h-9 px-2.5 rounded-md border border-border bg-card text-sm w-full focus:outline-none focus:ring-1 focus:ring-primary ${className}`} />;
+  return <input {...props} className={`h-9 px-3 rounded-md border border-border bg-card text-sm w-full focus:outline-none focus:ring-1 focus:ring-primary ${className}`} />;
 }
 function NativeSelect({ value, onChange, options, placeholder, className = "" }: { value: string; onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void; options: string[]; placeholder?: string; className?: string }) {
   return (
     <div className={`relative ${className}`}>
       <select value={value} onChange={onChange}
-        className="appearance-none w-full h-9 pl-2.5 pr-8 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary">
+        className="appearance-none w-full h-9 pl-3 pr-8 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary">
         {placeholder && <option value="">{placeholder}</option>}
         {options.map((o) => <option key={o} value={o}>{o}</option>)}
       </select>
@@ -597,7 +597,7 @@ function DateInput({ value, onChange, placeholder, min }: { value: string; onCha
   return (
     <div className="max-w-sm">
       <input type="date" value={value} min={min} onChange={(e) => onChange(e.target.value)}
-        className="h-9 w-full px-2.5 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+        className="h-9 w-full px-3 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary"
         placeholder={placeholder} />
       {value && <div className="text-[11px] text-muted-foreground mt-1">{fmtDate(value)}</div>}
     </div>

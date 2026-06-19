@@ -303,14 +303,14 @@ export function InstallmentPlanWizard({
                   label: v.downType === "% of Cash Price" ? "Minimum (%)" : "Minimum (Rs.)",
                   required: true,
                   children: (
-                    <WInput type="number" min={0} value={v.downMin} onChange={(e) => set("downMin", Number(e.target.value))} />
+                    <WInput type="number" moneyField={v.downType !== "% of Cash Price"} min={0} value={v.downMin} onChange={(e) => set("downMin", Number(e.target.value))} />
                   ),
                 }}
                 right={{
                   label: v.downType === "% of Cash Price" ? "Maximum (%)" : "Maximum (Rs.)",
                   hint: "Cap to prevent over-collection at booking.",
                   children: (
-                    <WInput type="number" min={0} value={v.downMax} onChange={(e) => set("downMax", Number(e.target.value))} />
+                    <WInput type="number" moneyField={v.downType !== "% of Cash Price"} min={0} value={v.downMax} onChange={(e) => set("downMax", Number(e.target.value))} />
                   ),
                 }}
               />
@@ -361,17 +361,17 @@ export function InstallmentPlanWizard({
             left={{ label: "Processing Fee", hint: "Charged once at contract creation.", children: (
               <FieldPair>
                 <WSelect value={v.processingFeeType} onChange={(x) => set("processingFeeType", x)} options={["Fixed", "% of Financed"]} />
-                <WInput type="number" min={0} value={v.processingFee} onChange={(e) => set("processingFee", Number(e.target.value))} />
+                <WInput type="number" moneyField={v.processingFeeType === "Fixed"} min={0} value={v.processingFee} onChange={(e) => set("processingFee", Number(e.target.value))} />
               </FieldPair>
             )}}
             right={{ label: "Documentation Fee (Rs.)", children: (
-              <WInput type="number" min={0} value={v.documentationFee} onChange={(e) => set("documentationFee", Number(e.target.value))} />
+              <WInput type="number" moneyField min={0} value={v.documentationFee} onChange={(e) => set("documentationFee", Number(e.target.value))} />
             )}}
           />
           <FormRow label="Late Payment Penalty" required>
             <FieldTriple>
               <WSelect value={v.penaltyType} onChange={(x) => set("penaltyType", x)} options={PENALTY_TYPE} />
-              <WInput type="number" min={0} value={v.penalty} onChange={(e) => set("penalty", Number(e.target.value))} />
+              <WInput type="number" moneyField={v.penaltyType !== "Percent of EMI (%)"} min={0} value={v.penalty} onChange={(e) => set("penalty", Number(e.target.value))} />
               <div className="flex items-center gap-2">
                 <span className="text-[12px] text-muted-foreground whitespace-nowrap">Grace</span>
                 <WInput type="number" min={0} max={30} value={v.graceDays} onChange={(e) => set("graceDays", Number(e.target.value))} />
@@ -392,10 +392,10 @@ export function InstallmentPlanWizard({
         >
           <FormRowDouble
             left={{ label: "Min Financing (Rs.)", required: true, children: (
-              <WInput type="number" min={0} value={v.minFinance} onChange={(e) => set("minFinance", Number(e.target.value))} />
+              <WInput type="number" moneyField min={0} value={v.minFinance} onChange={(e) => set("minFinance", Number(e.target.value))} />
             )}}
             right={{ label: "Max Financing (Rs.)", required: true, children: (
-              <WInput type="number" min={0} value={v.maxFinance} onChange={(e) => set("maxFinance", Number(e.target.value))} />
+              <WInput type="number" moneyField min={0} value={v.maxFinance} onChange={(e) => set("maxFinance", Number(e.target.value))} />
             )}}
           />
           <FormRowDouble

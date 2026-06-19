@@ -7,4 +7,4 @@ export const PurchaseReturnsPage = createLegacyEntityRoutePage(() => import("@/l
 export const BillsInvoicesPage = createLegacyEntityRoutePage(() => import("@/lib/entities/purchases").then((m) => m.billsConfig));
 export const PaymentsMadePage = createLegacyEntityRoutePage(() => import("@/lib/entities/purchases").then((m) => m.paymentsMadeConfig));
 export const ExpensesPage = createLegacyEntityRoutePage(() => import("@/lib/entities/purchases").then((m) => m.expensesConfig));
-export const SupplierLedgerPage = createLegacyEntityRoutePage(() => import("@/lib/entities/purchases").then((m) => m.suppliersConfig));
+export const SupplierLedgerPage = createLegacyEntityRoutePage(() => import("@/lib/entities/purchases").then((m) => m.supplierLedgerConfig));

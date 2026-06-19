@@ -12,6 +12,7 @@ import { PageHeader, StatCard, Badge } from "@/components/ui-kit";
 import { WidgetCard, StatCardSkeleton, type WidgetStatus } from "@/shared/ui/dashboard/WidgetState";
 import { KpiIcons, KpiIcon } from "@/components/kpi-icons";
 import { useCurrentUser } from "@/lib/state/useCurrentUser";
+import { PageMeta } from "@/shared/ui/core/PageMeta";
 import {
   BRANCHES, type BranchKey,
   contractsFunnel, portfolioBuckets, dpdAging, todaysCollectionsByHour,
@@ -43,7 +44,7 @@ function ChartUnavailable({
   );
 }
 
-// Stagger helper â€” GPU-only transform/opacity, capped delay
+// Stagger helper - GPU-only transform/opacity, capped delay
 const stagger = (i: number, base = 40): React.CSSProperties => ({
   animationDelay: `${Math.min(i, 16) * base}ms`,
   animationFillMode: "both",
@@ -58,7 +59,7 @@ export default function CreditWiseDashboard() {
 }
 
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Filters â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ------------------------- Filters -------------------------
 type RangeKey = "today" | "week" | "month";
 const RANGES: { key: RangeKey; label: string; mult: number; periodLabel: string }[] = [
   { key: "today", label: "Today", mult: 1,   periodLabel: "Today" },
@@ -104,7 +105,7 @@ function Dashboard() {
   const branchShare = branch === "All Branches" ? 1 : 0.32;
   const k = r.mult * branchShare;
 
-  // â”€â”€ Branch-aware KPIs (derived from period * branch share)
+  // -- Branch-aware KPIs (derived from period * branch share)
   const todaysCollected = useMemo(
     () => todaysCollectionsByHour.reduce((s, x) => s + x.collected, 0) * branchShare,
     [branchShare],
@@ -160,7 +161,7 @@ function Dashboard() {
     [branch],
   );
 
-  // Branch scorecard radar â€” computed from real-ish ratios
+  // Branch scorecard radar - computed from real-ish ratios
   const branchScorecard = useMemo(() => {
     const target = branchTargets.find((b) => b.name === branch) ?? branchTargets[0];
     const salesPct = Math.round((target.achieved / target.target) * 100);
@@ -187,12 +188,16 @@ function Dashboard() {
 
   return (
     <>
+      <PageMeta
+        title={isHQ ? "Business Overview" : `${defaultBranch} Branch Dashboard`}
+        description={isHQ ? "Executive dashboard across all branches." : `Branch dashboard for ${defaultBranch}.`}
+      />
       <PageHeader
-        title={isHQ ? "Business Overview" : `${defaultBranch} Â· Branch`}
+        title={isHQ ? "Business Overview" : `${defaultBranch} - Branch`}
         description={
           isHQ
-            ? `Welcome back, ${user.name.split(" ")[0]} â€” full pulse across all branches.`
-            : `Welcome back, ${user.name.split(" ")[0]} â€” your branch's daily pulse.`
+            ? `Welcome back, ${user.name.split(" ")[0]} - full pulse across all branches.`
+            : `Welcome back, ${user.name.split(" ")[0]} - your branch's daily pulse.`
         }
         actions={
           <div className="flex flex-wrap items-center gap-2">
@@ -225,7 +230,7 @@ function Dashboard() {
         }
       />
 
-      {/* â”€â”€ Row 1 Â· Hero KPIs (4) â”€â”€ */}
+      {/* -- Row 1 - Hero KPIs (4) -- */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {demoState === "loading"
           ? Array.from({ length: 4 }).map((_, i) => <StatCardSkeleton key={i} />)
@@ -235,29 +240,29 @@ function Dashboard() {
                 <StatCard to="/installments" label="Active Portfolio" value={fmtRs(kpis.portfolioOut)} hint={`${kpis.activePlans.toLocaleString()} active plans`} icon={<KpiIcon icon={Wallet} />} tone="primary" />
               </div>
               <div className="animate-fade-in" style={stagger(1)}>
-                <StatCard to="/installments/today" label={`Collected Â· ${r.label}`} value={fmtRs(todaysCollected)} hint={`${Math.round((todaysCollected / todaysTarget) * 100)}% of day target`} icon={<KpiIcon icon={TrendingUp} />} tone="success" />
+                <StatCard to="/installments/today" label={`Collected - ${r.label}`} value={fmtRs(todaysCollected)} hint={`${Math.round((todaysCollected / todaysTarget) * 100)}% of day target`} icon={<KpiIcon icon={TrendingUp} />} tone="success" />
               </div>
               <div className="animate-fade-in" style={stagger(2)}>
-                <StatCard to="/installments/overdue" label="Overdue" value={fmtRs(kpis.overdueOut)} hint={`NPA ${kpis.npaRatio}% Â· ${portfolio.find(b=>b.name==="Overdue")?.value ?? 0} customers`} icon={<KpiIcon icon={AlertCircle} />} tone="destructive" />
+                <StatCard to="/installments/overdue" label="Overdue" value={fmtRs(kpis.overdueOut)} hint={`NPA ${kpis.npaRatio}% - ${portfolio.find(b=>b.name==="Overdue")?.value ?? 0} customers`} icon={<KpiIcon icon={AlertCircle} />} tone="destructive" />
               </div>
               <div className="animate-fade-in" style={stagger(3)}>
-                <StatCard to="/sales/targets" label={`Sales Target Â· ${r.label}`} value={`${kpis.targetPct}%`} hint={`${fmtRs(kpis.sales)} / ${fmtRs(kpis.targetTotal)}`} icon={<KpiIcon icon={Target} />} tone="warning" />
+                <StatCard to="/sales/targets" label={`Sales Target - ${r.label}`} value={`${kpis.targetPct}%`} hint={`${fmtRs(kpis.sales)} / ${fmtRs(kpis.targetTotal)}`} icon={<KpiIcon icon={Target} />} tone="warning" />
               </div>
             </>
           )}
       </div>
 
-      {/* â”€â”€ Row 2 Â· Branch monthly target progress (full width) â”€â”€ */}
+      {/* -- Row 2 - Branch monthly target progress (full width) -- */}
       <div className="animate-fade-in" style={stagger(4)}>
         <BranchTargetCard
-          label={branch === "All Branches" ? "All Branches" : `${branch} Â· Branch`}
+          label={branch === "All Branches" ? "All Branches" : `${branch} - Branch`}
           achieved={kpis.sales}
           target={kpis.targetTotal}
           pct={kpis.targetPct}
         />
       </div>
 
-      {/* â”€â”€ Row 3 Â· Secondary KPIs (6) â€” direct links to modules â”€â”€ */}
+      {/* -- Row 3 - Secondary KPIs (6) - direct links to modules -- */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mt-3">
         {[
           <StatCard key="c"  to="/customers"                      label="New Customers" value={kpis.newCustomers} hint={r.periodLabel}                       icon={<KpiIcons.customers />}             tone="primary" />,
@@ -271,15 +276,15 @@ function Dashboard() {
         ))}
       </div>
 
-      {/* â”€â”€ Symmetric 12-col grid â”€â”€ */}
+      {/* -- Symmetric 12-col grid -- */}
       <div className="grid grid-cols-12 gap-4 mt-5">
 
-        {/* GROUP 1 â€” Contracts Funnel Â· 4   |   Today's Collections by hour Â· 8 */}
+        {/* GROUP 1 - Contracts Funnel - 4   |   Today's Collections by hour - 8 */}
         <div className="col-span-12 xl:col-span-4 animate-fade-in" style={stagger(11)}>
           <WidgetCard
             state={widgetState(contractsFunnel)}
             title="Contracts Pipeline"
-            description={`Live funnel Â· ${contractsFunnel[0].value} in process`}
+            description={`Live funnel - ${contractsFunnel[0].value} in process`}
             rightSlot={<Badge tone="success">{Math.round((contractsFunnel[3].value / contractsFunnel[0].value) * 100)}% approval</Badge>}
             skeleton="rows"
           >
@@ -294,7 +299,7 @@ function Dashboard() {
           <WidgetCard
             state={widgetState(todaysCollectionsByHour)}
             title="Today's Collections by Hour"
-            description={`${branch} Â· vs hourly target`}
+            description={`${branch} - vs hourly target`}
             rightSlot={<Badge tone={todaysCollected >= todaysTarget ? "success" : "warning"}>{fmtRs(todaysCollected)} / {fmtRs(todaysTarget)}</Badge>}
             skeleton="chart"
           >
@@ -302,12 +307,12 @@ function Dashboard() {
           </WidgetCard>
         </div>
 
-        {/* GROUP 2 â€” DPD Aging Â· 8   |   Collection Efficiency Â· 4 */}
+        {/* GROUP 2 - DPD Aging - 8   |   Collection Efficiency - 4 */}
         <div className="col-span-12 xl:col-span-8 animate-fade-in" style={stagger(13)}>
           <WidgetCard
             state={widgetState(dpdAging)}
             title="DPD Aging Analysis"
-            description="Days past due â€” accounts & outstanding by bucket"
+            description="Days past due - accounts & outstanding by bucket"
             rightSlot={<Badge tone="warning">{dpdAging.slice(1).reduce((s, x) => s + x.accounts, 0)} overdue</Badge>}
             skeleton="chart"
           >
@@ -338,12 +343,12 @@ function Dashboard() {
           </WidgetCard>
         </div>
 
-        {/* GROUP 3 â€” Receipts vs Payments Made Â· 8   |   Cash & Bank Â· 4 */}
+        {/* GROUP 3 - Receipts vs Payments Made - 8   |   Cash & Bank - 4 */}
         <div className="col-span-12 xl:col-span-8 animate-fade-in" style={stagger(15)}>
           <WidgetCard
             state={widgetState(cashFlow7d)}
             title="Receipts vs Payments Made"
-            description="Last 7 days Â· cash inflow vs outflow (with net)"
+            description="Last 7 days - cash inflow vs outflow (with net)"
             rightSlot={
               <Badge tone="primary">
                 Net {fmtRs(cashFlow7d.reduce((s, x) => s + (x.receipts - x.paymentsMade), 0))}
@@ -376,12 +381,12 @@ function Dashboard() {
           </WidgetCard>
         </div>
 
-        {/* GROUP 4 â€” Sales target gauge Â· 4   |   New contracts trend Â· 4   |   Sales mix Â· 4 */}
+        {/* GROUP 4 - Sales target gauge - 4   |   New contracts trend - 4   |   Sales mix - 4 */}
         <div className="col-span-12 md:col-span-6 xl:col-span-4 animate-fade-in" style={stagger(17)}>
           <WidgetCard
             state={widgetState(branchTargets)}
             title="Sales Target Progress"
-            description={`${branch} Â· ${MONTHS[new Date().getMonth()]}`}
+            description={`${branch} - ${MONTHS[new Date().getMonth()]}`}
             skeleton="tiles"
           >
             <SalesTargetGauge pct={kpis.targetPct} achieved={kpis.sales} target={kpis.targetTotal} />
@@ -391,7 +396,7 @@ function Dashboard() {
           <WidgetCard
             state={widgetState(newContracts7d)}
             title="New Contracts Booked"
-            description={`${newContracts7d.reduce((s, x) => s + x.contracts, 0)} contracts Â· 7D`}
+            description={`${newContracts7d.reduce((s, x) => s + x.contracts, 0)} contracts - 7D`}
             rightSlot={<Badge tone="primary">avg {fmtRs(Math.round(newContracts7d.reduce((s, x) => s + x.avgTicket * x.contracts, 0) / newContracts7d.reduce((s, x) => s + x.contracts, 0)))}</Badge>}
             skeleton="chart"
           >
@@ -402,19 +407,19 @@ function Dashboard() {
           <WidgetCard
             state={widgetState(salesMix)}
             title="Sales Mix"
-            description="Installment vs Cash Â· this month"
+            description="Installment vs Cash - this month"
             skeleton="chart"
           >
             <ChartUnavailable title="Installment risk chart unavailable in this build" h={240} />
           </WidgetCard>
         </div>
 
-        {/* GROUP 5 â€” Branch Scorecard radar Â· 4   |   Portfolio breakdown Â· 8 */}
+        {/* GROUP 5 - Branch Scorecard radar - 4   |   Portfolio breakdown - 8 */}
         <div className="col-span-12 xl:col-span-4 animate-fade-in" style={stagger(20)}>
           <WidgetCard
             state={widgetState(branchScorecard)}
             title="Branch Scorecard"
-            description="5 KPIs vs target (0â€“100)"
+            description="5 KPIs vs target (0-100)"
             rightSlot={<Badge tone="primary">Radar</Badge>}
             skeleton="chart"
           >
@@ -468,7 +473,7 @@ function Dashboard() {
                             <span className="text-[11px] text-muted-foreground truncate">{b.name}</span>
                           </div>
                           <div className="text-lg font-semibold leading-tight tabular-nums">{b.value.toLocaleString()}</div>
-                          <div className="text-[11px] text-muted-foreground tabular-nums">{pct}% Â· {fmtRs(b.outstanding)}</div>
+                          <div className="text-[11px] text-muted-foreground tabular-nums">{pct}% - {fmtRs(b.outstanding)}</div>
                         </button>
                       );
                     })}
@@ -482,7 +487,7 @@ function Dashboard() {
                         <div className="flex items-center justify-between px-2.5 py-2 bg-muted/30 border-b border-border/60">
                           <div className="flex items-center gap-1.5">
                             <span className={`h-2 w-2 rounded-full ${m.dot}`} />
-                            <span className="text-[11px] font-semibold">{selectedBucket} Â· accounts</span>
+                            <span className="text-[11px] font-semibold">{selectedBucket} - accounts</span>
                             <span className="text-[10.5px] text-muted-foreground">({rows.length} shown)</span>
                           </div>
                           <Link to={m.to} className="text-[11px] text-primary font-medium hover:underline">View all</Link>
@@ -547,12 +552,12 @@ function Dashboard() {
           </WidgetCard>
         </div>
 
-        {/* GROUP 6 â€” Recovery Agents leaderboard Â· 6   |   Branch Performance Â· 6 */}
+        {/* GROUP 6 - Recovery Agents leaderboard - 6   |   Branch Performance - 6 */}
         <div className="col-span-12 xl:col-span-6 animate-fade-in" style={stagger(22)}>
           <WidgetCard
             state={widgetState(recoveryAgents)}
-            title="Recovery Agents Â· Today"
-            description="Assigned vs recovered Â· top performers"
+            title="Recovery Agents - Today"
+            description="Assigned vs recovered - top performers"
             rightSlot={<Link to="/recovery/daily" className="text-[11px] text-primary font-medium hover:underline inline-flex items-center gap-1">Daily sheet <ArrowUpRight className="h-3 w-3" /></Link>}
             skeleton="rows"
           >
@@ -572,7 +577,7 @@ function Dashboard() {
                       <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
                         <div className="h-full bg-success transition-[width] duration-700" style={{ width: `${pct}%` }} />
                       </div>
-                      <span className="tabular-nums w-20 text-right">{a.recovered}/{a.assigned} Â· {pct}%</span>
+                      <span className="tabular-nums w-20 text-right">{a.recovered}/{a.assigned} - {pct}%</span>
                     </div>
                   </li>
                 );
@@ -584,7 +589,7 @@ function Dashboard() {
           <WidgetCard
             state={widgetState(branchPerfRows)}
             title="Branch Performance"
-            description="Sales Â· Collections Â· Overdue (Rs. in '000)"
+            description="Sales - Collections - Overdue (Rs. in '000)"
             rightSlot={<Link to="/branches" className="text-[11px] text-primary font-medium hover:underline inline-flex items-center gap-1">All branches <ArrowUpRight className="h-3 w-3" /></Link>}
             skeleton="chart"
           >
@@ -592,7 +597,7 @@ function Dashboard() {
           </WidgetCard>
         </div>
 
-        {/* GROUP 7 â€” Recent Activity Â· 8   |   Upcoming Deliveries Â· 4 */}
+        {/* GROUP 7 - Recent Activity - 8   |   Upcoming Deliveries - 4 */}
         <div className="col-span-12 xl:col-span-8 animate-fade-in" style={stagger(24)}>
           <WidgetCard
             state={widgetState(recentActivity)}
@@ -648,7 +653,7 @@ function Dashboard() {
                     <Badge tone="primary">{d.items} item{d.items > 1 ? "s" : ""}</Badge>
                   </div>
                   <div className="flex items-center justify-between mt-1 text-[11px] text-muted-foreground">
-                    <span>{d.ref} Â· {d.area}</span>
+                    <span>{d.ref} - {d.area}</span>
                     <span className="tabular-nums">{d.eta}</span>
                   </div>
                 </li>
@@ -662,7 +667,7 @@ function Dashboard() {
 }
 
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ------------------------- Helpers -------------------------
 
 function CashStat({ label, value, tone }: { label: string; value: string; tone: "primary" | "info" | "warning" | "success" }) {
   const dot = { primary: "bg-primary", info: "bg-info", warning: "bg-warning", success: "bg-success" }[tone];
@@ -733,11 +738,11 @@ function BranchTargetCard({ label, achieved, target, pct }: { label: string; ach
       <div className="flex items-center justify-between gap-2 mb-2">
         <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-muted-foreground uppercase tracking-wide">
           <Target className="h-3.5 w-3.5 text-primary" />
-          {label} Â· Target{stamp ? ` Â· ${stamp.periodLabel}` : ""}
+          {label} - Target{stamp ? ` - ${stamp.periodLabel}` : ""}
         </div>
         <div className="text-[12px] font-bold tabular-nums text-foreground">
           {pct}%
-          {pct >= 100 && <span className="ml-1 text-success-foreground">âœ“</span>}
+          {pct >= 100 && <span className="ml-1 text-success-foreground">OK</span>}
         </div>
       </div>
       <div className="h-2 rounded-full bg-muted overflow-hidden">
@@ -751,7 +756,7 @@ function BranchTargetCard({ label, achieved, target, pct }: { label: string; ach
         </span>
         <span className="inline-flex items-center gap-1 font-semibold text-muted-foreground">
           <Clock className="h-3 w-3" />
-          {remaining > 0 ? <>{fmtRs(remaining)} left{stamp ? ` Â· ${stamp.daysLeft}d` : ""}</> : <span className="text-success-foreground">Target met</span>}
+          {remaining > 0 ? <>{fmtRs(remaining)} left{stamp ? ` - ${stamp.daysLeft}d` : ""}</> : <span className="text-success-foreground">Target met</span>}
         </span>
       </div>
     </div>

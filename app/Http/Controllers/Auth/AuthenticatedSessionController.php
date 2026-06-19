@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,6 +22,7 @@ class AuthenticatedSessionController extends Controller
         return Inertia::render('Auth/Login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => session('status'),
+            'uiOnlyAuth' => app()->environment('local'),
         ]);
     }
 
@@ -29,7 +31,17 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        $request->authenticate();
+        try {
+            $request->authenticate();
+        } catch (QueryException $exception) {
+            if (app()->environment('local')) {
+                return back()->withErrors([
+                    'email' => 'Authentication is unavailable in this local UI build because the database connection is not active.',
+                ])->onlyInput('email');
+            }
+
+            throw $exception;
+        }
 
         $request->session()->regenerate();
 

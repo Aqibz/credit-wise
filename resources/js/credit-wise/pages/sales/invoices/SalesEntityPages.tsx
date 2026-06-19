@@ -1,10 +1,17 @@
-﻿import { createLegacyEntityRoutePage } from "@/pages/common/createLegacyEntityRoutePage";
+import { createLegacyEntityRoutePage } from "@/pages/common/createLegacyEntityRoutePage";
 
 export const SalesCenterPage = createLegacyEntityRoutePage(() => import("@/lib/entities/sales").then((m) => m.salesConfig));
 export const CashSalesPage = createLegacyEntityRoutePage(() => import("@/lib/entities/sales").then((m) => m.cashSaleConfig));
 export const SalesTargetsPage = createLegacyEntityRoutePage(() => import("@/lib/entities/sales").then((m) => m.salesTargetsConfig));
 export const SalesReportsPage = createLegacyEntityRoutePage(() => import("@/lib/entities/sales").then((m) => m.reportsListConfig));
-export const SalesInvoicesPage = createLegacyEntityRoutePage(() => import("@/lib/entities/sales").then((m) => m.salesConfig));
+export const SalesInvoicesPage = createLegacyEntityRoutePage(() =>
+  import("@/lib/entities/sales").then((m) => ({
+    ...m.salesConfig,
+    title: "Sales Invoices",
+    description: "All customer invoices across cash and installment sales.",
+  })),
+);
+export const DeliveriesPage = createLegacyEntityRoutePage(() => import("@/lib/entities/sales").then((m) => m.deliveriesConfig));
 export const SalesReceiptsPage = createLegacyEntityRoutePage(() => import("@/lib/entities/sales").then((m) => m.receiptsConfig));
 export const SalesReturnsPage = createLegacyEntityRoutePage(() => import("@/lib/entities/sales").then((m) => m.salesReturnsConfig));
 export const PaymentsReceivedPage = createLegacyEntityRoutePage(() => import("@/lib/entities/sales").then((m) => m.paymentsReceivedConfig));

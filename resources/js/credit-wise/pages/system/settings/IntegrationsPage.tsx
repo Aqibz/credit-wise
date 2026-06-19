@@ -8,6 +8,7 @@ import {
   Building2, Banknote, Smartphone, Wallet, Flame, CalendarClock, KeyRound, Link2, Globe, ShieldCheck, Settings2, Plug, CheckCircle2, CircleDashed,
 } from "lucide-react";
 import { toast } from "sonner";
+import { AppShell } from "@/components/layout/AppShell";
 import { PageHeader, StatCard } from "@/shared/ui/core/UiKit";
 import { UnderlineTab, UnderlineTabBar } from "@/shared/ui/primitives/underline-tabs";
 import { SettingsTabs } from "@/pages/system/settings/SettingsTabs";
@@ -52,93 +53,95 @@ export function IntegrationsPage() {
   const total = INTEGRATIONS.length;
 
   return (
-    <>
-      <PageHeader title="Integrations" description="Connect tax, payments, wallets and cloud services. Click any card to configure." icon={<Globe className="h-6 w-6 text-primary" />} />
-      <SettingsTabs initial="integrations" />
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
-        <StatCard label="Active" value={String(activeCount)} icon={<CheckCircle2 className="h-5 w-5" />} tone="success" />
-        <StatCard label="Available" value={String(total)} icon={<Plug className="h-5 w-5" />} tone="primary" />
-        <StatCard label="Categories" value={String(CATEGORIES.length - 1)} icon={<Settings2 className="h-5 w-5" />} tone="primary" />
-        <StatCard label="Inactive" value={String(total - activeCount)} icon={<CircleDashed className="h-5 w-5" />} tone="warning" />
-      </div>
-      <UnderlineTabBar className="mb-5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {CATEGORIES.map((c) => <UnderlineTab key={c} active={cat === c} onClick={() => setCat(c)}>{c}</UnderlineTab>)}
-      </UnderlineTabBar>
-      {filtered.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-border bg-card p-12 text-center">
-          <Plug className="h-10 w-10 mx-auto text-muted-foreground/60 mb-3" />
-          <div className="text-sm font-semibold text-foreground">No integrations found</div>
-          <div className="text-xs text-muted-foreground mt-1">Try a different search or category.</div>
+    <AppShell>
+      <div className="space-y-5">
+        <PageHeader title="Integrations" description="Connect tax, payments, wallets and cloud services. Click any card to configure." icon={<Globe className="h-6 w-6 text-primary" />} />
+        <SettingsTabs initial="integrations" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+          <StatCard label="Active" value={String(activeCount)} icon={<CheckCircle2 className="h-5 w-5" />} tone="success" />
+          <StatCard label="Available" value={String(total)} icon={<Plug className="h-5 w-5" />} tone="primary" />
+          <StatCard label="Categories" value={String(CATEGORIES.length - 1)} icon={<Settings2 className="h-5 w-5" />} tone="primary" />
+          <StatCard label="Inactive" value={String(total - activeCount)} icon={<CircleDashed className="h-5 w-5" />} tone="warning" />
         </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filtered.map((it) => {
-            const Icon = it.icon;
-            const on = enabled[it.id];
-            const tc = TONE_CLASSES[it.tone];
-            return (
-              <article
-                key={it.id}
-                role="button"
-                tabIndex={0}
-                onClick={() => setActive(it)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
-                    setActive(it);
-                  }
-                }}
-                className={`group relative cursor-pointer overflow-hidden rounded-xl border border-border bg-card text-left transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${on ? `ring-1 ${tc.ring}` : ""}`}
-              >
-                <div className="p-4 flex items-start justify-between gap-3">
-                  <div className={`h-12 w-12 rounded-xl grid place-items-center ${tc.tile} ring-1 ${tc.ring}`}><Icon className="h-6 w-6" /></div>
-                  <div onClick={(e) => e.stopPropagation()} className="pt-0.5"><Switch checked={on} onCheckedChange={(v) => toggle(it.id, v)} /></div>
-                </div>
-                <div className="px-4 pb-3 space-y-1.5">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-semibold text-[14px] text-foreground leading-tight">{it.name}</h3>
-                    <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${tc.chip}`}>{it.category}</span>
+        <UnderlineTabBar className="mb-5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {CATEGORIES.map((c) => <UnderlineTab key={c} active={cat === c} onClick={() => setCat(c)}>{c}</UnderlineTab>)}
+        </UnderlineTabBar>
+        {filtered.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-border bg-card p-12 text-center">
+            <Plug className="h-10 w-10 mx-auto text-muted-foreground/60 mb-3" />
+            <div className="text-sm font-semibold text-foreground">No integrations found</div>
+            <div className="text-xs text-muted-foreground mt-1">Try a different search or category.</div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {filtered.map((it) => {
+              const Icon = it.icon;
+              const on = enabled[it.id];
+              const tc = TONE_CLASSES[it.tone];
+              return (
+                <article
+                  key={it.id}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setActive(it)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      setActive(it);
+                    }
+                  }}
+                  className={`group relative cursor-pointer overflow-hidden rounded-xl border border-border bg-card text-left transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${on ? `ring-1 ${tc.ring}` : ""}`}
+                >
+                  <div className="p-4 flex items-start justify-between gap-3">
+                    <div className={`h-12 w-12 rounded-xl grid place-items-center ${tc.tile} ring-1 ${tc.ring}`}><Icon className="h-6 w-6" /></div>
+                    <div onClick={(e) => e.stopPropagation()} className="pt-0.5"><Switch checked={on} onCheckedChange={(v) => toggle(it.id, v)} /></div>
                   </div>
-                  <p className="text-[12px] text-muted-foreground leading-relaxed line-clamp-2">{it.description}</p>
-                </div>
-                <div className="border-t border-border bg-muted/30 px-4 py-2.5 flex items-center justify-between text-[11.5px]">
-                  <span className={`flex items-center gap-1.5 font-semibold ${on ? "text-success" : "text-muted-foreground"}`}>
-                    <span className="relative flex h-2 w-2">{on && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success/60" />}<span className={`relative inline-flex h-2 w-2 rounded-full ${on ? "bg-success" : "bg-muted-foreground/40"}`} /></span>
-                    {on ? "Connected" : "Not connected"}
-                  </span>
-                  <span className="text-muted-foreground group-hover:text-primary font-semibold transition inline-flex items-center gap-1">Configure<span className="transition-transform group-hover:translate-x-0.5">&rarr;</span></span>
-                </div>
-              </article>
-            );
-          })}
-        </div>
-      )}
+                  <div className="px-4 pb-3 space-y-1.5">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="font-semibold text-[14px] text-foreground leading-tight">{it.name}</h3>
+                      <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${tc.chip}`}>{it.category}</span>
+                    </div>
+                    <p className="text-[12px] text-muted-foreground leading-relaxed line-clamp-2">{it.description}</p>
+                  </div>
+                  <div className="border-t border-border bg-muted/30 px-4 py-2.5 flex items-center justify-between text-[11.5px]">
+                    <span className={`flex items-center gap-1.5 font-semibold ${on ? "text-success" : "text-muted-foreground"}`}>
+                      <span className="relative flex h-2 w-2">{on && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success/60" />}<span className={`relative inline-flex h-2 w-2 rounded-full ${on ? "bg-success" : "bg-muted-foreground/40"}`} /></span>
+                      {on ? "Connected" : "Not connected"}
+                    </span>
+                    <span className="text-muted-foreground group-hover:text-primary font-semibold transition inline-flex items-center gap-1">Configure<span className="transition-transform group-hover:translate-x-0.5">&rarr;</span></span>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        )}
 
-      <Dialog open={!!active} onOpenChange={(o) => !o && setActive(null)}>
-        <DialogContent className="max-w-lg">
-          {active && (
-            <>
-              <DialogHeader>
-                <div className="flex items-center gap-3">
-                  <div className={`h-11 w-11 rounded-xl grid place-items-center ${TONE_CLASSES[active.tone].tile} ring-1 ${TONE_CLASSES[active.tone].ring}`}><active.icon className="h-5 w-5" /></div>
-                  <div><DialogTitle>{active.name}</DialogTitle><DialogDescription>{active.description}</DialogDescription></div>
+        <Dialog open={!!active} onOpenChange={(o) => !o && setActive(null)}>
+          <DialogContent className="max-w-lg">
+            {active && (
+              <>
+                <DialogHeader>
+                  <div className="flex items-center gap-3">
+                    <div className={`h-11 w-11 rounded-xl grid place-items-center ${TONE_CLASSES[active.tone].tile} ring-1 ${TONE_CLASSES[active.tone].ring}`}><active.icon className="h-5 w-5" /></div>
+                    <div><DialogTitle>{active.name}</DialogTitle><DialogDescription>{active.description}</DialogDescription></div>
+                  </div>
+                </DialogHeader>
+                <div className="flex items-center justify-between rounded-lg border border-border p-3 bg-muted/30">
+                  <div className="text-sm"><div className="font-medium text-foreground">Enable integration</div><div className="text-xs text-muted-foreground">Turn this service on or off.</div></div>
+                  <Switch checked={enabled[active.id]} onCheckedChange={(v) => toggle(active.id, v)} />
                 </div>
-              </DialogHeader>
-              <div className="flex items-center justify-between rounded-lg border border-border p-3 bg-muted/30">
-                <div className="text-sm"><div className="font-medium text-foreground">Enable integration</div><div className="text-xs text-muted-foreground">Turn this service on or off.</div></div>
-                <Switch checked={enabled[active.id]} onCheckedChange={(v) => toggle(active.id, v)} />
-              </div>
-              <div className="space-y-3 pt-1">
-                {active.fields.map((f) => <div key={f.key} className="space-y-1.5"><Label className="text-xs">{f.label}</Label><Input type={f.type || "text"} placeholder={f.placeholder} /></div>)}
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setActive(null)}>Cancel</Button>
-                <Button onClick={() => { toast.success(`${active.name} settings saved`); setActive(null); }}><ShieldCheck className="h-4 w-4 mr-1" />Save changes</Button>
-              </DialogFooter>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
-    </>
+                <div className="space-y-3 pt-1">
+                  {active.fields.map((f) => <div key={f.key} className="space-y-1.5"><Label className="text-xs">{f.label}</Label><Input type={f.type || "text"} placeholder={f.placeholder} /></div>)}
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setActive(null)}>Cancel</Button>
+                  <Button onClick={() => { toast.success(`${active.name} settings saved`); setActive(null); }}><ShieldCheck className="h-4 w-4 mr-1" />Save changes</Button>
+                </DialogFooter>
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
+      </div>
+    </AppShell>
   );
 }

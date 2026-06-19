@@ -1,5 +1,8 @@
 import { Component, ErrorInfo, ReactNode, Suspense, useEffect, useRef, useState } from "react";
 import { AlertTriangle, Check, ChevronDown, ChevronLeft, ChevronRight, RefreshCw, X, Save } from "lucide-react";
+import { CountryCodePhoneInput } from "@/shared/ui/primitives/country-code-phone-input";
+import { CurrencyAmountInput } from "@/shared/ui/primitives/currency-amount-input";
+import { getFieldStateClass } from "@/shared/lib/form-validation";
 
 /**
  * Catches both render errors and chunk-load failures from a lazy step.
@@ -353,7 +356,7 @@ export function StepWizard({
 
 /* ---------- Reusable input primitives ---------- */
 
-const baseInput = "w-full h-11 px-3 rounded-lg border border-slate-200 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition";
+const baseInput = "w-full h-9 px-3 rounded-lg border border-slate-200 bg-white text-[13px] font-normal text-slate-900 placeholder:text-[13px] placeholder:font-normal placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition";
 
 export function WField({ label, required, hint, children, full }: { label: string; required?: boolean; hint?: string; children: ReactNode; full?: boolean }) {
   return (
@@ -367,24 +370,121 @@ export function WField({ label, required, hint, children, full }: { label: strin
   );
 }
 
-export function WInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
-  return <input {...props} className={`${baseInput} ${props.className ?? ""}`} />;
+type WInputProps = React.InputHTMLAttributes<HTMLInputElement> & {
+  phoneField?: boolean;
+  moneyField?: boolean;
+};
+
+export function WInput({ phoneField, moneyField, type, className, onChange, value, placeholder, ...props }: WInputProps) {
+  if (phoneField || type === "tel") {
+    return (
+      <CountryCodePhoneInput
+        value={typeof value === "string" ? value : String(value ?? "")}
+        onChange={(nextValue) => {
+          onChange?.({
+            target: { value: nextValue, name: props.name ?? "" },
+            currentTarget: { value: nextValue, name: props.name ?? "" },
+          } as React.ChangeEvent<HTMLInputElement>);
+        }}
+        placeholder={placeholder}
+        inputClassName={className}
+        disabled={props.disabled}
+        id={props.id}
+        name={props.name}
+        autoComplete={props.autoComplete}
+        onBlur={props.onBlur}
+        invalid={props["aria-invalid"] === true || props["aria-invalid"] === "true"}
+      />
+    );
+  }
+
+  if (moneyField) {
+    return (
+      <CurrencyAmountInput
+        value={typeof value === "string" || typeof value === "number" ? value : String(value ?? "")}
+        onChange={(nextValue) => {
+          onChange?.({
+            target: { value: nextValue, name: props.name ?? "" },
+            currentTarget: { value: nextValue, name: props.name ?? "" },
+          } as React.ChangeEvent<HTMLInputElement>);
+        }}
+        placeholder={placeholder}
+        inputClassName={className}
+        disabled={props.disabled}
+        id={props.id}
+        name={props.name}
+        autoComplete={props.autoComplete}
+        onBlur={props.onBlur}
+        min={props.min}
+        max={props.max}
+        step={props.step}
+        invalid={props["aria-invalid"] === true || props["aria-invalid"] === "true"}
+      />
+    );
+  }
+
+  return (
+    <input
+      {...props}
+      type={type}
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      className={`${baseInput} ${getFieldStateClass(props["aria-invalid"] === true || props["aria-invalid"] === "true", className)}`}
+    />
+  );
 }
 export function WTextarea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  return <textarea rows={3} {...props} className={`w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 resize-none transition ${props.className ?? ""}`} />;
+  const invalid = props["aria-invalid"] === true || props["aria-invalid"] === "true";
+  return (
+    <textarea
+      rows={3}
+      {...props}
+      className={`w-full min-h-[84px] px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-[13px] font-normal text-slate-900 placeholder:text-[13px] placeholder:font-normal placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 resize-none transition ${getFieldStateClass(invalid, props.className ?? "")}`}
+    />
+  );
 }
-export function WSelect({ value, onChange, options, placeholder = "Select…" }: { value: string; onChange: (v: string) => void; options: string[]; placeholder?: string; required?: boolean }) {
+export function WSelect({
+  value,
+  onChange,
+  options,
+  placeholder = "Select…",
+  invalid,
+  onBlur,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  options: string[];
+  placeholder?: string;
+  required?: boolean;
+  invalid?: boolean;
+  onBlur?: () => void;
+}) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const label = value || placeholder;
+  const blurNotifiedRef = useRef(false);
 
   useEffect(() => {
     if (!open) return;
+    blurNotifiedRef.current = false;
     const onDoc = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+        if (!blurNotifiedRef.current) {
+          blurNotifiedRef.current = true;
+          onBlur?.();
+        }
+      }
     };
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") {
+        setOpen(false);
+        if (!blurNotifiedRef.current) {
+          blurNotifiedRef.current = true;
+          onBlur?.();
+        }
+      }
     };
     document.addEventListener("mousedown", onDoc);
     document.addEventListener("keydown", onKey);
@@ -392,24 +492,32 @@ export function WSelect({ value, onChange, options, placeholder = "Select…" }:
       document.removeEventListener("mousedown", onDoc);
       document.removeEventListener("keydown", onKey);
     };
-  }, [open]);
+  }, [open, onBlur]);
 
   return (
-    <div className="relative" ref={ref}>
+    <div className="relative w-full" ref={ref}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className={`${baseInput} flex items-center justify-between text-left cursor-pointer`}
+        aria-invalid={invalid || undefined}
+        className={`${baseInput} ${getFieldStateClass(invalid)} flex items-center justify-between text-left cursor-pointer`}
       >
-        <span className={value ? "text-slate-900" : "text-slate-400"}>{label}</span>
+        <span className={value ? "text-[13px] font-normal text-slate-900" : "text-[13px] font-normal text-slate-400"}>{label}</span>
         <ChevronDown className={`h-4 w-4 text-slate-500 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
         <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-[100] max-h-56 overflow-y-auto rounded-lg border border-slate-200 bg-white p-1 shadow-lg">
           <button
             type="button"
-            onClick={() => { onChange(""); setOpen(false); }}
-            className={`w-full rounded-md px-3 py-2 text-left text-sm font-medium hover:bg-slate-50 ${!value ? "bg-primary/10 text-primary" : "text-slate-500"}`}
+            onClick={() => {
+              onChange("");
+              setOpen(false);
+              if (!blurNotifiedRef.current) {
+                blurNotifiedRef.current = true;
+                onBlur?.();
+              }
+            }}
+            className={`w-full rounded-md px-3 py-2 text-left text-[13px] font-normal hover:bg-slate-50 ${!value ? "bg-primary/10 text-primary" : "text-slate-500"}`}
           >
             {placeholder}
           </button>
@@ -417,8 +525,15 @@ export function WSelect({ value, onChange, options, placeholder = "Select…" }:
             <button
               key={o}
               type="button"
-              onClick={() => { onChange(o); setOpen(false); }}
-              className={`w-full rounded-md px-3 py-2 text-left text-sm font-medium hover:bg-slate-50 ${value === o ? "bg-primary/10 text-primary" : "text-slate-700"}`}
+              onClick={() => {
+                onChange(o);
+                setOpen(false);
+                if (!blurNotifiedRef.current) {
+                  blurNotifiedRef.current = true;
+                  onBlur?.();
+                }
+              }}
+              className={`w-full rounded-md px-3 py-2 text-left text-[13px] font-normal hover:bg-slate-50 ${value === o ? "bg-primary/10 text-primary" : "text-slate-700"}`}
             >
               {o}
             </button>

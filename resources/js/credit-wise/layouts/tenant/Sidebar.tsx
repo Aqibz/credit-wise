@@ -7,12 +7,13 @@ import { useSidebarState } from "./SidebarContext";
 import userLogo from "@/assets/user-logo.png";
 import { useActionCounts, ACTION_REQUIRED_ROUTES } from "@/lib/state/useActionCounts";
 import { TENANT_NAV_SECTIONS } from "@/apps/tenant/navigation";
+import { APP_RELEASE } from "@/shared/lib/release";
 
 export function Sidebar() {
   const location = useLocation();
   const { collapsed } = useSidebarState();
   const actionCounts = useActionCounts();
-  // SSR-safe initial state â€” deterministic, based only on current pathname.
+  // SSR-safe initial state - deterministic, based only on current pathname.
   // Restoration from sessionStorage happens in useEffect after hydration.
   // Accordion mode: only one parent group open at a time.
   const findActiveParent = (pathname: string): string | null => {
@@ -53,6 +54,11 @@ export function Sidebar() {
     return () => el.removeEventListener("scroll", onScroll);
   }, []);
 
+  const activeItemClass =
+    "bg-sidebar-accent text-sidebar-accent-foreground shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--color-primary)_18%,white)]";
+  const activeSubItemClass =
+    "bg-primary-soft/80 text-primary shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--color-primary)_16%,white)]";
+
   return (
     <aside
       aria-hidden={collapsed}
@@ -68,11 +74,11 @@ export function Sidebar() {
           </div>
           <div>
             <div className="font-semibold text-foreground leading-tight tracking-tight">CreditWise</div>
-            <div className="text-[11px] text-muted-foreground">Installment Suite</div>
+            <div className="text-[11px] text-muted-foreground">Retail Credit Management System</div>
           </div>
         </div>
       </div>
-      <nav ref={navRef} className="flex-1 overflow-y-auto px-3 py-3 space-y-4 no-scrollbar">
+      <nav ref={navRef} className="flex-1 overflow-y-auto px-3 py-3 space-y-3 no-scrollbar">
         {TENANT_NAV_SECTIONS.map((section) => (
           <div key={section.title} className="space-y-1">
             <div className="px-2.5 pb-1 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground/75">
@@ -97,9 +103,9 @@ export function Sidebar() {
                       onClick={() => {
                         setOpen((s) => (s[item.label] ? {} : { [item.label]: true }));
                       }}
-                      className={`group relative w-full flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-colors duration-150 ${
+                    className={`group relative w-full flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-[13px] font-medium transition-colors duration-150 ${
                         hasActive
-                          ? "text-sidebar-foreground bg-sidebar-accent/60"
+                          ? activeItemClass
                           : "text-sidebar-foreground/80 hover:bg-sidebar-accent/70 hover:text-sidebar-foreground"
                       }`}
                     >
@@ -138,7 +144,7 @@ export function Sidebar() {
                                   type="button"
                                   onClick={() => setOpen((s) => ({ ...s, [groupKey]: !(s[groupKey] ?? groupActive) }))}
                                   className={`w-full flex items-center gap-2 rounded-md px-2.5 py-1.5 text-[12px] font-semibold uppercase tracking-wider transition-colors ${
-                                    groupActive ? "text-primary bg-primary-soft/70" : "text-muted-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent/40"
+                                    groupActive ? activeSubItemClass : "text-muted-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent/40"
                                   }`}
                                 >
                                   <span className="flex-1 text-left">{c.label}</span>
@@ -155,7 +161,7 @@ export function Sidebar() {
                                           search={(g.search as any) ?? undefined}
                                           className={`relative flex items-center gap-2 rounded-md px-2.5 py-1.5 text-[12.5px] transition-colors ${
                                             gActive
-                                              ? "text-primary font-semibold"
+                                              ? `${activeSubItemClass} font-semibold`
                                               : "text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
                                           }`}
                                         >
@@ -196,7 +202,7 @@ export function Sidebar() {
                               search={(c.search as any) ?? undefined}
                               className={`relative flex items-center gap-2 rounded-md px-2.5 py-1.5 text-[12.5px] transition-colors ${
                                 active
-                                  ? "text-primary font-semibold"
+                                  ? `${activeSubItemClass} font-semibold`
                                   : "text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
                               }`}
                             >
@@ -216,13 +222,16 @@ export function Sidebar() {
                 );
               }
               const active = location.pathname === item.to;
+              const dynamicBadge = item.to ? actionCounts[item.to] : 0;
+              const itemBadge = dynamicBadge || item.badge || 0;
+              const itemWarn = !!dynamicBadge && item.to ? ACTION_REQUIRED_ROUTES.has(item.to) : false;
               return (
                 <Link
                   key={item.to}
                   to={item.to!}
-                  className={`group relative flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-colors duration-150 ${
+                  className={`group relative flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-[13px] font-medium transition-colors duration-150 ${
                     active
-                      ? "text-primary font-semibold"
+                      ? `${activeItemClass} font-semibold`
                       : "text-sidebar-foreground/80 hover:bg-sidebar-accent/70 hover:text-sidebar-foreground"
                   }`}
                 >
@@ -230,9 +239,10 @@ export function Sidebar() {
                     <Icon className="h-[17px] w-[17px]" strokeWidth={1.75} />
                   </span>
                   <span className="flex-1">{item.label}</span>
-                  {item.badge ? (
-                    <span className="h-5 min-w-[20px] px-1.5 grid place-items-center rounded-full text-[10px] font-bold bg-destructive text-destructive-foreground">
-                      {item.badge}
+                  {itemBadge ? (
+                    <span className={`h-5 min-w-[20px] px-1.5 inline-flex items-center justify-center gap-0.5 rounded-full text-[10px] font-bold ${itemWarn ? "bg-warning text-warning-foreground" : "bg-destructive text-destructive-foreground"}`}>
+                      {itemWarn ? <AlertTriangle className="h-2.5 w-2.5" /> : null}
+                      {itemBadge}
                     </span>
                   ) : null}
                 </Link>
@@ -241,6 +251,10 @@ export function Sidebar() {
           </div>
         ))}
       </nav>
+      <div className="border-t border-sidebar-border px-4 py-3 bg-muted/30">
+        <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/70">Release</div>
+        <div className="mt-1 text-[11px] font-medium text-sidebar-foreground/80">{APP_RELEASE}</div>
+      </div>
     </aside>
   );
 }

@@ -72,7 +72,7 @@ export function EmployeeProfilePage({ employeeId }: { employeeId: string }) {
     <AppShell>
       <PageHeader
         title={employee.name}
-        description={`${employee.code || "Employee"} â€¢ ${employee.designation || "â€”"} â€¢ ${employee.branch || "â€”"}`}
+        description={`${employee.code || "Employee"} - ${employee.designation || "-"} - ${employee.branch || "-"}`}
         actions={
           <div className="flex items-center gap-2">
             <Link to="/hr/employees/$employeeId/edit" params={{ employeeId }} className="h-9 px-3 inline-flex items-center gap-1.5 rounded-lg border border-border bg-card text-xs font-semibold text-foreground hover:bg-muted">
@@ -143,14 +143,14 @@ export function EmployeeProfilePage({ employeeId }: { employeeId: string }) {
           {tab === "attendance" && (
             <Table
               headers={["Date", "Check In", "Check Out", "Status", "Notes"]}
-              rows={eAttendance.map((a) => [a.date, a.checkIn || "â€”", a.checkOut || "â€”", <Badge key="s" tone={a.status === "Present" ? "success" : a.status === "Absent" ? "destructive" : a.status === "Leave" ? "warning" : "muted"}>{a.status}</Badge>, a.notes || "â€”"])}
+              rows={eAttendance.map((a) => [a.date, a.checkIn || "-", a.checkOut || "-", <Badge key="s" tone={a.status === "Present" ? "success" : a.status === "Absent" ? "destructive" : a.status === "Leave" ? "warning" : "muted"}>{a.status}</Badge>, a.notes || "-"])}
               empty="No attendance records." />
           )}
 
           {tab === "leaves" && (
             <Table
               headers={["From", "To", "Days", "Type", "Reason", "Status"]}
-              rows={eLeaves.map((l) => [l.from || l.startDate || "â€”", l.to || l.endDate || "â€”", l.days || "â€”", l.type || "â€”", l.reason || "â€”", <Badge key="s" tone={l.status === "Approved" ? "success" : l.status === "Rejected" ? "destructive" : "warning"}>{l.status}</Badge>])}
+              rows={eLeaves.map((l) => [l.from || l.startDate || "-", l.to || l.endDate || "-", l.days || "-", l.type || "-", l.reason || "-", <Badge key="s" tone={l.status === "Approved" ? "success" : l.status === "Rejected" ? "destructive" : "warning"}>{l.status}</Badge>])}
               empty="No leave applications." />
           )}
 
@@ -171,14 +171,14 @@ export function EmployeeProfilePage({ employeeId }: { employeeId: string }) {
           {tab === "loans" && (
             <Table
               headers={["Ref", "Date", "Amount", "Installment", "Balance", "Status"]}
-              rows={eLoans.map((l) => [l.ref || l.id, l.date || "â€”", Rs(l.amount), Rs(l.installment), Rs(l.balance), <Badge key="s" tone={l.status === "Active" ? "primary" : l.status === "Closed" ? "success" : "warning"}>{l.status}</Badge>])}
+              rows={eLoans.map((l) => [l.ref || l.id, l.date || "-", Rs(l.amount), Rs(l.installment), Rs(l.balance), <Badge key="s" tone={l.status === "Active" ? "primary" : l.status === "Closed" ? "success" : "warning"}>{l.status}</Badge>])}
               empty="No loans." />
           )}
 
           {tab === "assets" && (
             <Table
               headers={["Asset", "Category", "Tag #", "Assigned On", "Condition"]}
-              rows={eAssets.map((a) => [a.name, a.category || "â€”", a.tag || "â€”", a.assignedDate || "â€”", <Badge key="s" tone={a.condition === "Good" ? "success" : a.condition === "Damaged" ? "destructive" : "warning"}>{a.condition || "â€”"}</Badge>])}
+              rows={eAssets.map((a) => [a.name, a.category || "-", a.tag || "-", a.assignedDate || "-", <Badge key="s" tone={a.condition === "Good" ? "success" : a.condition === "Damaged" ? "destructive" : "warning"}>{a.condition || "-"}</Badge>])}
               empty="No assets assigned." />
           )}
 
@@ -189,7 +189,7 @@ export function EmployeeProfilePage({ employeeId }: { employeeId: string }) {
               ) : (
                 <Table
                   headers={["Type", "Name", "Expiry"]}
-                  rows={(employee.documents || []).map((d: any) => [d.type, d.name, d.expiry || "â€”"])}
+                  rows={(employee.documents || []).map((d: any) => [d.type, d.name, d.expiry || "-"])}
                   empty="No documents."
                 />
               )}
@@ -208,16 +208,16 @@ function OverviewTab({ employee }: { employee: any }) {
         <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2"><User className="h-4 w-4 text-primary" /> Personal Details</h3>
         <div className="grid sm:grid-cols-2 gap-3 text-sm">
           {[
-            ["Father / Husband", employee.father || "â€”"],
-            ["CNIC", employee.cnic || "â€”"],
-            ["Date of Birth", employee.dob || "â€”"],
-            ["Gender", employee.gender || "â€”"],
-            ["Blood Group", employee.blood || "â€”"],
-            ["Marital Status", employee.maritalStatus || "â€”"],
-            ["Mobile", employee.phone || "â€”"],
-            ["Email", employee.email || "â€”"],
-            ["City", employee.city || "â€”"],
-            ["Address", employee.address || "â€”"],
+            ["Father / Husband", employee.father || "-"],
+            ["CNIC", employee.cnic || "-"],
+            ["Date of Birth", employee.dob || "-"],
+            ["Gender", employee.gender || "-"],
+            ["Blood Group", employee.blood || "-"],
+            ["Marital Status", employee.maritalStatus || "-"],
+            ["Mobile", employee.phone || "-"],
+            ["Email", employee.email || "-"],
+            ["City", employee.city || "-"],
+            ["Address", employee.address || "-"],
           ].map(([k, v]) => (
             <div key={k as string} className="flex items-center justify-between border-b border-border/60 py-2 gap-3">
               <span className="text-muted-foreground font-medium">{k}</span>
@@ -230,21 +230,21 @@ function OverviewTab({ employee }: { employee: any }) {
         <div className="rounded-xl border border-primary/30 bg-gradient-to-br from-primary/10 via-card to-card p-5">
           <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2 mb-3"><Briefcase className="h-3.5 w-3.5 text-primary" /> Employment</h3>
           <div className="space-y-2 text-sm">
-            <Row k="Designation" v={employee.designation || "â€”"} />
-            <Row k="Department" v={employee.department || "â€”"} />
-            <Row k="Branch" v={employee.branch || "â€”"} />
-            <Row k="Shift" v={employee.shift || "â€”"} />
-            <Row k="Type" v={employee.employmentType || "â€”"} />
-            <Row k="Reports To" v={employee.reportingTo || "â€”"} />
-            <Row k="Join Date" v={employee.joinDate || "â€”"} />
+            <Row k="Designation" v={employee.designation || "-"} />
+            <Row k="Department" v={employee.department || "-"} />
+            <Row k="Branch" v={employee.branch || "-"} />
+            <Row k="Shift" v={employee.shift || "-"} />
+            <Row k="Type" v={employee.employmentType || "-"} />
+            <Row k="Reports To" v={employee.reportingTo || "-"} />
+            <Row k="Join Date" v={employee.joinDate || "-"} />
           </div>
         </div>
         <div className="rounded-xl border border-amber-200/60 bg-amber-50/40 p-5">
           <h3 className="text-xs font-bold uppercase tracking-wider text-amber-700 flex items-center gap-2 mb-3"><ShieldCheck className="h-3.5 w-3.5" /> Emergency Contact</h3>
           <div className="space-y-2 text-sm">
-            <Row k="Name" v={employee.emergencyName || "â€”"} />
-            <Row k="Relation" v={employee.emergencyRelation || "â€”"} />
-            <Row k="Phone" v={employee.emergencyPhone || "â€”"} />
+            <Row k="Name" v={employee.emergencyName || "-"} />
+            <Row k="Relation" v={employee.emergencyRelation || "-"} />
+            <Row k="Phone" v={employee.emergencyPhone || "-"} />
           </div>
         </div>
       </div>

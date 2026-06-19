@@ -134,7 +134,6 @@ export function ProductMatrixModal({ productName, productPrice, onClose }: { pro
   return createPortal(
     <div
       className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-md flex items-center justify-center p-4"
-      style={{ fontFamily: '"Montserrat", ui-sans-serif, system-ui, sans-serif' }}
       onMouseDown={handleBackdropMouseDown}
       onClick={handleBackdropClick}
     >
@@ -269,7 +268,7 @@ export function ProductMatrixModal({ productName, productPrice, onClose }: { pro
               <EmptyState
                 icon={<Settings className="h-5 w-5" />}
                 title="No installment plans configured"
-                description="Pehle ek pricing plan banao â€” phir is product ka full installment matrix yahaan calculate hoga."
+                description="Pehle ek pricing plan banao - phir is product ka full installment matrix yahaan calculate hoga."
                 cta={{ label: "Create Pricing Plan", to: "/catalog/pricing", icon: <Plus className="h-3.5 w-3.5" /> }}
                 tone="warning"
               />
@@ -322,7 +321,7 @@ export function ProductMatrixModal({ productName, productPrice, onClose }: { pro
               <div className="grid grid-cols-2 gap-2 content-start">
                 <StatCard icon={<KpiIcons.wallet />} label="Pay Upfront" value={Rs(calc.upfront)} sub={`DP ${Rs(calc.dpAmount)} + Fee ${Rs(effectivePlan.fee)}`} tone="warning" />
                 <StatCard icon={<KpiIcons.calendar />} label="Monthly EMI" value={Rs(calc.monthly)} sub={`for ${effectivePlan.tenure} months`} tone="primary" highlight />
-                <StatCard icon={<KpiIcons.trendUp />} label="Yearly Outflow" value={Rs(calc.yearly)} sub={effectivePlan.tenure >= 12 ? "first 12 mo" : `${effectivePlan.tenure} Ã— monthly`} tone="muted" />
+                <StatCard icon={<KpiIcons.trendUp />} label="Yearly Outflow" value={Rs(calc.yearly)} sub={effectivePlan.tenure >= 12 ? "first 12 mo" : `${effectivePlan.tenure} x monthly`} tone="muted" />
                 <StatCard icon={<KpiIcons.invoice />} label="Total Payable" value={Rs(calc.totalPayable)} sub={`+ ${Rs(calc.totalInterest)} vs cash`} tone="success" />
               </div>
 
@@ -338,7 +337,7 @@ export function ProductMatrixModal({ productName, productPrice, onClose }: { pro
                     <Row label="Financed" value={Rs(calc.financed)} muted />
                     <Row label={`Markup (${effectivePlan.markup}%)`} value={`+ ${Rs(calc.markupAmount)}`} muted />
                     <Row label="Total Financed" value={Rs(calc.totalFinanced)} />
-                    <Row label={`Monthly EMI Ã— ${effectivePlan.tenure}`} value={Rs(calc.monthly)} highlight />
+                    <Row label={`Monthly EMI x ${effectivePlan.tenure}`} value={Rs(calc.monthly)} highlight />
                     <Row label="Processing Fee" value={Rs(effectivePlan.fee)} muted />
                     <Row label={`Late Fee / day (grace ${effectivePlan.graceDays}d)`} value={Rs(effectivePlan.penalty)} muted />
                     <Row label="Total Payable" value={Rs(calc.totalPayable)} bold />
@@ -352,7 +351,7 @@ export function ProductMatrixModal({ productName, productPrice, onClose }: { pro
               <EmptyState
                 icon={<Calendar className="h-5 w-5" />}
                 title="Select a plan to preview installments"
-                description="Upar se koi plan choose karein â€” full breakdown yahaan generate hoga."
+                description="Upar se koi plan choose karein - full breakdown yahaan generate hoga."
                 tone="muted"
               />
             </div>
@@ -387,7 +386,7 @@ export function ProductMatrixModal({ productName, productPrice, onClose }: { pro
                     onClick={() => setTenureOverride(Math.max(1, (tenureOverride ?? effectivePlan.tenure) - 1))}
                     className="h-5 w-5 rounded bg-muted hover:bg-muted-foreground/20 text-xs font-bold flex items-center justify-center"
                     type="button"
-                  >âˆ’</button>
+                  >-</button>
                   <input
                     type="number"
                     min={1}
@@ -449,7 +448,7 @@ export function ProductMatrixModal({ productName, productPrice, onClose }: { pro
           )}
           {isOverridden && (
             <div className="mt-1.5 text-[10px] text-warning/80 font-semibold uppercase tracking-wider flex items-center gap-1">
-              <Info className="h-2.5 w-2.5" /> Live override active â€” preview only, original plan untouched
+              <Info className="h-2.5 w-2.5" /> Live override active - preview only, original plan untouched
             </div>
           )}
         </div>
@@ -469,7 +468,7 @@ function CompareTable({ plans, cashPrice, selectedPlanId, onSelect }: { plans: P
       <div className="rounded-xl border border-border overflow-hidden">
         <div className="px-3 sm:px-4 py-2.5 bg-muted/40 text-[10px] sm:text-[11px] uppercase tracking-wider font-bold text-muted-foreground flex items-center gap-2">
           <Layers className="h-3.5 w-3.5 shrink-0" />
-          <span className="truncate">Plan Comparison Â· Cash Price {fmtPKR(cashPrice)}</span>
+          <span className="truncate">Plan Comparison - Cash Price {fmtPKR(cashPrice)}</span>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-[12px] sm:text-sm border-separate border-spacing-0">
@@ -496,7 +495,7 @@ function CompareTable({ plans, cashPrice, selectedPlanId, onSelect }: { plans: P
                   <tr key={plan.id} className={rowBg}>
                     <td className={`px-2 sm:px-3 py-2.5 sticky left-0 z-10 ${active ? "bg-primary/5" : "bg-background"} border-r border-border/40`}>
                       <div className="font-bold text-foreground text-[12px] sm:text-[13px] truncate max-w-[160px]">{plan.name}</div>
-                      <div className="text-[10px] text-muted-foreground truncate max-w-[160px]">DP {plan.downType === "%" ? `${plan.downPayment}%` : fmtPKR(plan.downPayment)} Â· +{plan.markup}%</div>
+                      <div className="text-[10px] text-muted-foreground truncate max-w-[160px]">DP {plan.downType === "%" ? `${plan.downPayment}%` : fmtPKR(plan.downPayment)} - +{plan.markup}%</div>
                     </td>
                     <td className="px-2 sm:px-3 py-2.5 text-center text-muted-foreground whitespace-nowrap tabular-nums">{plan.tenure} mo</td>
                     <td className="px-2 sm:px-3 py-2.5 text-right font-semibold whitespace-nowrap tabular-nums">
@@ -537,9 +536,9 @@ function CompareTable({ plans, cashPrice, selectedPlanId, onSelect }: { plans: P
         </div>
       </div>
       <div className="text-[10px] sm:text-[11px] text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 px-1">
-        <span>â€¢ <span className="text-success font-semibold">Low</span> = sab se kam monthly EMI</span>
-        <span>â€¢ <span className="text-success font-semibold">Cheap</span> = sab se kam total payable</span>
-        <span className="hidden sm:inline">â€¢ EMI 10 PKR ke nearest tak round-up hoti hai</span>
+        <span> -  <span className="text-success font-semibold">Low</span> = sab se kam monthly EMI</span>
+        <span> -  <span className="text-success font-semibold">Cheap</span> = sab se kam total payable</span>
+        <span className="hidden sm:inline"> -  EMI 10 PKR ke nearest tak round-up hoti hai</span>
       </div>
     </div>
   );
@@ -572,7 +571,7 @@ function EmptyState({ icon, title, description, cta, tone = "muted" }: { icon: R
 }
 
 function StatCard({ icon, label, value, sub, tone, highlight }: { icon: React.ReactNode; label: string; value: string; sub?: string; tone: "primary" | "success" | "warning" | "muted"; highlight?: boolean }) {
-  // Icon-only KPI styling: no ring, no bg pill around the icon â€” only the
+  // Icon-only KPI styling: no ring, no bg pill around the icon - only the
   // glyph is tone-colored, matching the unified StatCard in ui-kit.
   const toneText: Record<string, string> = {
     primary: "text-primary",

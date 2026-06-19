@@ -2,6 +2,7 @@ export * from "./catalog";
 export * from "./inventory";
 export * from "./purchases";
 export * from "./customers";
+export * from "./leads";
 export * from "./sales";
 export * from "./accounts";
 export * from "./hr";

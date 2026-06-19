@@ -61,7 +61,7 @@ export function DocumentView({
 
   async function share() {
     const shareUrl = `${window.location.origin}${window.location.pathname}#${encodeURIComponent(doc.ref || doc.id)}`;
-    const shareData = { title: `${cfg.title} ${doc.ref || ""}`.trim(), text: `${cfg.title} â€¢ ${doc.ref || ""}`.trim(), url: shareUrl };
+    const shareData = { title: `${cfg.title} ${doc.ref || ""}`.trim(), text: `${cfg.title} - ${doc.ref || ""}`.trim(), url: shareUrl };
     try {
       if (typeof navigator !== "undefined" && (navigator as any).share) {
         await (navigator as any).share(shareData);
@@ -70,7 +70,7 @@ export function DocumentView({
       await navigator.clipboard.writeText(shareUrl);
       toast.success("Link copied", "Share link copied to clipboard.");
     } catch {
-      // user cancelled â€” no-op
+      // user cancelled - no-op
     }
   }
 
@@ -90,7 +90,7 @@ export function DocumentView({
             <div className="text-[11px] font-bold uppercase tracking-wider text-primary">{cfg.title}</div>
             <div className="text-sm font-semibold text-slate-800 truncate">
               {doc.ref}
-              {doc.date && <span className="ml-2 text-xs font-medium text-slate-500">{doc.date}{doc.time ? ` â€¢ ${doc.time}` : ""}</span>}
+              {doc.date && <span className="ml-2 text-xs font-medium text-slate-500">{doc.date}{doc.time ? ` - ${doc.time}` : ""}</span>}
             </div>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">

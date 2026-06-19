@@ -4,10 +4,13 @@ import {
   CreditCard, Globe, Shield, Save, Percent, Database, Languages, Search, ChevronLeft, ChevronRight, UserCircle2,
 } from "lucide-react";
 import { PageHeader } from "@/components/ui-kit";
+import { AppShell } from "@/components/layout/AppShell";
 import { useToast } from "@/components/Toaster";
 import { useEntityStore } from "@/lib/state/useEntityStore";
 import { UnderlineTab } from "@/components/ui/underline-tabs";
 import { SettingsTabs } from "@/pages/system/settings/SettingsTabs";
+import { CURRENCY_OPTIONS, MASTER_SETTINGS_STORAGE_KEY, notifyCurrencySettingsChanged } from "@/shared/lib/currency-settings";
+import { CurrencyAmountInput } from "@/shared/ui/primitives/currency-amount-input";
 
 type FieldDef = { key: string; label: string; type: "text" | "number" | "select" | "switch" | "textarea"; options?: string[]; placeholder?: string; suffix?: string; help?: string };
 type Section = { id: string; title: string; description: string; icon: any; fields: FieldDef[] };
@@ -55,6 +58,8 @@ const SECTIONS: Section[] = [
   ]},
   { id: "payments", title: "Payments & Wallets", description: "Cash drawer rules and wallet integrations.", icon: CreditCard, fields: [
     { key: "allowPartialPayments", label: "Allow Partial Payments", type: "switch" }, { key: "cashDrawerLimit", label: "Cash Drawer Limit (Rs.)", type: "number" }, { key: "chequeClearanceDays", label: "Default Cheque Clearance Days", type: "number" },
+    { key: "processingFeeEnabled", label: "Enable Contract Processing Fee", type: "switch", help: "Turn this off if your company does not charge any one-time contract processing fee." },
+    { key: "processingFeeAmount", label: "Default Processing Fee (Rs.)", type: "number", help: "Used in contracts when no plan-specific processing fee is defined." },
     { key: "lateFeePerDay", label: "Late Fee per Day (Rs.)", type: "number" }, { key: "graceDays", label: "Installment Grace Days", type: "number" }, { key: "jazzcashEnabled", label: "JazzCash Enabled", type: "switch" }, { key: "easypaisaEnabled", label: "EasyPaisa Enabled", type: "switch" },
   ]},
   { id: "print", title: "Printing & Templates", description: "Receipt printer and stationery defaults.", icon: Printer, fields: [
@@ -91,7 +96,7 @@ const DEFAULTS: Record<string, any> = {
   weekOff: "Sunday", shiftStart: "10:00 AM", shiftEnd: "07:00 PM", graceMinutes: 15, casualLeaves: 10, sickLeaves: 8, annualLeaves: 14, payrollCycle: "Monthly", salaryCutoffDay: 25, epf: 8.33, eobi: 1,
   smsEnabled: true, whatsappEnabled: true, emailEnabled: true, smsDailyLimit: 5000, whatsappDailyLimit: 2000, emailDailyLimit: 10000, quietStart: "10:00 PM", quietEnd: "08:00 AM", reminderDaysBefore: 2, overdueReminderDaysAfter: 1,
   expenseAutoApproveLimit: 5000, expenseManagerLimit: 50000, expenseDirectorLimit: 250000, petty: 25000, requireBills: true, blockOverBudget: false,
-  allowPartialPayments: true, cashDrawerLimit: 500000, chequeClearanceDays: 3, lateFeePerDay: 100, graceDays: 3, jazzcashEnabled: true, easypaisaEnabled: true,
+  allowPartialPayments: true, cashDrawerLimit: 500000, chequeClearanceDays: 3, processingFeeEnabled: true, processingFeeAmount: 1500, lateFeePerDay: 100, graceDays: 3, jazzcashEnabled: true, easypaisaEnabled: true,
   printSize: "A4", printCopies: 1, footerNote: "Thank you for your business.", smtpHost: "smtp.example.com", smtpPort: 587, smtpUser: "", smtpPass: "", fromName: "CreditWise", fromEmail: "noreply@creditwise.pk",
   smsProvider: "Branded SMS PK", smsMask: "QISTIFY", smsApiKey: "", smsCallback: "", passwordMinLen: 8, requireMfa: false, sessionMinutes: 60, lockoutAttempts: 5, auditRetentionDays: 365,
   backupFrequency: "Daily", backupTime: "02:00 AM", retentionWeeks: 8, exportEnabled: true, language: "English", timezone: "Asia/Karachi", dateFormat: "DD-MM-YYYY", weekStart: "Monday",
@@ -102,7 +107,7 @@ const DEFAULTS: Record<string, any> = {
 export function MasterSettingsPage() {
   const [active, setActive] = useState(SECTIONS[0].id);
   const toast = useToast();
-  const { items, create, update } = useEntityStore<{ id: string; values: Record<string, any> }>("qcrm.masterSettingsKv", [{ id: "default", values: DEFAULTS }]);
+  const { items, create, update } = useEntityStore<{ id: string; values: Record<string, any> }>(MASTER_SETTINGS_STORAGE_KEY, [{ id: "default", values: DEFAULTS }]);
   const stored = items[0]?.values ?? DEFAULTS;
   const [draft, setDraft] = useState<Record<string, any>>(stored);
   const section = useMemo(() => SECTIONS.find((s) => s.id === active)!, [active]);
@@ -111,6 +116,7 @@ export function MasterSettingsPage() {
   function save() {
     if (items[0]) update(items[0].id, { values: draft });
     else create({ values: draft } as any);
+    notifyCurrencySettingsChanged();
     toast.success("Settings saved", `${section.title} has been updated.`);
   }
   function resetSection() {
@@ -123,18 +129,18 @@ export function MasterSettingsPage() {
   }
 
   return (
-    <>
-      <PageHeader
-        title="Master Settings"
-        description="Full control over company profile, invoices, HR, notifications, expenses and more."
-        actions={
-          <>
-            <button onClick={resetSection} className="h-10 px-4 rounded-lg border border-border bg-card text-sm font-semibold hover:bg-muted">Reset Section</button>
-            <button onClick={save} className="h-10 px-4 inline-flex items-center gap-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 shadow-sm shadow-primary/30"><Save className="h-4 w-4" /> Save Changes</button>
-          </>
-        }
-      />
+    <AppShell>
       <div className="flex flex-col gap-6">
+        <PageHeader
+          title="Master Settings"
+          description="Full control over company profile, invoices, HR, notifications, expenses and more."
+          actions={
+            <>
+              <button onClick={resetSection} className="h-10 px-4 rounded-lg border border-border bg-card text-sm font-semibold hover:bg-muted">Reset Section</button>
+              <button onClick={save} className="h-10 px-4 inline-flex items-center gap-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 shadow-sm shadow-primary/30"><Save className="h-4 w-4" /> Save Changes</button>
+            </>
+          }
+        />
         <SettingsTabs initial="master" />
         <SectionTabs sections={SECTIONS} active={active} onChange={setActive} />
         <div className="rounded-xl border border-border bg-card overflow-hidden">
@@ -152,7 +158,7 @@ export function MasterSettingsPage() {
           </div>
         </div>
       </div>
-    </>
+    </AppShell>
   );
 }
 
@@ -211,6 +217,8 @@ function SectionTabs({ sections, active, onChange }: { sections: Section[]; acti
 }
 
 function FieldRow({ field, value, onChange }: { field: FieldDef; value: any; onChange: (v: any) => void }) {
+  const isMoneyField = field.type === "number" && /\(rs\.?\)/i.test(field.label);
+
   if (field.type === "switch") {
     const checked = !!value;
     return (
@@ -230,14 +238,20 @@ function FieldRow({ field, value, onChange }: { field: FieldDef; value: any; onC
     <div className={field.type === "textarea" ? "md:col-span-2" : ""}>
       <label className="block text-[13px] font-semibold text-foreground mb-1.5">{field.label}</label>
       {field.type === "select" ? (
-        <select value={value ?? ""} onChange={(e) => onChange(e.target.value)} className="w-full h-11 px-3 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
-          {field.options?.map((o) => <option key={o} value={o}>{o}</option>)}
+        <select value={value ?? ""} onChange={(e) => onChange(e.target.value)} className="w-full h-9 px-3 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
+          {(field.key === "currency" ? CURRENCY_OPTIONS.map((option) => option.value) : field.options)?.map((o) => <option key={o} value={o}>{o}</option>)}
         </select>
       ) : field.type === "textarea" ? (
         <textarea value={value ?? ""} onChange={(e) => onChange(e.target.value)} rows={3} className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none" />
+      ) : isMoneyField ? (
+        <CurrencyAmountInput
+          value={value ?? ""}
+          onChange={(nextValue) => onChange(nextValue === "" ? "" : Number(nextValue))}
+          placeholder={field.placeholder}
+        />
       ) : (
         <div className="relative">
-          <input type={field.type} value={value ?? ""} placeholder={field.placeholder} onChange={(e) => onChange(field.type === "number" ? Number(e.target.value) : e.target.value)} className={`w-full h-11 px-3 ${field.suffix ? "pr-12" : ""} rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30`} />
+          <input type={field.type} value={value ?? ""} placeholder={field.placeholder} onChange={(e) => onChange(field.type === "number" ? Number(e.target.value) : e.target.value)} className={`w-full h-9 px-3 ${field.suffix ? "pr-12" : ""} rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30`} />
           {field.suffix && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-semibold">{field.suffix}</span>}
         </div>
       )}

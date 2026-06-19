@@ -554,12 +554,12 @@ export function PurchaseOrderForm({
                   <div>
                     <label className="block text-xs text-muted-foreground mb-1">Prefix</label>
                     <input value={poPrefix} onChange={(e) => setPoPrefix(e.target.value)}
-                      className="h-9 w-full px-2.5 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary" />
+                      className="h-9 w-full px-3 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary" />
                   </div>
                   <div>
                     <label className="block text-xs text-muted-foreground mb-1">Next Number</label>
                     <input value={poNext} onChange={(e) => setPoNext(e.target.value)}
-                      className="h-9 w-full px-2.5 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary" />
+                      className="h-9 w-full px-3 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary" />
                   </div>
                 </div>
               )}
@@ -678,7 +678,7 @@ function BaseInput({ className = "", ...props }: React.InputHTMLAttributes<HTMLI
   return (
     <input
       {...props}
-      className={`h-9 px-2.5 rounded-md border border-border bg-card text-sm w-full focus:outline-none focus:ring-1 focus:ring-primary ${className}`}
+      className={`h-9 px-3 rounded-md border border-border bg-card text-sm w-full focus:outline-none focus:ring-1 focus:ring-primary ${className}`}
     />
   );
 }
@@ -697,7 +697,7 @@ function NativeSelect({
       <select
         value={value}
         onChange={onChange}
-        className="appearance-none w-full h-9 pl-2.5 pr-8 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+        className="appearance-none w-full h-9 pl-3 pr-8 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary"
       >
         {placeholder && <option value="">{placeholder}</option>}
         {options.map((o) => <option key={o} value={o}>{o}</option>)}
@@ -817,7 +817,7 @@ function DateInput({ value, onChange, placeholder, min }: { value: string; onCha
           value={value}
           min={min}
           onChange={(e) => onChange(e.target.value)}
-          className="h-9 w-full px-2.5 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+          className="h-9 w-full px-3 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary"
           placeholder={placeholder}
         />
       </div>
@@ -976,15 +976,15 @@ function NewAddressDialog({
         </DialogHeader>
         <div className="px-6 py-5 space-y-3.5">
           {err && <div className="text-xs text-destructive font-semibold">{err}</div>}
-          <AddrField label="Attention"><input value={attention} onChange={(e) => setAttention(e.target.value)} className="h-9 w-full px-2.5 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary" /></AddrField>
-          <AddrField label="Street 1" required><textarea value={street1} onChange={(e) => setStreet1(e.target.value)} rows={2} className="w-full px-2.5 py-1.5 rounded-md border border-primary bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary" /></AddrField>
-          <AddrField label="Street 2"><textarea value={street2} onChange={(e) => setStreet2(e.target.value)} rows={2} className="w-full px-2.5 py-1.5 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary" /></AddrField>
-          <AddrField label="City"><input value={city} onChange={(e) => setCity(e.target.value)} className="h-9 w-full px-2.5 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary" /></AddrField>
-          <AddrField label="State/Province"><input value={stateP} onChange={(e) => setStateP(e.target.value)} className="h-9 w-full px-2.5 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary" /></AddrField>
-          <AddrField label="ZIP/Postal Code"><input value={zip} onChange={(e) => setZip(e.target.value)} className="h-9 w-full px-2.5 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary" /></AddrField>
+          <AddrField label="Attention"><input value={attention} onChange={(e) => setAttention(e.target.value)} className="h-9 w-full px-3 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary" /></AddrField>
+          <AddrField label="Street 1" required><textarea value={street1} onChange={(e) => setStreet1(e.target.value)} rows={2} className="w-full min-h-[84px] px-3 py-1.5 rounded-md border border-primary bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary resize-none" /></AddrField>
+          <AddrField label="Street 2"><textarea value={street2} onChange={(e) => setStreet2(e.target.value)} rows={2} className="w-full min-h-[84px] px-3 py-1.5 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary resize-none" /></AddrField>
+          <AddrField label="City"><input value={city} onChange={(e) => setCity(e.target.value)} className="h-9 w-full px-3 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary" /></AddrField>
+          <AddrField label="State/Province"><input value={stateP} onChange={(e) => setStateP(e.target.value)} className="h-9 w-full px-3 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary" /></AddrField>
+          <AddrField label="ZIP/Postal Code"><input value={zip} onChange={(e) => setZip(e.target.value)} className="h-9 w-full px-3 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary" /></AddrField>
           <AddrField label="Country / Region">
             <div className="relative">
-              <select value={country} onChange={(e) => setCountry(e.target.value)} className="appearance-none w-full h-9 pl-2.5 pr-8 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary">
+              <select value={country} onChange={(e) => setCountry(e.target.value)} className="appearance-none w-full h-9 pl-3 pr-8 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary">
                 <option value="">Select or type to add</option>
                 <option>Pakistan</option><option>India</option><option>United States</option>
                 <option>United Kingdom</option><option>UAE</option>
@@ -992,7 +992,7 @@ function NewAddressDialog({
               <ChevronDown className="h-3.5 w-3.5 text-muted-foreground absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
           </AddrField>
-          <AddrField label="Phone"><input value={phone} onChange={(e) => setPhone(e.target.value)} className="h-9 w-full px-2.5 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary" /></AddrField>
+          <AddrField label="Phone"><input value={phone} onChange={(e) => setPhone(e.target.value)} className="h-9 w-full px-3 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary" /></AddrField>
         </div>
         <DialogFooter className="px-6 py-3 border-t border-border bg-muted/20 sm:justify-start gap-2">
           <button type="button" onClick={save} className="h-9 px-4 rounded-md bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90">Save</button>

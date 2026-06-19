@@ -1,9 +1,10 @@
 import { useState } from "react";
 import type { ReactNode } from "react";
-import { Mail, Phone, Smartphone, UploadCloud, ChevronDown, Globe } from "lucide-react";
+import { Mail, UploadCloud, ChevronDown, Globe } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
+import { CountryCodePhoneInput } from "@/shared/ui/primitives/country-code-phone-input";
 
 const SALUTATIONS = ["Mr.", "Mrs.", "Ms.", "Dr.", "Prof."];
 const PAYMENT_TERMS = ["Due on Receipt", "Net 7", "Net 15", "Net 30", "Net 45", "Net 60", "Net 90", "Advance", "COD"];
@@ -103,15 +104,15 @@ export function NewVendorModal({
                 type="email"
                 value={v.email}
                 onChange={(e) => set("email", e.target.value)}
-                className="h-9 w-full pl-9 pr-3 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                className="h-10 w-full pl-9 pr-3 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
           </FieldRow>
 
           <FieldRow label="Vendor Phone">
             <div className="grid grid-cols-2 gap-3">
-              <PrefixInput icon={<Phone className="h-3.5 w-3.5" />} value={v.workPhone} onChange={(x) => set("workPhone", x)} placeholder="Work Phone" />
-              <PrefixInput icon={<Smartphone className="h-3.5 w-3.5" />} value={v.mobile} onChange={(x) => set("mobile", x)} placeholder="Mobile" />
+              <CountryCodePhoneInput value={v.workPhone} onChange={(x) => set("workPhone", x)} placeholder="Work Phone" />
+              <CountryCodePhoneInput value={v.mobile} onChange={(x) => set("mobile", x)} placeholder="Mobile" />
             </div>
           </FieldRow>
 
@@ -139,12 +140,12 @@ export function NewVendorModal({
             <div className="space-y-5 pt-1">
               <FieldRow label="Opening Balance">
                 <div className="flex">
-                  <span className="h-9 px-3 inline-flex items-center rounded-l-md border border-r-0 border-border bg-muted text-xs font-semibold text-muted-foreground">PKR</span>
+                  <span className="h-10 px-3 inline-flex items-center rounded-l-md border border-r-0 border-border bg-muted text-xs font-semibold text-muted-foreground">PKR</span>
                   <input
                     type="number"
                     value={v.openingBalance}
                     onChange={(e) => set("openingBalance", e.target.value)}
-                    className="h-9 flex-1 px-3 rounded-r-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="h-10 flex-1 px-3 rounded-r-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                 </div>
               </FieldRow>
@@ -329,29 +330,13 @@ function Input({ value, onChange, placeholder, type = "text" }: { value: string;
   );
 }
 
-function PrefixInput({ icon, value, onChange, placeholder }: { icon: ReactNode; value: string; onChange: (v: string) => void; placeholder?: string }) {
-  return (
-    <div className="flex">
-      <span className="h-9 w-9 inline-flex items-center justify-center rounded-l-md border border-r-0 border-border bg-muted text-muted-foreground">
-        {icon}
-      </span>
-      <input
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className="h-9 flex-1 px-3 rounded-r-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-      />
-    </div>
-  );
-}
-
 function Select({ value, onChange, options, placeholder }: { value: string; onChange: (v: string) => void; options: string[]; placeholder?: string }) {
   return (
     <div className="relative">
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-9 w-full pl-3 pr-9 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary appearance-none"
+        className="h-10 w-full pl-3 pr-9 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary appearance-none"
       >
         {placeholder && <option value="">{placeholder}</option>}
         {options.map((o) => <option key={o} value={o}>{o}</option>)}

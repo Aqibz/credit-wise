@@ -30,7 +30,7 @@ export function buildReportHtml(report: Report, module: ModuleTab, branch: strin
   return `<!doctype html><html><head><meta charset="utf-8"><title>${report.name}</title>
 <style>
   @page { size: A4; margin: 18mm; }
-  body { font-family: 'Montserrat', system-ui, sans-serif; color: #0f172a; }
+  body { font-family: 'Manrope', system-ui, sans-serif; color: #0f172a; }
   header { display:flex; align-items:center; justify-content:space-between; border-bottom: 3px solid #4f46e5; padding-bottom:14px; margin-bottom:22px; }
   .brand { font-size: 24px; font-weight: 800; color:#4f46e5; letter-spacing:-0.5px; }
   .meta { text-align:right; font-size:11px; color:#475569; line-height:1.6; }

@@ -1,8 +1,9 @@
 ﻿import { Link } from "@/shared/navigation";
 import { useMemo, useState, ReactNode } from "react";
 import { AppShell } from "@/components/layout/AppShell";
-import { StatCard, Badge, ui } from "@/components/ui-kit";
+import { StatCard, Badge, Breadcrumbs, ui } from "@/components/ui-kit";
 import { useEntityStore } from "@/lib/state/useEntityStore";
+import { PageMeta } from "@/shared/ui/core/PageMeta";
 import {
   customersConfig, hpCasesConfig, salesConfig, deliveriesConfig,
   salesReturnsConfig, receiptsConfig, guarantorsConfig,
@@ -89,6 +90,7 @@ export function CustomerProfilePage({ customerId }: { customerId: string }) {
   if (!customer) {
     return (
       <AppShell>
+        <PageMeta title="Customer Not Found" description="The requested customer record could not be found." />
         <div className="rounded-xl bg-card border border-border/60 p-12 text-center">
           <h1 className="text-lg font-semibold text-foreground mb-2">Customer Not Found</h1>
           <p className="text-sm text-muted-foreground mb-4">No customer matches the ID "{customerId}".</p>
@@ -102,24 +104,28 @@ export function CustomerProfilePage({ customerId }: { customerId: string }) {
 
   return (
     <AppShell>
+      <PageMeta title={customer.name} description="Customer Profile" />
+      <Breadcrumbs title={customer.name} />
+
       <div className="mb-4 flex items-center justify-end gap-3">
         <Link to="/customers" className="text-primary text-xs font-medium inline-flex items-center gap-1 hover:underline shrink-0">
           <ArrowLeft className="h-3.5 w-3.5" /> Back to Customers
         </Link>
       </div>
 
-      {/* Identity header â€” minimal */}
+      {/* Identity header - minimal */}
       <div className="rounded-xl bg-card border border-border/60 p-5 mb-4">
         <div className="flex items-start gap-4 flex-wrap">
           <div className="h-14 w-14 rounded-xl bg-primary/10 grid place-items-center text-primary text-lg font-semibold shrink-0">
             {String(customer.name).split(" ").map((s: string) => s[0]).slice(0, 2).join("")}
           </div>
           <div className="flex-1 min-w-0">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Customer Profile</div>
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-lg font-semibold text-foreground tracking-tight">{customer.name}</h1>
               <Badge tone={customer.status === "Active" ? "success" : customer.status === "Blacklisted" ? "destructive" : "muted"}>{customer.status}</Badge>
               {customer.assignedTo && (
-                <span className="text-[11px] font-medium text-muted-foreground">Â· {customer.assignedRole || "Officer"}: <span className="text-foreground">{customer.assignedTo}</span></span>
+                <span className="text-[11px] font-medium text-muted-foreground"> -  {customer.assignedRole || "Officer"}: <span className="text-foreground">{customer.assignedTo}</span></span>
               )}
             </div>
             <div className="flex items-center gap-x-4 gap-y-1 mt-1.5 text-xs text-muted-foreground flex-wrap">
@@ -262,7 +268,7 @@ export function CustomerProfilePage({ customerId }: { customerId: string }) {
                 </h3>
                 <HistoryTable
                   headers={["Complaint #", "Subject", "Category", "Severity", "Filed", "Assignee", "Status"]}
-                  rows={cComplaints.map((c: any) => [c.ref, c.subject, c.category, <Badge key="sv" tone={c.severity === "Critical" ? "destructive" : c.severity === "High" ? "warning" : "muted"}>{c.severity}</Badge>, c.filedOn, c.assignee || "â€”", <Badge key="s" tone={c.status === "Resolved" || c.status === "Closed" ? "success" : c.status === "Escalated" ? "destructive" : "warning"}>{c.status}</Badge>])}
+                  rows={cComplaints.map((c: any) => [c.ref, c.subject, c.category, <Badge key="sv" tone={c.severity === "Critical" ? "destructive" : c.severity === "High" ? "warning" : "muted"}>{c.severity}</Badge>, c.filedOn, c.assignee || "-", <Badge key="s" tone={c.status === "Resolved" || c.status === "Closed" ? "success" : c.status === "Escalated" ? "destructive" : "warning"}>{c.status}</Badge>])}
                   empty="No complaints filed." />
               </section>
 
@@ -312,7 +318,7 @@ export function CustomerProfilePage({ customerId }: { customerId: string }) {
                 value={blReason}
                 onChange={(e) => setBlReason(e.target.value)}
                 rows={3}
-                placeholder="e.g. Defaulted on 6+ EMIs, absconded, fraudulent CNIC, cheque bounceâ€¦"
+                placeholder="e.g. Defaulted on 6+ EMIs, absconded, fraudulent CNIC, cheque bounce..."
                 className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               />
             </div>
@@ -330,8 +336,8 @@ export function CustomerProfilePage({ customerId }: { customerId: string }) {
             cnic: customer.cnic || "",
             phone: customer.phone || "",
             city: customer.city || "",
-            caseRef: primaryCase?.caseNo || primaryCase?.ref || "â€”",
-            product: primaryCase?.product || "â€”",
+            caseRef: primaryCase?.caseNo || primaryCase?.ref || "-",
+            product: primaryCase?.product || "-",
             loss,
             recovered: 0,
             daysOverdue: 0,
@@ -360,12 +366,12 @@ function OverviewTab({ customer, cases, guarantors }: { customer: any; cases: an
           <h3 className="text-xs font-bold uppercase tracking-wider text-foreground mb-3">Contact & Address</h3>
           <dl className="space-y-1.5 text-sm">
             {[
-              ["Mobile", customer.phone || "â€”"],
-              ["WhatsApp", customer.whatsapp || "â€”"],
-              ["Email", customer.email || "â€”"],
-              ["Area", customer.area || "â€”"],
-              ["City", customer.city || "â€”"],
-              ["Address", customer.address || "â€”"],
+              ["Mobile", customer.phone || "-"],
+              ["WhatsApp", customer.whatsapp || "-"],
+              ["Email", customer.email || "-"],
+              ["Area", customer.area || "-"],
+              ["City", customer.city || "-"],
+              ["Address", customer.address || "-"],
             ].map(([k, v]) => (
               <div key={k as string} className="flex justify-between gap-4 py-1.5">
                 <dt className="text-muted-foreground">{k}</dt>
@@ -378,10 +384,10 @@ function OverviewTab({ customer, cases, guarantors }: { customer: any; cases: an
           <h3 className="text-xs font-bold uppercase tracking-wider text-foreground mb-3">Employment & Credit</h3>
           <dl className="space-y-1.5 text-sm">
             {[
-              ["Occupation", customer.occupation || "â€”"],
-              ["Employer", customer.employer || "â€”"],
-              ["Monthly Income", customer.income ? Rs(customer.income) : "â€”"],
-              ["Credit Score", customer.credit ? <CreditScoreCell key="cs" value={Number(customer.credit)} /> : "â€”"],
+              ["Occupation", customer.occupation || "-"],
+              ["Employer", customer.employer || "-"],
+              ["Monthly Income", customer.income ? Rs(customer.income) : "-"],
+              ["Credit Score", customer.credit ? <CreditScoreCell key="cs" value={Number(customer.credit)} /> : "-"],
               ["Receivable", <span key="rcv" className="font-semibold tabular-nums">{Rs(customer.receivable || 0)}</span>],
               ["Overdue", <span key="od" className={Number(customer.overdue) > 0 ? "text-destructive font-semibold tabular-nums" : "text-muted-foreground font-medium tabular-nums"}>{Rs(customer.overdue || 0)}</span>],
               
@@ -400,7 +406,7 @@ function OverviewTab({ customer, cases, guarantors }: { customer: any; cases: an
 }
 
 function CreditScoreCell({ value }: { value: number }) {
-  if (value <= 0) return <span className="text-muted-foreground">â€”</span>;
+  if (value <= 0) return <span className="text-muted-foreground"> - </span>;
   const color = value >= 750 ? "text-emerald-600" : value >= 650 ? "text-primary" : value >= 550 ? "text-amber-600" : "text-destructive";
   return <span className={`font-semibold tabular-nums ${color}`}>{value}</span>;
 }
@@ -503,14 +509,14 @@ function buildInstallments(cases: any[], receipts: any[]): Inst[] {
       all.push({ case: c.ref, n, total: tenure, dueDate: dueIso, amount: monthly, paidAmount, opening, closing, status, paidOn, late });
     }
   });
-  // Order by case then installment number â€” gives a proper amortization read.
+  // Order by case then installment number - gives a proper amortization read.
   all.sort((a, b) => a.case.localeCompare(b.case) || a.n - b.n);
   return all;
 }
 
 const daysBetween = (a: Date, b: Date) => Math.round((a.getTime() - b.getTime()) / 86400000);
 const fmtDate = (iso: string) => {
-  if (!iso) return "â€”";
+  if (!iso) return "-";
   const d = new Date(iso);
   if (isNaN(d.getTime())) return iso;
   return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
@@ -542,10 +548,10 @@ function TransactionsTab({
 
   type Event = { date: string; kind: string; title: string; sub: string; tone: string; icon: ReactNode };
   const events: Event[] = [];
-  cases.forEach((c) => events.push({ date: c.startDate || "", kind: "case", title: `Case opened Â· ${c.ref}`, sub: `${c.product} Â· ${c.tenure}mo @ Rs ${Number(c.monthly || 0).toLocaleString()}/mo`, tone: "primary", icon: <CreditCard className="h-3.5 w-3.5" /> }));
-  deliveries.forEach((d) => events.push({ date: d.scheduled || d.date || "", kind: "delivery", title: `Delivery Â· ${d.ref}`, sub: `${d.status}${d.driver ? ` Â· ${d.driver}` : ""}`, tone: d.status === "Delivered" ? "success" : "warning", icon: <PackageCheck className="h-3.5 w-3.5" /> }));
-  rets.forEach((r) => events.push({ date: r.date || "", kind: "return", title: `Return Â· ${r.ref}`, sub: `${r.product || r.reason || ""} Â· ${r.status}`, tone: r.status === "Approved" ? "warning" : "muted", icon: <RotateCcw className="h-3.5 w-3.5" /> }));
-  receipts.forEach((r) => events.push({ date: r.date || "", kind: "payment", title: `Payment received Â· Rs ${Number(r.amount).toLocaleString()}`, sub: `${r.method || "â€”"}${r.collectedBy ? ` Â· ${r.collectedBy}` : ""}${r.invoice ? ` Â· ${r.invoice}` : ""}`, tone: "success", icon: <Wallet className="h-3.5 w-3.5" /> }));
+  cases.forEach((c) => events.push({ date: c.startDate || "", kind: "case", title: `Case opened - ${c.ref}`, sub: `${c.product} - ${c.tenure}mo @ Rs ${Number(c.monthly || 0).toLocaleString()}/mo`, tone: "primary", icon: <CreditCard className="h-3.5 w-3.5" /> }));
+  deliveries.forEach((d) => events.push({ date: d.scheduled || d.date || "", kind: "delivery", title: `Delivery - ${d.ref}`, sub: `${d.status}${d.driver ? ` - ${d.driver}` : ""}`, tone: d.status === "Delivered" ? "success" : "warning", icon: <PackageCheck className="h-3.5 w-3.5" /> }));
+  rets.forEach((r) => events.push({ date: r.date || "", kind: "return", title: `Return - ${r.ref}`, sub: `${r.product || r.reason || ""} - ${r.status}`, tone: r.status === "Approved" ? "warning" : "muted", icon: <RotateCcw className="h-3.5 w-3.5" /> }));
+  receipts.forEach((r) => events.push({ date: r.date || "", kind: "payment", title: `Payment received - Rs ${Number(r.amount).toLocaleString()}`, sub: `${r.method || "-"}${r.collectedBy ? ` - ${r.collectedBy}` : ""}${r.invoice ? ` - ${r.invoice}` : ""}`, tone: "success", icon: <Wallet className="h-3.5 w-3.5" /> }));
   events.sort((a, b) => String(b.date).localeCompare(String(a.date)));
 
   const counts: Record<TxTab, number> = { schedule: overdue.length + upcoming.length, payments: receipts.length, activity: events.length };
@@ -557,29 +563,29 @@ function TransactionsTab({
           label="Next Payment"
           icon={<CalendarClock className="h-4 w-4" />}
           tone={nextDpd === null ? "muted" : nextDpd <= 7 ? "warning" : "primary"}
-          primary={next ? `Rs ${next.amount.toLocaleString()}` : "â€”"}
-          secondary={next ? `${fmtDate(next.dueDate)} Â· ${nextDpd! < 0 ? `${Math.abs(nextDpd!)}d ago` : nextDpd === 0 ? "today" : `in ${nextDpd}d`}` : "No upcoming"}
+          primary={next ? `Rs ${next.amount.toLocaleString()}` : "-"}
+          secondary={next ? `${fmtDate(next.dueDate)} - ${nextDpd! < 0 ? `${Math.abs(nextDpd!)}d ago` : nextDpd === 0 ? "today" : `in ${nextDpd}d`}` : "No upcoming"}
         />
         <HealthTile
           label="Overdue"
           icon={<AlertCircle className="h-4 w-4" />}
           tone={overdue.length ? "destructive" : "success"}
           primary={overdue.length ? `Rs ${overdueAmt.toLocaleString()}` : "Rs 0"}
-          secondary={overdue.length ? `${overdue.length} installment${overdue.length > 1 ? "s" : ""} Â· ${maxDpd}d max DPD` : "Clean record"}
+          secondary={overdue.length ? `${overdue.length} installment${overdue.length > 1 ? "s" : ""} - ${maxDpd}d max DPD` : "Clean record"}
         />
         <HealthTile
           label="On-Time Rate"
           icon={<CheckCircle2 className="h-4 w-4" />}
           tone={onTimeRate === null ? "muted" : onTimeRate >= 90 ? "success" : onTimeRate >= 70 ? "warning" : "destructive"}
-          primary={onTimeRate === null ? "â€”" : `${onTimeRate}%`}
+          primary={onTimeRate === null ? "-" : `${onTimeRate}%`}
           secondary={paid.length ? `${paid.length} payment${paid.length > 1 ? "s" : ""} cleared` : "No history yet"}
         />
         <HealthTile
           label="Last Payment"
           icon={<Wallet className="h-4 w-4" />}
           tone={lastPay ? "primary" : "muted"}
-          primary={lastPay ? `Rs ${Number(lastPay.amount).toLocaleString()}` : "â€”"}
-          secondary={lastPay ? `${fmtDate(lastPay.date)} Â· ${lastPay.method || "â€”"}` : "Awaiting first payment"}
+          primary={lastPay ? `Rs ${Number(lastPay.amount).toLocaleString()}` : "-"}
+          secondary={lastPay ? `${fmtDate(lastPay.date)} - ${lastPay.method || "-"}` : "Awaiting first payment"}
         />
       </div>
 
@@ -633,10 +639,10 @@ function TransactionsTab({
           rows={receipts.map((r) => [
             fmtDate(r.date),
             <span key="r" className="font-mono text-xs">{r.ref || r.receipt || r.id}</span>,
-            r.invoice || r.case || "â€”",
-            <span key="m" className="inline-flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-primary" />{r.method || "â€”"}</span>,
+            r.invoice || r.case || "-",
+            <span key="m" className="inline-flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-primary" />{r.method || "-"}</span>,
             <span key="a" className="font-semibold tabular-nums text-success">Rs {Number(r.amount).toLocaleString()}</span>,
-            r.collectedBy || r.cashier || "â€”",
+            r.collectedBy || r.cashier || "-",
           ])}
           empty="No payments recorded yet."
         />
@@ -692,9 +698,9 @@ function ScheduleTable({ rows, today }: { rows: Inst[]; today: Date }) {
                 <span className="font-semibold text-foreground font-mono">{ref}</span>
                 <span className="text-muted-foreground tabular-nums">
                   Scheduled <span className="text-foreground font-semibold">Rs {totalEmi.toLocaleString()}</span>
-                  <span className="mx-2">Â·</span>
+                  <span className="mx-2"> - </span>
                   Paid <span className="text-success font-semibold">Rs {totalPaid.toLocaleString()}</span>
-                  <span className="mx-2">Â·</span>
+                  <span className="mx-2"> - </span>
                   Remaining <span className={`font-semibold ${remaining > 0 ? "text-foreground" : "text-success"}`}>Rs {remaining.toLocaleString()}</span>
                 </span>
               </div>
@@ -736,7 +742,7 @@ function ScheduleTable({ rows, today }: { rows: Inst[]; today: Date }) {
                         <td className="px-3 py-2.5 text-right tabular-nums">
                           {i.paidAmount > 0
                             ? <span className="font-semibold text-success">Rs {i.paidAmount.toLocaleString()}</span>
-                            : <span className="text-muted-foreground/60">â€”</span>}
+                            : <span className="text-muted-foreground/60"> - </span>}
                         </td>
                         <td className="px-3 py-2.5 text-right tabular-nums font-semibold text-foreground">Rs {i.closing.toLocaleString()}</td>
                         <td className="px-3 py-2.5">
@@ -797,7 +803,7 @@ function ActivityTimeline({ events }: { events: { date: string; kind: string; ti
   );
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ KYC & Guarantors â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ----------------------------- KYC & Guarantors -----------------------------
 
 type KycDoc = {
   key: string;
@@ -841,7 +847,7 @@ function buildKycProfile(customer: any) {
       yearsAtAddress: 8,
       houseSize: "5 Marla",
       rooms: 4,
-      ownerName: customer?.name ?? "â€”",
+      ownerName: customer?.name ?? "-",
       rentAmount: 0,
       landmark: "Near Iqbal Park, opposite Faysal Mosque",
       geo: { lat: 31.5497, lng: 74.3436, mapsUrl: "https://maps.google.com/?q=31.5497,74.3436" },
@@ -860,20 +866,20 @@ function buildKycProfile(customer: any) {
       employerPhone: "+92 42 111-225-225",
       employerAddress: "Allied Bank, Main Boulevard, Gulberg III, Lahore",
       hrContact: "Mr. Faisal Mehmood (HR)",
-      verifiedBy: "Asad Iqbal Â· Field Officer",
+      verifiedBy: "Asad Iqbal - Field Officer",
       verifiedOn: "2025-04-12",
       salarySlipsOnFile: 3,
     },
     documents: [
-      { key: "cnic-f", label: "CNIC â€” Front", icon: <IdCard className="h-4 w-4" />, status: "Verified", uploadedOn: "2025-03-04", expires: "2029-08-12", size: "1.4 MB" },
-      { key: "cnic-b", label: "CNIC â€” Back", icon: <IdCard className="h-4 w-4" />, status: "Verified", uploadedOn: "2025-03-04", expires: "2029-08-12", size: "1.2 MB" },
+      { key: "cnic-f", label: "CNIC - Front", icon: <IdCard className="h-4 w-4" />, status: "Verified", uploadedOn: "2025-03-04", expires: "2029-08-12", size: "1.4 MB" },
+      { key: "cnic-b", label: "CNIC - Back", icon: <IdCard className="h-4 w-4" />, status: "Verified", uploadedOn: "2025-03-04", expires: "2029-08-12", size: "1.2 MB" },
       { key: "util", label: "Utility Bill (LESCO)", icon: <Zap className="h-4 w-4" />, status: "Verified", uploadedOn: "2025-04-02", size: "640 KB" },
       { key: "bank", label: "Bank Statement (6 mo)", icon: <Landmark className="h-4 w-4" />, status: "Verified", uploadedOn: "2025-04-10", pages: 12, size: "3.1 MB" },
       { key: "salary", label: "Salary Slips (last 3)", icon: <Banknote className="h-4 w-4" />, status: "Verified", uploadedOn: "2025-04-10", pages: 3, size: "880 KB" },
       { key: "cheque", label: "Security Cheque", icon: <FileSignature className="h-4 w-4" />, status: "Verified", uploadedOn: "2025-04-12", size: "520 KB" },
       { key: "contract", label: "Signed HP Contract", icon: <FileCheck2 className="h-4 w-4" />, status: "Verified", uploadedOn: "2025-04-14", pages: 6, size: "1.8 MB" },
       { key: "selfie", label: "Customer Selfie w/ CNIC", icon: <Camera className="h-4 w-4" />, status: "Verified", uploadedOn: "2025-04-12", size: "1.1 MB" },
-      { key: "ref", label: "Reference Letter", icon: <FileText className="h-4 w-4" />, status: "Pending", size: "â€”" },
+      { key: "ref", label: "Reference Letter", icon: <FileText className="h-4 w-4" />, status: "Pending", size: "-" },
     ] as KycDoc[],
   };
 }
@@ -890,7 +896,7 @@ function buildGuarantors(existing: any[], customer: any): GuarantorDetail[] {
       whatsapp: "+92 321 4458876",
       dob: "1982-09-14",
       occupation: "Government Service",
-      employer: "WAPDA â€” Lahore Region",
+      employer: "WAPDA - Lahore Region",
       designation: "Assistant Manager (BPS-17)",
       monthlyIncome: 165000,
       yearsEmployed: 11,
@@ -898,7 +904,7 @@ function buildGuarantors(existing: any[], customer: any): GuarantorDetail[] {
       area: "Model Town",
       residence: "Owned",
       status: "Verified",
-      verifiedBy: "Asad Iqbal Â· Field Officer",
+      verifiedBy: "Asad Iqbal - Field Officer",
       verifiedOn: "2025-04-12",
       visited: true,
       docs: { cnicFront: true, cnicBack: true, salarySlip: true, utilityBill: true },
@@ -913,7 +919,7 @@ function buildGuarantors(existing: any[], customer: any): GuarantorDetail[] {
       whatsapp: "+92 300 8841120",
       dob: "1985-02-03",
       occupation: "Private Service",
-      employer: "NestlÃ© Pakistan Ltd.",
+      employer: "Nestle Pakistan Ltd.",
       designation: "Senior Sales Executive",
       monthlyIncome: 210000,
       yearsEmployed: 8,
@@ -921,7 +927,7 @@ function buildGuarantors(existing: any[], customer: any): GuarantorDetail[] {
       area: "Askari XI",
       residence: "Rented",
       status: "Verified",
-      verifiedBy: "Asad Iqbal Â· Field Officer",
+      verifiedBy: "Asad Iqbal - Field Officer",
       verifiedOn: "2025-04-13",
       visited: true,
       docs: { cnicFront: true, cnicBack: true, salarySlip: true, utilityBill: false },
@@ -967,7 +973,7 @@ function KycTab({ customer, guarantors }: { customer: any; guarantors: any[] }) 
             <div className="h-full bg-primary transition-all" style={{ width: `${pctComplete}%` }} />
           </div>
           <div className="text-[11px] text-muted-foreground mt-1.5 tabular-nums">
-            {verifiedDocs}/{kyc.documents.length} docs Â· Visited {kyc.residence.lastVisit}
+            {verifiedDocs}/{kyc.documents.length} docs - Visited {kyc.residence.lastVisit}
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -980,7 +986,7 @@ function KycTab({ customer, guarantors }: { customer: any; guarantors: any[] }) 
         </div>
       </div>
 
-      {/* Residence â€” visual hero card with photo + live map */}
+      {/* Residence - visual hero card with photo + live map */}
       <section className="rounded-xl border border-border bg-card overflow-hidden">
         <div className="px-4 py-3 border-b border-border/60 flex items-center justify-between">
           <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground inline-flex items-center gap-2">
@@ -1015,8 +1021,8 @@ function KycTab({ customer, guarantors }: { customer: any; guarantors: any[] }) 
             </div>
             <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-end justify-between gap-2">
               <div className="text-[11px] text-white/90 leading-tight">
-                <div className="font-semibold">{kyc.residence.houseSize} Â· {kyc.residence.type}</div>
-                <div className="text-white/70">Captured {kyc.residence.lastVisit} Â· Geo-tagged</div>
+                <div className="font-semibold">{kyc.residence.houseSize} - {kyc.residence.type}</div>
+                <div className="text-white/70">Captured {kyc.residence.lastVisit} - Geo-tagged</div>
               </div>
               <button className="h-7 px-2 inline-flex items-center gap-1 rounded bg-white/90 hover:bg-white text-[11px] font-semibold text-foreground">
                 <Eye className="h-3 w-3" /> View
@@ -1084,7 +1090,7 @@ function KycTab({ customer, guarantors }: { customer: any; guarantors: any[] }) 
               ["Other Income", Rs(kyc.employment.otherIncome)],
               ["HR Contact", kyc.employment.hrContact],
               ["Employer Phone", kyc.employment.employerPhone],
-              ["Verified By", `${kyc.employment.verifiedBy} Â· ${kyc.employment.verifiedOn}`],
+              ["Verified By", `${kyc.employment.verifiedBy} - ${kyc.employment.verifiedOn}`],
             ]}
           />
         </div>
@@ -1097,8 +1103,8 @@ function KycTab({ customer, guarantors }: { customer: any; guarantors: any[] }) 
             <FileCheck2 className="h-3.5 w-3.5" /> Document Vault ({kyc.documents.length})
           </h3>
           <div className="text-[11px] text-muted-foreground">
-            <span className="text-emerald-600 font-semibold">{kyc.documents.filter(d => d.status === "Verified").length}</span> verified Â·{" "}
-            <span className="text-amber-600 font-semibold">{kyc.documents.filter(d => d.status === "Pending").length}</span> pending Â·{" "}
+            <span className="text-emerald-600 font-semibold">{kyc.documents.filter(d => d.status === "Verified").length}</span> verified  - {" "}
+            <span className="text-amber-600 font-semibold">{kyc.documents.filter(d => d.status === "Pending").length}</span> pending  - {" "}
             <span className="text-destructive font-semibold">{kyc.documents.filter(d => d.status === "Missing" || d.status === "Expired").length}</span> missing
           </div>
         </div>
@@ -1167,7 +1173,7 @@ function PhotoTile({ label, tone = "muted" }: { label: string; tone?: "primary" 
       <div className="aspect-[4/3] rounded-md bg-gradient-to-br from-muted to-muted/40 grid place-items-center">
         <Home className="h-6 w-6 text-muted-foreground/40" />
       </div>
-      <div className="text-[10px] text-muted-foreground">Captured 2025-04-12 Â· Geo-tagged</div>
+      <div className="text-[10px] text-muted-foreground">Captured 2025-04-12 - Geo-tagged</div>
     </div>
   );
 }
@@ -1191,7 +1197,7 @@ function DocCard({ doc }: { doc: KycDoc }) {
           </div>
           <div className="text-[11px] text-muted-foreground mt-0.5 truncate">
             {doc.uploadedOn ? (
-              <>Uploaded {doc.uploadedOn}{doc.pages ? ` Â· ${doc.pages} pages` : ""}{doc.size ? ` Â· ${doc.size}` : ""}</>
+              <>Uploaded {doc.uploadedOn}{doc.pages ? ` - ${doc.pages} pages` : ""}{doc.size ? ` - ${doc.size}` : ""}</>
             ) : (
               <>Not uploaded yet</>
             )}
@@ -1240,7 +1246,7 @@ function GuarantorCard({ g, index }: { g: GuarantorDetail; index: number }) {
             {g.visited && <Badge tone="primary">Field-Visited</Badge>}
           </div>
           <div className="text-sm font-semibold text-foreground mt-0.5">{g.name}</div>
-          <div className="text-[11px] text-muted-foreground">{g.relation} Â· {g.occupation}</div>
+          <div className="text-[11px] text-muted-foreground">{g.relation} - {g.occupation}</div>
         </div>
         <button className="h-7 w-7 grid place-items-center rounded-md border border-border bg-card hover:bg-muted shrink-0">
           <MoreHorizontal className="h-3.5 w-3.5" />
@@ -1274,7 +1280,7 @@ function GuarantorCard({ g, index }: { g: GuarantorDetail; index: number }) {
           <span className="text-muted-foreground ml-1">({docCount}/4)</span>
         </div>
         <div className="text-[10.5px] text-muted-foreground">
-          {g.verifiedBy ? <>Verified by {g.verifiedBy} Â· {g.verifiedOn}</> : "Not yet verified"}
+          {g.verifiedBy ? <>Verified by {g.verifiedBy} - {g.verifiedOn}</> : "Not yet verified"}
         </div>
       </div>
     </div>

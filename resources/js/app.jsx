@@ -8,7 +8,6 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { GenericErrorPage } from './credit-wise/shared/ui/core/GenericErrorPage';
 import { ToastProvider } from './credit-wise/shared/ui/core/Toaster';
 
-const appName = import.meta.env.VITE_APP_NAME || 'CreditWise';
 const pages = import.meta.glob('./Pages/**/*.{js,jsx,ts,tsx}');
 const rootRegistry = globalThis.__creditWiseReactRoots ??= new WeakMap();
 
@@ -44,7 +43,7 @@ class AppErrorBoundary extends React.Component {
 }
 
 createInertiaApp({
-    title: (title) => `${title} - ${appName}`,
+    title: (title) => title,
     resolve: async (name) => {
         if (name === 'CreditWiseApp') {
             return import('./Pages/CreditWiseApp.jsx');

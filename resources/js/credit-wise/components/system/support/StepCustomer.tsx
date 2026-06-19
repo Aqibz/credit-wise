@@ -1,4 +1,6 @@
 import { Section, Field, Info, Rs, inputCls } from "./shared";
+import { CountryCodePhoneInput } from "@/shared/ui/primitives/country-code-phone-input";
+import { CurrencyAmountInput } from "@/shared/ui/primitives/currency-amount-input";
 
 type Props = {
   customers: any[];
@@ -31,7 +33,7 @@ export default function StepCustomer({ customers, customerId, setCustomerId, new
               <input className={inputCls} value={newCustomer.cnic} onChange={(e) => setNewCustomer({ ...newCustomer, cnic: e.target.value })} placeholder="35202-1234567-8" />
             </Field>
             <Field label="Phone">
-              <input className={inputCls} value={newCustomer.phone} onChange={(e) => setNewCustomer({ ...newCustomer, phone: e.target.value })} placeholder="+92 300 0000000" />
+              <CountryCodePhoneInput value={newCustomer.phone} onChange={(value) => setNewCustomer({ ...newCustomer, phone: value })} placeholder="300 0000000" />
             </Field>
             <Field label="Area">
               <input className={inputCls} value={newCustomer.area} onChange={(e) => setNewCustomer({ ...newCustomer, area: e.target.value })} />
@@ -40,7 +42,7 @@ export default function StepCustomer({ customers, customerId, setCustomerId, new
               <input className={inputCls} value={newCustomer.occupation} onChange={(e) => setNewCustomer({ ...newCustomer, occupation: e.target.value })} />
             </Field>
             <Field label="Monthly Income (Rs.)">
-              <input type="number" className={inputCls} value={newCustomer.income} onChange={(e) => setNewCustomer({ ...newCustomer, income: e.target.value })} />
+              <CurrencyAmountInput value={newCustomer.income} onChange={(value) => setNewCustomer({ ...newCustomer, income: value })} />
             </Field>
           </>
         )}

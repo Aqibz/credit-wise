@@ -80,101 +80,105 @@ export function EntityToolbar({
 
   return (
     <>
-      <div className="mb-4 flex flex-wrap items-center gap-3">
-        <div className="inline-flex h-10 items-center overflow-hidden rounded-lg border border-border bg-card">
-          <span className="inline-flex h-full items-center border-r border-border bg-muted/30 px-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-            Show
-          </span>
-          <SafeSelect
-            value={String(perPage)}
-            onChange={(value) => setPerPage(Number(value))}
-            options={[5, 10, 25, 50].map((value) => ({ value: String(value), label: String(value) }))}
-            className="h-10 border-0 bg-card px-3 text-sm font-bold"
-          />
+      <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <div className="inline-flex h-9 items-center">
+            <span className="inline-flex h-full items-center rounded-l-lg border border-r-0 border-border bg-muted/30 px-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              Show
+            </span>
+            <SafeSelect
+              value={String(perPage)}
+              onChange={(value) => setPerPage(Number(value))}
+              options={[25, 50, 100].map((value) => ({ value: String(value), label: String(value) }))}
+              className="h-9 min-w-[96px] rounded-r-lg border border-border bg-card px-3 text-[13px] font-semibold"
+            />
+          </div>
+
+          {hasStatus && statusOptions.length > 0 ? (
+            <SafeSelect
+              value={status}
+              onChange={setStatus}
+              options={[{ value: "all", label: "All status" }, ...statusOptions.map((value) => ({ value, label: value }))]}
+              className="h-9 rounded-lg border border-border bg-card px-3 text-[13px] font-medium"
+            />
+          ) : null}
+
+          {filters.map((filter) => (
+            <SafeSelect
+              key={filter.key}
+              value={extraFilters[filter.key] ?? "all"}
+              onChange={(value) => setExtraFilter(filter.key, value)}
+              options={[
+                { value: "all", label: `All ${filter.label}` },
+                ...(filterOptions[filter.key] ?? []).map((value) => ({ value, label: value })),
+              ]}
+              className="h-9 rounded-lg border border-border bg-card px-3 text-[13px] font-medium"
+            />
+          ))}
         </div>
 
-        <div className={`relative transition-all duration-200 ${searchOpen ? "max-w-md flex-1" : "w-10"}`}>
-          {searchOpen ? (
-            <>
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <input
-                ref={searchInputRef}
-                value={search}
-                autoFocus
-                onChange={(event) => setSearch(event.target.value)}
-                onBlur={() => {
-                  if (!search) setSearchOpen(false);
-                }}
-                onKeyDown={(event) => {
-                  if (event.key === "Escape") {
-                    setSearch("");
-                    setSearchOpen(false);
-                  }
-                }}
-                placeholder={`Search ${title.toLowerCase()}...`}
-                className="h-10 w-full rounded-lg border border-border bg-card pl-9 pr-9 text-sm focus:outline-none focus:ring-2 focus:ring-ring/30"
-              />
-              {search ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSearch("");
-                    searchInputRef.current?.focus();
+        <div className="flex items-center gap-2.5 lg:ml-auto">
+          <div className={`relative transition-all duration-200 ${searchOpen ? "w-full max-w-[280px]" : "w-9"}`}>
+            {searchOpen ? (
+              <>
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  ref={searchInputRef}
+                  value={search}
+                  autoFocus
+                  onChange={(event) => setSearch(event.target.value)}
+                  onBlur={() => {
+                    if (!search) setSearchOpen(false);
                   }}
-                  className="absolute right-2 top-1/2 grid h-6 w-6 -translate-y-1/2 place-items-center rounded text-muted-foreground hover:bg-muted/60 hover:text-foreground"
-                  aria-label="Clear search"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              ) : null}
-            </>
-          ) : (
+                  onKeyDown={(event) => {
+                    if (event.key === "Escape") {
+                      setSearch("");
+                      setSearchOpen(false);
+                    }
+                  }}
+                  placeholder={`Search ${title.toLowerCase()}...`}
+                  className="h-9 w-full rounded-lg border border-border bg-card pl-8 pr-8 text-[13px] font-normal focus:outline-none focus:ring-2 focus:ring-ring/30"
+                />
+                {search ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearch("");
+                      searchInputRef.current?.focus();
+                    }}
+                    className="absolute right-1.5 top-1/2 grid h-5 w-5 -translate-y-1/2 place-items-center rounded text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                    aria-label="Clear search"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                ) : null}
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setSearchOpen(true)}
+                title="Search"
+                aria-label="Search"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-primary"
+              >
+                <Search className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+
+          {shareableLink ? (
             <button
               type="button"
-              onClick={() => setSearchOpen(true)}
-              title="Search"
-              aria-label="Search"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-primary"
+              onClick={onCopyLink}
+              title="Copy shareable link to this view"
+              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-[13px] font-medium text-foreground hover:border-primary/40 hover:text-primary"
             >
-              <Search className="h-4 w-4" />
+              <Link2 className="h-3.5 w-3.5" /> Copy link
             </button>
-          )}
+          ) : null}
+
+          {toolbarEndSlot ? <div className="flex items-center gap-2">{toolbarEndSlot}</div> : null}
         </div>
-
-        {shareableLink ? (
-          <button
-            type="button"
-            onClick={onCopyLink}
-            title="Copy shareable link to this view"
-            className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-sm font-bold text-foreground hover:border-primary/40 hover:text-primary"
-          >
-            <Link2 className="h-4 w-4" /> Copy link
-          </button>
-        ) : null}
-
-        {hasStatus && statusOptions.length > 0 ? (
-          <SafeSelect
-            value={status}
-            onChange={setStatus}
-            options={[{ value: "all", label: "All status" }, ...statusOptions.map((value) => ({ value, label: value }))]}
-            className="h-10 rounded-lg border border-border bg-card px-3 text-sm font-medium"
-          />
-        ) : null}
-
-        {filters.map((filter) => (
-          <SafeSelect
-            key={filter.key}
-            value={extraFilters[filter.key] ?? "all"}
-            onChange={(value) => setExtraFilter(filter.key, value)}
-            options={[
-              { value: "all", label: `All ${filter.label}` },
-              ...(filterOptions[filter.key] ?? []).map((value) => ({ value, label: value })),
-            ]}
-            className="h-10 rounded-lg border border-border bg-card px-3 text-sm font-medium"
-          />
-        ))}
-
-        {toolbarEndSlot ? <div className="ml-auto flex items-center gap-2">{toolbarEndSlot}</div> : null}
       </div>
 
       {activeFilters.length > 0 ? (

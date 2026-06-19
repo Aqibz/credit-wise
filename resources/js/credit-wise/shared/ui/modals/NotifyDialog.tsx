@@ -45,7 +45,7 @@ export function NotifyDialog({
         <div className="p-5 space-y-4">
           <div>
             <label className="text-[12px] font-bold uppercase tracking-wider text-slate-500">Audience</label>
-            <select value={audience} onChange={(e) => setAudience(e.target.value)} className="mt-1.5 w-full h-10 px-3 rounded-lg border border-slate-200 bg-white text-sm">
+            <select value={audience} onChange={(e) => setAudience(e.target.value)} className="mt-1.5 w-full h-9 px-3 rounded-lg border border-slate-200 bg-white text-sm">
               {audiences.map((a) => <option key={a} value={a}>{a}</option>)}
             </select>
           </div>
@@ -67,7 +67,7 @@ export function NotifyDialog({
 
           <div>
             <label className="text-[12px] font-bold uppercase tracking-wider text-slate-500">Message</label>
-            <textarea rows={4} value={message} onChange={(e) => setMessage(e.target.value)} className="mt-1.5 w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/30" />
+            <textarea rows={4} value={message} onChange={(e) => setMessage(e.target.value)} className="mt-1.5 w-full min-h-[84px] px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/30" />
           </div>
         </div>
 

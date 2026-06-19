@@ -13,7 +13,7 @@ import { KpiIcons } from "@/components/kpi-icons";
 type AnyOpt<T extends string> = "All" | T;
 
 function instBadge(s?: InstallmentStatus) {
-  if (!s) return <span className="text-[11px] text-muted-foreground">â€”</span>;
+  if (!s) return <span className="text-[11px] text-muted-foreground"> - </span>;
   const tone = s === "On Track" ? "success" : s === "Due Soon" ? "warning" : s === "Overdue" ? "destructive" : "muted";
   return <Badge tone={tone}>{s}</Badge>;
 }
@@ -75,11 +75,11 @@ export function CollectionsDrilldown() {
   return (
     <>
       <PageHeader
-        title="Sales Â· Collection Drilldown"
+        title="Sales - Collection Drilldown"
         description="Every receipt against open invoices, sliced by branch, customer and installment health."
         actions={
           <div className="flex items-center gap-2">
-            <Link to="/sales/invoices" className="text-[12px] text-primary font-medium hover:underline">View invoices â†’</Link>
+            <Link to="/sales/invoices" className="text-[12px] text-primary font-medium hover:underline">View invoices -&gt;</Link>
             <button onClick={exportCSV} className="inline-flex items-center gap-1 h-8 px-3 rounded-lg border border-border bg-card text-[12px] font-medium hover:bg-muted transition-colors">
               <Download className="h-3.5 w-3.5" /> CSV
             </button>
@@ -101,7 +101,7 @@ export function CollectionsDrilldown() {
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Search receipt, invoice, customer, agentâ€¦"
+              placeholder="Search receipt, invoice, customer, agent..."
               className="w-full h-8 pl-8 pr-2 rounded-md border border-border bg-background text-[12px] focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
@@ -178,4 +178,3 @@ function Th({ children, right }: { children: React.ReactNode; right?: boolean })
 function Td({ children, right, className = "" }: { children: React.ReactNode; right?: boolean; className?: string }) {
   return <td className={`px-3 py-2 ${right ? "text-right tabular-nums" : ""} ${className}`}>{children}</td>;
 }
-

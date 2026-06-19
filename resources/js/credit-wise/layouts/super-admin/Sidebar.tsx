@@ -2,9 +2,12 @@
 import { ChevronRight } from "lucide-react";
 import userLogo from "@/assets/user-logo.png";
 import { SUPER_ADMIN_NAV_SECTIONS } from "@/apps/super-admin/navigation";
+import { APP_RELEASE } from "@/shared/lib/release";
 
 export function Sidebar() {
   const location = useLocation();
+  const activeItemClass =
+    "bg-sidebar-accent text-sidebar-accent-foreground shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--color-primary)_18%,white)]";
 
   return (
     <aside className="hidden lg:flex w-72 shrink-0 flex-col border-r border-sidebar-border bg-sidebar h-screen sticky top-0 overflow-hidden">
@@ -15,11 +18,11 @@ export function Sidebar() {
           </div>
           <div>
             <div className="font-semibold text-foreground leading-tight tracking-tight">CreditWise</div>
-            <div className="text-[11px] text-muted-foreground">Super Admin Console</div>
+            <div className="text-[11px] text-muted-foreground">Retail Credit Management System</div>
           </div>
         </div>
       </div>
-      <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-4 no-scrollbar">
+      <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-3 no-scrollbar">
         {SUPER_ADMIN_NAV_SECTIONS.map((section) => (
           <div key={section.title} className="space-y-1">
             <div className="px-2.5 pb-1 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground/75">
@@ -33,9 +36,9 @@ export function Sidebar() {
                 <Link
                   key={item.to}
                   to={item.to as string}
-                  className={`group relative flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-colors duration-150 ${
+                  className={`group relative flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-[13px] font-medium transition-colors duration-150 ${
                     active
-                      ? "text-primary bg-sidebar-accent/60"
+                      ? activeItemClass
                       : "text-sidebar-foreground/80 hover:bg-sidebar-accent/70 hover:text-sidebar-foreground"
                   }`}
                 >
@@ -50,6 +53,10 @@ export function Sidebar() {
           </div>
         ))}
       </nav>
+      <div className="border-t border-sidebar-border px-4 py-3 bg-muted/30">
+        <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/70">Release</div>
+        <div className="mt-1 text-[11px] font-medium text-sidebar-foreground/80">{APP_RELEASE}</div>
+      </div>
     </aside>
   );
 }

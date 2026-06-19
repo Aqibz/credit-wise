@@ -1,5 +1,6 @@
 import { Plus, Trash2 } from "lucide-react";
 import { Section, Field, inputCls, type Guarantor } from "./shared";
+import { CountryCodePhoneInput } from "@/shared/ui/primitives/country-code-phone-input";
 
 type Props = {
   guarantorList: Guarantor[];
@@ -22,7 +23,7 @@ export default function StepGuarantors({ guarantorList, addGuarantor, updateGuar
             <div className="grid md:grid-cols-12 gap-2 items-start">
               <div className="md:col-span-3"><Field label="Name"><input className={inputCls} value={g.name} onChange={(e) => updateGuarantor(i, { name: e.target.value })} /></Field></div>
               <div className="md:col-span-2"><Field label="CNIC"><input className={inputCls} value={g.cnic} onChange={(e) => updateGuarantor(i, { cnic: e.target.value })} /></Field></div>
-              <div className="md:col-span-2"><Field label="Phone"><input className={inputCls} value={g.phone} onChange={(e) => updateGuarantor(i, { phone: e.target.value })} /></Field></div>
+              <div className="md:col-span-2"><Field label="Phone"><CountryCodePhoneInput value={g.phone} onChange={(value) => updateGuarantor(i, { phone: value })} /></Field></div>
               <div className="md:col-span-2"><Field label="Relation">
                 <select className={inputCls} value={g.relation} onChange={(e) => updateGuarantor(i, { relation: e.target.value })}>
                   {["Father", "Brother", "Husband", "Friend", "Colleague", "Relative", "Other"].map((r) => <option key={r}>{r}</option>)}

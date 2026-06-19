@@ -50,6 +50,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import { AppShell } from "@/components/layout/AppShell";
 import { PageHeader, StatCard, Badge as KitBadge, ui } from "@/components/ui-kit";
 import { KpiIcon, KpiIcons } from "@/components/kpi-icons";
 import { SettingsTabs } from "@/pages/system/settings/SettingsTabs";
@@ -327,45 +328,46 @@ export function UserAccessPage() {
   };
 
   return (
-    <>
-      <PageHeader
-        title="User Accounts"
-        description="Manage user logins, designation, department and platform access."
-        icon={<ShieldCheck />}
-        actions={
-          <Button onClick={openNew} className="h-10 gap-2">
-            <Plus className="h-4 w-4" />
-            New Account
-          </Button>
-        }
-      />
-      <SettingsTabs initial="users" />
+    <AppShell>
+      <div className="space-y-5">
+        <PageHeader
+          title="User Accounts"
+          description="Manage user logins, designation, department and platform access."
+          icon={<ShieldCheck />}
+          actions={
+            <Button onClick={openNew} className="h-10 gap-2">
+              <Plus className="h-4 w-4" />
+              New Account
+            </Button>
+          }
+        />
+        <SettingsTabs initial="users" />
 
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Total Accounts" value={counts.total} icon={<KpiIcon icon={UsersIcon} />} tone="primary" hint="All roles and branches" />
-        <StatCard label="Active" value={counts.active} icon={<KpiIcons.success />} tone="success" />
-        <StatCard label="Blocked" value={counts.blocked} icon={<KpiIcon icon={Ban} />} tone="warning" />
-        <StatCard label="Revoked" value={counts.revoked} icon={<KpiIcon icon={UserX} />} tone="destructive" />
-      </div>
-
-      <div className="overflow-hidden rounded-lg bg-card shadow-[0_4px_16px_-6px_rgba(16,24,40,0.12),0_2px_4px_-2px_rgba(16,24,40,0.06)]">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-4">
-          <h3 className="font-semibold">All Accounts</h3>
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search name, email, branch..."
-                className="h-9 w-72 pl-9"
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-              />
-            </div>
-            <KitBadge tone="muted">{filtered.length} accounts</KitBadge>
-          </div>
+        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <StatCard label="Total Accounts" value={counts.total} icon={<KpiIcon icon={UsersIcon} />} tone="primary" hint="All roles and branches" />
+          <StatCard label="Active" value={counts.active} icon={<KpiIcons.success />} tone="success" />
+          <StatCard label="Blocked" value={counts.blocked} icon={<KpiIcon icon={Ban} />} tone="warning" />
+          <StatCard label="Revoked" value={counts.revoked} icon={<KpiIcon icon={UserX} />} tone="destructive" />
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+
+        <div className="overflow-hidden rounded-lg bg-card shadow-[0_4px_16px_-6px_rgba(16,24,40,0.12),0_2px_4px_-2px_rgba(16,24,40,0.06)]">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-4">
+            <h3 className="font-semibold">All Accounts</h3>
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search name, email, branch..."
+                  className="h-9 w-72 pl-9"
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                />
+              </div>
+              <KitBadge tone="muted">{filtered.length} accounts</KitBadge>
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
             <thead className={ui.tableHeadRow}>
               <tr>
                 <th className="w-12 px-4 py-4 text-left">SR#</th>
@@ -480,9 +482,9 @@ export function UserAccessPage() {
                 </tr>
               ) : null}
             </tbody>
-          </table>
+            </table>
+          </div>
         </div>
-      </div>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-2xl">
@@ -559,7 +561,8 @@ export function UserAccessPage() {
         </DialogContent>
       </Dialog>
 
-      <LoginLogsModal account={logsFor} onClose={() => setLogsFor(null)} />
-    </>
+        <LoginLogsModal account={logsFor} onClose={() => setLogsFor(null)} />
+      </div>
+    </AppShell>
   );
 }

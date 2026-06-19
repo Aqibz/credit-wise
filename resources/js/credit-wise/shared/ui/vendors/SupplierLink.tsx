@@ -9,7 +9,7 @@ import { useEntityStore } from "@/lib/state/useEntityStore";
  */
 export function SupplierLink({ name }: { name?: string | null }) {
   const { items: suppliers } = useEntityStore<any>("qcrm.suppliers", []);
-  if (!name) return <span className="text-muted-foreground">â€”</span>;
+  if (!name) return <span className="text-muted-foreground"> - </span>;
   const match = suppliers.find((s: any) => s?.name === name);
   if (!match) return <span>{name}</span>;
   return (

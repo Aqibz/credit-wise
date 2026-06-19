@@ -1,14 +1,14 @@
 ﻿import { ReactNode, ThHTMLAttributes, HTMLAttributes, CSSProperties } from "react";
 import { Link, useLocation } from "@/shared/navigation";
+import { PageMeta } from "@/shared/ui/core/PageMeta";
+import { cn } from "@/lib/helpers/utils";
 import {
-  Home, ChevronRight, MoreHorizontal, ChevronUp, ChevronDown, ChevronsUpDown,
-  Boxes, ShoppingCart, Users, BookOpen, Wallet, Truck, ShieldCheck,
-  Briefcase, Building2, Bell, Target, FileText, Settings, BarChart3, type LucideIcon,
+  ChevronRight, MoreHorizontal, ChevronUp, ChevronDown, ChevronsUpDown,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 /**
- * UI tokens â€” single source of truth for repeated class strings.
+ * UI tokens - single source of truth for repeated class strings.
  * Edit here once instead of hunting through every component.
  */
 export const ui = {
@@ -23,40 +23,46 @@ export const ui = {
   surfaceMutedHover: "hover:bg-muted/60",
   border:          "border border-border/50",
   borderBottom:    "border-b border-border/60",
-  // shadow rhythm â€” minimal SaaS feel (subtle, almost flat)
+  // shadow rhythm - minimal SaaS feel (subtle, almost flat)
   shadowCard:      "shadow-[0_1px_2px_0_rgba(16,24,40,0.04)]",
   shadowCardHover: "hover:shadow-[0_2px_6px_-1px_rgba(16,24,40,0.06)]",
   // typography sizes used in headers
   textCrumb:       "text-[11.5px] xl:text-[12px]",
   textTitle:       "text-[20px] xl:text-[22px] 2xl:text-[24px] font-semibold tracking-tight",
   textDesc:        "text-[13px] xl:text-[13.5px]",
-  // Single eyebrow ramp â€” softer, more SaaS-like (less shouty)
+  // Single eyebrow ramp - softer, more SaaS-like (less shouty)
   labelEyebrow:    "text-[11px] font-semibold uppercase tracking-[0.08em] leading-tight",
   textKpiLabel:    "text-[11.5px] font-medium uppercase tracking-[0.06em] leading-tight",
   textKpiValue:    "text-[26px] xl:text-[28px] leading-none font-semibold tracking-tight tabular-nums",
   textKpiHint:     "text-[12px] leading-snug",
   // focus ring (locked: same on every interactive card / link / button surface)
   focusRing:       "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-  // Interactive card states â€” subtle hover lift, no scale
+  // Interactive card states - subtle hover lift, no scale
   interactiveCard: "cursor-pointer transition-colors duration-150 ease-out " +
                    "hover:border-primary/30 hover:bg-muted/20 " +
                    "group-focus-visible:border-primary/40",
-  // ===== Admin tables â€” single locked header style =====
+  // ===== Admin tables - single locked header style =====
   // Apply to <thead>: background + underline + base color
   // Apply to <thead>: bg, underline, base color, AND auto-stamp typography
   // on every descendant <th> so legacy tables stay consistent without rewrites.
-  tableHeadRow:    "bg-muted/30 border-b border-border text-muted-foreground " +
+  tableHeadRow:    "bg-muted border-b border-border text-foreground/75 " +
                    "[&_th]:text-[11px] [&_th]:font-semibold [&_th]:uppercase " +
                    "[&_th]:tracking-[0.06em] [&_th]:leading-tight",
   // Apply to every <th>: same eyebrow ramp + alignment + padding
   tableHeadCell:   "text-[11px] font-semibold uppercase tracking-[0.06em] leading-tight text-left px-2 py-3",
 } as const;
 
+export const tableCellText = {
+  primary: "text-[13px] font-medium text-foreground leading-tight",
+  secondary: "text-[11px] font-medium text-muted-foreground leading-tight",
+  secondaryDanger: "text-[11px] font-semibold text-destructive leading-tight",
+} as const;
+
 const CRUMB_MAX_CH = 22; // truncate single crumb labels longer than this
 const COLLAPSE_AFTER = 4; // when crumbs exceed this, collapse middle ones
 
 function truncate(label: string, max = CRUMB_MAX_CH) {
-  return label.length > max ? label.slice(0, max - 1).trimEnd() + "â€¦" : label;
+  return label.length > max ? label.slice(0, max - 1).trimEnd() + "..." : label;
 }
 
 function CrumbLabel({ label, className }: { label: string; className?: string }) {
@@ -80,26 +86,6 @@ const NON_NAVIGABLE_SEGMENTS = new Set([
   "branches", "targets", "notifications",
 ]);
 
-// Section icons rendered alongside the segment label in breadcrumbs.
-const SEGMENT_ICONS: Record<string, LucideIcon> = {
-  inventory: Boxes,
-  purchases: ShoppingCart,
-  hr: Briefcase,
-  recovery: Wallet,
-  accounts: BookOpen,
-  catalog: FileText,
-  logistics: Truck,
-  "audit-logs": ShieldCheck,
-  platforms: Building2,
-  security: ShieldCheck,
-  branches: Building2,
-  targets: Target,
-  notifications: Bell,
-  settings: Settings,
-  reports: BarChart3,
-  customers: Users,
-};
-
 export function Breadcrumbs({ title }: { title: string }) {
   const { pathname } = useLocation();
   const parts = pathname.split("/").filter(Boolean);
@@ -122,37 +108,31 @@ export function Breadcrumbs({ title }: { title: string }) {
 
   const renderCrumb = (c: { raw: string; label: string; to: string }, isLast: boolean) => {
     const isNonNav = NON_NAVIGABLE_SEGMENTS.has(c.raw);
-    const SegIcon = SEGMENT_ICONS[c.raw];
-    const iconNode = SegIcon ? <SegIcon className="h-3.5 w-3.5 shrink-0" strokeWidth={2.25} /> : null;
     if (isLast) {
       return (
-        <span className={`inline-flex items-center gap-1 ${ui.textBody} font-bold`}>
-          {iconNode}
-          <CrumbLabel label={c.label} className={`${ui.textBody} font-bold`} />
+        <span className="inline-flex items-center font-semibold text-foreground">
+          <CrumbLabel label={c.label} className="font-semibold text-foreground" />
         </span>
       );
     }
     if (isNonNav) {
       return (
-        <span className={`inline-flex items-center gap-1 ${ui.textBody} font-semibold`}>
-          {iconNode}
-          <CrumbLabel label={c.label} className={`${ui.textBody} font-semibold`} />
+        <span className="inline-flex items-center font-medium text-muted-foreground">
+          <CrumbLabel label={c.label} className="font-medium text-muted-foreground" />
         </span>
       );
     }
     return (
-      <Link to={c.to} className={`inline-flex items-center gap-1 ${ui.textMuted} hover:${ui.textBody} transition-colors`}>
-        {iconNode}
-        <CrumbLabel label={c.label} />
+      <Link to={c.to} className="inline-flex items-center font-medium text-muted-foreground transition-colors hover:text-foreground">
+        <CrumbLabel label={c.label} className="font-medium" />
       </Link>
     );
   };
 
   return (
     <TooltipProvider delayDuration={200}>
-      <nav className={`flex items-center gap-1.5 ${ui.textCrumb} ${ui.textMuted} flex-nowrap min-w-0 overflow-hidden`}>
-        <Link to="/" className={`inline-flex items-center gap-1 ${ui.textPrimary} font-semibold hover:opacity-80 transition-opacity shrink-0`}>
-          <Home className="h-3.5 w-3.5" />
+      <nav className="flex min-w-0 flex-nowrap items-center gap-1.5 text-[13px] xl:text-[14px] overflow-hidden">
+        <Link to="/" className="inline-flex shrink-0 items-center font-medium text-primary transition-colors hover:text-primary/80">
           <span>Dashboard</span>
         </Link>
         {visible.map((c, i) => {
@@ -160,7 +140,7 @@ export function Breadcrumbs({ title }: { title: string }) {
           const showCollapseHere = collapsed && i === 1;
           return (
             <span key={c.to} className="inline-flex items-center gap-1.5 min-w-0">
-              <ChevronRight className={`h-3 w-3 ${ui.textMutedFaint} shrink-0`} />
+              <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground/55" />
               {showCollapseHere && (
                 <>
                   <Tooltip>
@@ -173,7 +153,7 @@ export function Breadcrumbs({ title }: { title: string }) {
                       {collapsed!.map((h) => h.label).join(" / ")}
                     </TooltipContent>
                   </Tooltip>
-                  <ChevronRight className={`h-3 w-3 ${ui.textMutedFaint} shrink-0`} />
+                  <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground/55" />
                 </>
               )}
               {renderCrumb(c, isLast)}
@@ -187,22 +167,26 @@ export function Breadcrumbs({ title }: { title: string }) {
 
 export function PageHeader({ title, description, actions, icon }: { title: string; description?: string; actions?: ReactNode; icon?: ReactNode }) {
   return (
-    <div className={`mb-5 xl:mb-6 pb-4 xl:pb-5 ${ui.borderBottom}`}>
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="min-w-0">
-          <h1 className={`${ui.textTitle} ${ui.textBody} leading-tight inline-flex items-center gap-2`}>
-            {icon && (
-              <span className="text-primary inline-flex items-center [&_svg]:h-6 [&_svg]:w-6 [&_svg]:stroke-[1.75]">
-                {icon}
-              </span>
-            )}
-            <span>{title}</span>
-          </h1>
-          {description && <p className={`${ui.textDesc} ${ui.textMuted} mt-1 max-w-2xl leading-relaxed`}>{description}</p>}
+    <>
+      <PageMeta title={title} description={description} />
+      <div className={`mb-5 xl:mb-6 pb-4 xl:pb-5 ${ui.borderBottom}`}>
+        <Breadcrumbs title={title} />
+        <div className="mt-3 flex flex-wrap items-end justify-between gap-3">
+          <div className="min-w-0">
+            <h1 className={`${ui.textTitle} ${ui.textBody} leading-tight inline-flex items-center gap-2`}>
+              {icon && (
+                <span className="text-primary inline-flex items-center [&_svg]:h-6 [&_svg]:w-6 [&_svg]:stroke-[1.75]">
+                  {icon}
+                </span>
+              )}
+              <span>{title}</span>
+            </h1>
+            {description && <p className={`${ui.textDesc} ${ui.textMuted} mt-1 max-w-2xl leading-relaxed`}>{description}</p>}
+          </div>
+          {actions && <div className="flex items-center gap-2 shrink-0">{actions}</div>}
         </div>
-        {actions && <div className="flex items-center gap-2 shrink-0">{actions}</div>}
       </div>
-    </div>
+    </>
   );
 }
 
@@ -276,7 +260,7 @@ export function StatCardSkeleton() {
         </div>
         <div className="h-11 w-11 shrink-0 rounded-xl bg-muted animate-pulse" />
       </div>
-      <span className="sr-only">Loadingâ€¦</span>
+      <span className="sr-only">Loading...</span>
     </div>
   );
 }
@@ -299,18 +283,18 @@ export function Badge({
   icon?: ReactNode;
 }) {
   const map = {
-    success:     "bg-success/10 text-success border-success/25",
-    warning:     "bg-warning/15 text-warning-foreground border-warning/30",
-    destructive: "bg-destructive/10 text-destructive border-destructive/25",
-    muted:       "bg-muted text-muted-foreground border-border",
-    primary:     "bg-primary/10 text-primary border-primary/20",
+    success:     "bg-emerald-50 text-emerald-700 border-emerald-200",
+    warning:     "bg-amber-50 text-amber-700 border-amber-200",
+    destructive: "bg-rose-50 text-rose-700 border-rose-200",
+    muted:       "bg-slate-100 text-slate-600 border-slate-200",
+    primary:     "bg-sky-50 text-sky-700 border-sky-200",
   } as const;
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full border px-2 py-[3px] text-[11.5px] font-medium leading-none whitespace-nowrap ${map[tone]}`}
+      className={`inline-flex h-6 items-center gap-1.5 rounded-md border px-2.5 text-[11px] font-semibold leading-none whitespace-nowrap ${map[tone]}`}
     >
       {icon && (
-        <span className="[&_svg]:h-3 [&_svg]:w-3 [&_svg]:stroke-[2.5] inline-flex">
+        <span className="[&_svg]:h-3.5 [&_svg]:w-3.5 [&_svg]:stroke-[2.25] inline-flex">
           {icon}
         </span>
       )}
@@ -319,7 +303,7 @@ export function Badge({
   );
 }
 
-export function Avatar({ name, color = "primary" }: { name: string; color?: "primary" | "warning" | "destructive" | "info" }) {
+export function Avatar({ name, color = "primary", className = "" }: { name: string; color?: "primary" | "warning" | "destructive" | "info"; className?: string }) {
   const initials = name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
   const map = {
     primary: "bg-primary-soft text-primary",
@@ -328,8 +312,40 @@ export function Avatar({ name, color = "primary" }: { name: string; color?: "pri
     info: "bg-info/20 text-info",
   } as const;
   return (
-    <div className={`h-9 w-9 shrink-0 rounded-full grid place-items-center text-xs font-semibold ${map[color]}`}>
+    <div className={cn(`h-8 w-8 shrink-0 rounded-full grid place-items-center text-[11px] font-semibold ring-1 ring-border/40 ${map[color]}`, className)}>
       {initials}
+    </div>
+  );
+}
+
+export function StackedCell({
+  primary,
+  secondary,
+  secondaryTone = "muted",
+  primaryClassName,
+  secondaryClassName,
+  className,
+}: {
+  primary: ReactNode;
+  secondary?: ReactNode;
+  secondaryTone?: "muted" | "danger";
+  primaryClassName?: string;
+  secondaryClassName?: string;
+  className?: string;
+}) {
+  return (
+    <div className={cn("flex flex-col gap-0.5 min-w-0", className)}>
+      <div className={cn(tableCellText.primary, primaryClassName)}>{primary}</div>
+      {secondary ? (
+        <div
+          className={cn(
+            secondaryTone === "danger" ? tableCellText.secondaryDanger : tableCellText.secondary,
+            secondaryClassName,
+          )}
+        >
+          {secondary}
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -353,7 +369,7 @@ type ThProps = Omit<ThHTMLAttributes<HTMLTableCellElement>, "align"> & {
   width?: string | number;
   /** Hide on small screens */
   hideOnMobile?: boolean;
-  /** Mark column as sortable â€” renders a sort icon and click/keyboard handler. */
+  /** Mark column as sortable - renders a sort icon and click/keyboard handler. */
   sortable?: boolean;
   /** Current sort state for THIS column. null = not active. */
   sortDirection?: SortDirection;

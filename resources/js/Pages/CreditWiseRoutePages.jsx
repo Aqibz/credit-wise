@@ -16,6 +16,9 @@ import {
   customersConfig,
 } from "@/lib/entities/customers";
 import {
+  leadsConfig,
+} from "@/lib/entities/leads";
+import {
   employeesConfig,
 } from "@/lib/entities/hr";
 import {
@@ -38,6 +41,7 @@ import { GrnForm } from "@/components/purchases/receipts/GrnForm";
 import { PurchaseReturnForm } from "@/components/purchases/returns/PurchaseReturnForm";
 import { ProductWizard } from "@/components/purchases/catalog/ProductWizard";
 import { CustomerWizard } from "@/components/sales/customers/CustomerWizard";
+import { LeadFormPage } from "@/components/sales/leads/LeadFormPage";
 import { EmployeeWizard } from "@/components/workforce/hr/EmployeeWizard";
 import { InstallmentPlanWizard } from "@/components/sales/installments/InstallmentPlanWizard";
 import { SupplierWizard } from "@/components/purchases/suppliers/SupplierWizard";
@@ -170,7 +174,7 @@ function ContractRoute() {
         { label: "New Contract" },
       ]}
     >
-      <ContractFormPage onClose={() => router.navigate({ to: "/contracts/under-process" })} />
+      <ContractFormPage onClose={() => router.navigate({ to: "/contracts" })} />
     </WizardPageShell>
   );
 }
@@ -465,35 +469,6 @@ function ProductRoute() {
   );
 }
 
-function CustomerRoute() {
-  const router = useRouter();
-  const toast = useToast();
-  const { create } = useEntityStore(customersConfig.storageKey, customersConfig.seed);
-
-  return (
-    <WizardPageShell
-      title="Add New Customer"
-      backTo="/customers"
-      backLabel="Back to Customers"
-      crumb={[
-        { label: "Customers", to: "/customers" },
-        { label: "Add New" },
-      ]}
-    >
-      <CustomerWizard
-        isEdit={false}
-        pageMode
-        onClose={() => router.navigate({ to: "/customers" })}
-        onSubmit={(values) => {
-          create(values);
-          toast.success("Customer created");
-          router.navigate({ to: "/customers" });
-        }}
-      />
-    </WizardPageShell>
-  );
-}
-
 function CustomerEditRoute({ customerId }) {
   const router = useRouter();
   const toast = useToast();
@@ -523,6 +498,70 @@ function CustomerEditRoute({ customerId }) {
           update(record.id, values);
           toast.success("Customer updated");
           router.navigate({ to: `/customers/${customerId}` });
+        }}
+      />
+    </WizardPageShell>
+  );
+}
+
+function LeadRoute() {
+  const router = useRouter();
+  const toast = useToast();
+  const { create } = useEntityStore(leadsConfig.storageKey, leadsConfig.seed);
+
+  return (
+    <WizardPageShell
+      title="Add New Lead"
+      backTo="/leads"
+      backLabel="Back to Leads"
+      crumb={[
+        { label: "Sales" },
+        { label: "Leads", to: "/leads" },
+        { label: "Add New" },
+      ]}
+    >
+      <LeadFormPage
+        isEdit={false}
+        onClose={() => router.navigate({ to: "/leads" })}
+        onSubmit={(values) => {
+          create(values);
+          toast.success("Lead created");
+          router.navigate({ to: "/leads" });
+        }}
+      />
+    </WizardPageShell>
+  );
+}
+
+function LeadEditRoute({ leadId }) {
+  const router = useRouter();
+  const toast = useToast();
+  const { items, update } = useEntityStore(leadsConfig.storageKey, leadsConfig.seed);
+  const record = items.find((item) => item.id === leadId);
+
+  if (!record) {
+    return <MissingRecordPage title="Lead" backTo="/leads" />;
+  }
+
+  return (
+    <WizardPageShell
+      title={`Edit - ${record.name}`}
+      backTo="/leads"
+      backLabel="Back to Leads"
+      crumb={[
+        { label: "Sales" },
+        { label: "Leads", to: "/leads" },
+        { label: record.name },
+      ]}
+    >
+      <LeadFormPage
+        initial={record}
+        isEdit
+        onClose={() => router.navigate({ to: "/leads" })}
+        onSubmit={(values) => {
+          update(record.id, values);
+          toast.success("Lead updated");
+          router.navigate({ to: "/leads" });
         }}
       />
     </WizardPageShell>
@@ -782,13 +821,18 @@ export function CreditWiseRoutePages({ pathname }) {
     return <ProductEditRoute productId={productEditMatch[1]} />;
   }
 
-  if (pathname === "/customers/new") {
-    return <CustomerRoute />;
-  }
-
   const customerEditMatch = pathname.match(/^\/customers\/([^/]+)\/edit$/);
   if (customerEditMatch) {
     return <CustomerEditRoute customerId={customerEditMatch[1]} />;
+  }
+
+  if (pathname === "/leads/new") {
+    return <LeadRoute />;
+  }
+
+  const leadEditMatch = pathname.match(/^\/leads\/([^/]+)\/edit$/);
+  if (leadEditMatch) {
+    return <LeadEditRoute leadId={leadEditMatch[1]} />;
   }
 
   if (pathname === purchaseOrdersConfig.addHref) {

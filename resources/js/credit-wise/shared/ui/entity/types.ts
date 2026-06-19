@@ -57,10 +57,16 @@ export type EntityPageProps<T extends Entity> = {
   };
   headerSlot?: ReactNode;
   toolbarEndSlot?: ReactNode;
-  extraRowActions?: (item: T, close: () => void) => ReactNode;
+  extraRowActions?: (
+    item: T,
+    close: () => void,
+    helpers?: { update: (patch: Partial<T>) => void; entityName: string },
+  ) => ReactNode;
   filters?: { key: string; label: string; options?: string[] }[];
   initialSearch?: string;
   onSearchChange?: (query: string) => void;
+  initialStatusFilter?: string;
+  onStatusChange?: (status: string) => void;
   shareableLink?: boolean;
   transformOnSave?: (values: Record<string, unknown>, existing?: T) => Record<string, unknown>;
   hideAdd?: boolean;

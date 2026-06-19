@@ -2,6 +2,8 @@ import { type FormEvent, useState } from "react";
 import { AlertTriangle, ChevronDown, ChevronUp, Plus, Trash2, X } from "lucide-react";
 import { pickFieldIcon } from "./icons";
 import type { Field, VariantSchema } from "./types";
+import { CountryCodePhoneInput } from "@/shared/ui/primitives/country-code-phone-input";
+import { CurrencyAmountInput } from "@/shared/ui/primitives/currency-amount-input";
 
 export function FormModal({
   title,
@@ -75,12 +77,22 @@ export function FormModal({
   }
 
   const inputClassName =
-    "w-full h-11 px-3 rounded-lg border border-slate-200 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition";
+    "w-full h-9 px-3 rounded-lg border border-slate-200 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition";
+
+  function isPhoneLikeField(field: Field) {
+    const haystack = `${field.name} ${field.label} ${field.placeholder ?? ""}`.toLowerCase();
+    return field.type === "tel" || /phone|mobile|whatsapp|contact/.test(haystack);
+  }
+
+  function isMoneyLikeField(field: Field) {
+    if (field.type !== "number") return false;
+    const haystack = `${field.name} ${field.label} ${field.placeholder ?? ""}`.toLowerCase();
+    return /\(rs\.?\)|amount|price|budget|cost|income|salary|allowance|fee|limit|float|target|balance|financed|refund|credit|debit|outstanding|drawer|payment/.test(haystack);
+  }
 
   return (
     <div
       className="fixed inset-0 z-50 grid place-items-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in"
-      style={{ fontFamily: "Montserrat, ui-sans-serif, system-ui, sans-serif" }}
       onClick={onClose}
     >
       <form
@@ -178,7 +190,30 @@ export function FormModal({
                       }}
                       placeholder={field.placeholder}
                       rows={3}
-                      className={`w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-white text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 resize-none transition ${errorClassName}`}
+                      className={`w-full min-h-[84px] px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-sm text-slate-900 placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 resize-none transition ${errorClassName}`}
+                    />
+                  ) : isPhoneLikeField(field) ? (
+                    <CountryCodePhoneInput
+                      value={String(values[field.name] ?? "")}
+                      onChange={(nextValue) => {
+                        setValues((current) => ({ ...current, [field.name]: nextValue }));
+                        if (error) setErrors((current) => clearFieldError(current, field.name));
+                      }}
+                      placeholder={field.placeholder}
+                      className={error ? "border-rose-400" : ""}
+                    />
+                  ) : isMoneyLikeField(field) ? (
+                    <CurrencyAmountInput
+                      value={String(values[field.name] ?? "")}
+                      onChange={(nextValue) => {
+                        setValues((current) => ({
+                          ...current,
+                          [field.name]: nextValue === "" ? "" : Number(nextValue),
+                        }));
+                        if (error) setErrors((current) => clearFieldError(current, field.name));
+                      }}
+                      placeholder={field.placeholder}
+                      className={error ? "border-rose-400" : ""}
                     />
                   ) : (
                     <input

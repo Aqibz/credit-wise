@@ -3,7 +3,7 @@ const FragmentRow = Fragment;
 import { Plus, Pencil, Trash2, Eye, Download, Share2 } from "lucide-react";
 import { Link, useRouter } from "@/shared/navigation";
 import { AppShell } from "@/components/layout/AppShell";
-import { PageHeader, StatCard, Badge, Avatar, EntityTableHead, Th } from "@/components/ui-kit";
+import { PageHeader, StatCard, Badge, Avatar, EntityTableHead, Th, tableCellText } from "@/components/ui-kit";
 import { useEntityStore, Entity } from "@/lib/state/useEntityStore";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { NotifyDialog } from "@/components/NotifyDialog";
@@ -36,13 +36,14 @@ export function EntityPageContent<T extends Entity>(props: EntityPageProps<T>) {
 function EntityPageInner<T extends Entity>({
   title, description, storageKey, seed, fields, columns, kpis,
   searchKeys, addLabel, withAvatar, expandable, rowHref, addHref, editHref, customForm, documentView, notifyOnSave, headerSlot, toolbarEndSlot, extraRowActions, filters,
-  initialSearch, onSearchChange, shareableLink, transformOnSave, hideAdd,
+  initialSearch, onSearchChange, initialStatusFilter, onStatusChange, shareableLink, transformOnSave, hideAdd,
 }: EntityPageProps<T>) {
   const { items, create, update, remove } = useEntityStore<T>(storageKey, seed);
   const router = useRouter();
   const toast = useToast();
   // Normalize URL `q` (treat undefined / "" / whitespace as no filter).
   const normalizedInitial = (initialSearch ?? "").trim();
+  const normalizedInitialStatus = (initialStatusFilter ?? "all").trim() || "all";
   const [search, setSearch] = useState(normalizedInitial);
   // Sync with URL-driven initialSearch. When `q` is empty/undefined (deep link
   // back, manual URL edit, or "Reset"), clear the box AND collapse it AND reset
@@ -52,8 +53,12 @@ function EntityPageInner<T extends Entity>({
     setPage(1);
     if (!normalizedInitial) setSearchOpen(false);
   }, [normalizedInitial]);
+  useEffect(() => {
+    setStatusFilter(normalizedInitialStatus);
+    setPage(1);
+  }, [normalizedInitialStatus]);
   // Debounced URL sync so every keystroke isn't a navigation. Always pushes
-  // the trimmed value â€” empty string tells the parent route to strip `q`.
+  // the trimmed value - empty string tells the parent route to strip `q`.
   useEffect(() => {
     if (!onSearchChange) return;
     const next = search.trim();
@@ -62,14 +67,19 @@ function EntityPageInner<T extends Entity>({
     return () => clearTimeout(id);
   }, [search, onSearchChange, normalizedInitial]);
   const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(5);
+  const [perPage, setPerPage] = useState(25);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<T | null>(null);
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>(normalizedInitialStatus);
   const [extraFilters, setExtraFilters] = useState<Record<string, string>>({});
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [searchOpen, setSearchOpen] = useState<boolean>(!!(initialSearch && initialSearch.length));
   useEffect(() => { if (initialSearch) setSearchOpen(true); }, [initialSearch]);
+  useEffect(() => {
+    if (!onStatusChange) return;
+    if (normalizedInitialStatus === statusFilter) return;
+    onStatusChange(statusFilter);
+  }, [statusFilter, onStatusChange, normalizedInitialStatus]);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [confirmDel, setConfirmDel] = useState<T | null>(null);
   const [notifyFor, setNotifyFor] = useState<{ item: Record<string, any>; isEdit: boolean } | null>(null);
@@ -84,6 +94,8 @@ function EntityPageInner<T extends Entity>({
     });
   }
   const entityName = title.replace(/s$/, "");
+  const menuItemClassName = "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[13px] font-medium text-foreground transition-colors hover:bg-muted";
+  const menuSectionLabelClassName = "px-3 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground";
 
   const hasStatus = columns.some((c) => c.key === "status") || (items[0] && "status" in (items[0] as any));
   const statusOptions = useMemo(() => {
@@ -318,7 +330,7 @@ function EntityPageInner<T extends Entity>({
                       ) : <span className="inline-block h-7 w-7" />}
                     </td>
                   )}
-                  <td className="px-4 py-4 text-muted-foreground font-medium">{(safePage - 1) * perPage + idx + 1}</td>
+                  <td className="px-4 py-4 text-[13px] font-medium text-muted-foreground">{(safePage - 1) * perPage + idx + 1}</td>
                   {columns.map((c, ci) => {
                     const k = c.key.toLowerCase();
                     const isStrong = /price|amount|total|balance|qty|quantity|stock|code|sku|cnic|phone|number|^id$/.test(k);
@@ -326,17 +338,17 @@ function EntityPageInner<T extends Entity>({
                     const rendered = c.render ? c.render(item) : String(item[c.key] ?? "");
                     const isFirstClickable = ci === 0 && !!documentView && !withAvatar;
                     return (
-                    <td key={c.key} className={`px-2 py-4 ${isStrong ? "font-bold text-foreground" : "font-medium text-foreground"} ${c.className ?? ""}`}>
+                    <td key={c.key} className={`px-2 py-4 text-[13px] leading-tight ${isStrong ? "font-semibold text-foreground" : "font-medium text-foreground"} ${c.className ?? ""}`}>
                       {ci === 0 && withAvatar ? (
                         <div className="flex items-center gap-3">
                           <Avatar name={String(item[withAvatar.nameKey] ?? "")} color={["primary","warning","destructive","info"][idx % 4] as any} />
-                          <div>
+                          <div className="min-w-0">
                             {documentView ? (
                               <button
                                 type="button"
                                 onClick={() => setViewing(item)}
                                 title="View document"
-                                className="font-semibold text-primary hover:underline underline-offset-2 cursor-pointer text-left"
+                                className={`${tableCellText.primary} text-primary hover:underline underline-offset-2 cursor-pointer text-left`}
                               >
                                 {c.render ? c.render(item) : String(item[c.key] ?? "")}
                               </button>
@@ -344,14 +356,14 @@ function EntityPageInner<T extends Entity>({
                               <button
                                 type="button"
                                 onClick={(e) => { e.stopPropagation(); router.navigate({ to: withAvatar.nameHref!(item) }); }}
-                                className="font-semibold text-foreground hover:text-primary hover:underline underline-offset-2 text-left cursor-pointer"
+                                className={`${tableCellText.primary} hover:text-primary hover:underline underline-offset-2 text-left cursor-pointer`}
                               >
                                 {c.render ? c.render(item) : String(item[c.key] ?? "")}
                               </button>
                             ) : (
-                              <div className="font-semibold text-foreground">{c.render ? c.render(item) : String(item[c.key] ?? "")}</div>
+                              <div className={tableCellText.primary}>{c.render ? c.render(item) : String(item[c.key] ?? "")}</div>
                             )}
-                            {withAvatar.subKey && <div className="text-xs text-muted-foreground font-medium mt-0.5">{String(item[withAvatar.subKey] ?? "")}</div>}
+                            {withAvatar.subKey && <div className={`${tableCellText.secondary} truncate mt-0.5`}>{String(item[withAvatar.subKey] ?? "")}</div>}
                           </div>
                         </div>
                       ) : isFirstClickable ? (
@@ -376,41 +388,74 @@ function EntityPageInner<T extends Entity>({
 
                   <td className="px-2 py-4 relative">
                     <RowActionMenu>
-                      {rowHref && (
-                        <button
-                          onClick={() => { router.navigate({ to: rowHref(item) }); }}
-                          className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-muted flex items-center gap-2"
-                        >
-                          <Eye className="h-3.5 w-3.5" /> View Profile
-                        </button>
+                      {({ close }) => (
+                        <>
+                          {rowHref && (
+                            <button
+                              onClick={() => { close(); router.navigate({ to: rowHref(item) }); }}
+                              className={menuItemClassName}
+                            >
+                              <Eye className="h-3.5 w-3.5" /> View Profile
+                            </button>
+                          )}
+                          {documentView && (
+                            <button
+                              onClick={() => { close(); setViewing(item); }}
+                              className={menuItemClassName}
+                            >
+                              <Eye className="h-3.5 w-3.5" /> View Document
+                            </button>
+                          )}
+                          {editHref ? (
+                            <button
+                              onClick={() => { close(); router.navigate({ to: editHref(item) }); }}
+                              className={menuItemClassName}
+                            >
+                              <Pencil className="h-3.5 w-3.5" /> Edit
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => { close(); openEdit(item); }}
+                              className={menuItemClassName}
+                            >
+                              <Pencil className="h-3.5 w-3.5" /> Edit
+                            </button>
+                          )}
+                          <button
+                            onClick={() => { close(); downloadRow(item); }}
+                            className={menuItemClassName}
+                          >
+                            <Download className="h-3.5 w-3.5" /> Download
+                          </button>
+                          <button
+                            onClick={() => { close(); shareRow(item); }}
+                            className={menuItemClassName}
+                          >
+                            <Share2 className="h-3.5 w-3.5" /> Share
+                          </button>
+                          {extraRowActions ? (
+                            <>
+                              <div className="mx-1 my-1 h-px bg-border/70" />
+                              <div className={menuSectionLabelClassName}>Quick Actions</div>
+                              {extraRowActions(item, close, {
+                                update: (patch) => {
+                                  update(item.id, patch);
+                                  toast.success(`${entityName} updated`, "The row action has been applied.");
+                                },
+                                entityName,
+                              })}
+                            </>
+                          ) : null}
+                          <div className="mx-1 mt-1 border-t border-border/70 pt-1.5">
+                            <button
+                              onClick={() => { close(); askDelete(item); }}
+                              className="flex w-full items-center gap-2 rounded-lg border border-destructive/15 bg-destructive/5 px-3 py-2 text-left text-[13px] font-medium text-destructive transition-colors hover:bg-destructive/10"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" /> Delete
+                            </button>
+                          </div>
+                        </>
                       )}
-                      {documentView && (
-                        <button onClick={() => { setViewing(item); }} className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-muted flex items-center gap-2">
-                          <Eye className="h-3.5 w-3.5" /> View Document
-                        </button>
-                      )}
-                      {editHref ? (
-                        <button
-                          onClick={() => { router.navigate({ to: editHref(item) }); }}
-                          className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-muted flex items-center gap-2"
-                        >
-                          <Pencil className="h-3.5 w-3.5" /> Edit
-                        </button>
-                      ) : (
-                        <button onClick={() => { openEdit(item); }} className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-muted flex items-center gap-2">
-                          <Pencil className="h-3.5 w-3.5" /> Edit
-                        </button>
-                      )}
-                      <button onClick={() => { downloadRow(item); }} className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-muted flex items-center gap-2">
-                        <Download className="h-3.5 w-3.5" /> Download
-                      </button>
-                      <button onClick={() => { shareRow(item); }} className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-muted flex items-center gap-2">
-                        <Share2 className="h-3.5 w-3.5" /> Share
-                      </button>
-                      {extraRowActions && extraRowActions(item, () => undefined)}
-                      <button onClick={() => { askDelete(item); }} className="w-full text-left px-3 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 flex items-center gap-2">
-                        <Trash2 className="h-3.5 w-3.5" /> Delete
-                      </button>
                     </RowActionMenu>
                   </td>
                 </tr>

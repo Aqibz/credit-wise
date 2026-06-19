@@ -3,6 +3,7 @@ import { useMemo, useState, ReactNode } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { StatCard, Badge, PageHeader, Breadcrumbs, ui } from "@/components/ui-kit";
 import { useEntityStore } from "@/lib/state/useEntityStore";
+import { PageMeta } from "@/shared/ui/core/PageMeta";
 import {
   suppliersConfig, purchaseOrdersConfig, grnConfig, billsConfig, paymentsMadeConfig, purchaseReturnsConfig,
 } from "@/lib/entities";
@@ -71,7 +72,7 @@ export function SupplierProfilePage({ supplierId }: { supplierId: string }) {
     events.sort((a, b) => String(a.date).localeCompare(String(b.date)));
 
     // FIFO advance lots, so each bill consumption can be attributed to the
-    // originating advance payment(s) â€” required to reconcile the pool.
+    // originating advance payment(s) - required to reconcile the pool.
     const lots: { ref: string; date: string; source: "Advance" | "Return"; remaining: number }[] = [];
     const allocations: {
       date: string; billRef: string; billAmount: number;
@@ -87,15 +88,15 @@ export function SupplierProfilePage({ supplierId }: { supplierId: string }) {
       if (e.kind === "advance") {
         const amt = Number(e.src.amount || 0);
         lots.push({ ref: e.ref, date: e.date, source: "Advance", remaining: amt });
-        rows.push({ date: e.date, ref: e.ref, type: "Advance Paid", description: `Method: ${e.src.method || "â€”"}`, debit: amt, credit: 0, advanceBalance: poolBalance() });
+        rows.push({ date: e.date, ref: e.ref, type: "Advance Paid", description: `Method: ${e.src.method || "-"}`, debit: amt, credit: 0, advanceBalance: poolBalance() });
       } else if (e.kind === "payment") {
         const amt = Number(e.src.amount || 0);
         payable -= amt;
-        rows.push({ date: e.date, ref: e.ref, type: `Payment (${e.src.method || "â€”"})`, description: `Bill ${e.src.bill || "â€”"}`, debit: amt, credit: 0, advanceBalance: poolBalance() });
+        rows.push({ date: e.date, ref: e.ref, type: `Payment (${e.src.method || "-"})`, description: `Bill ${e.src.bill || "-"}`, debit: amt, credit: 0, advanceBalance: poolBalance() });
       } else if (e.kind === "bill") {
         const amt = Number(e.src.amount || 0);
         payable += amt;
-        rows.push({ date: e.date, ref: e.ref, type: "Bill", description: `PO ${e.src.po || "â€”"} Â· ${Rs(amt)}`, debit: 0, credit: amt, advanceBalance: poolBalance() });
+        rows.push({ date: e.date, ref: e.ref, type: "Bill", description: `PO ${e.src.po || "-"} - ${Rs(amt)}`, debit: 0, credit: amt, advanceBalance: poolBalance() });
 
         // Auto-deduct from advance pool (FIFO), capped at remaining payable
         let needed = Math.min(poolBalance(), payable);
@@ -118,8 +119,8 @@ export function SupplierProfilePage({ supplierId }: { supplierId: string }) {
           const totalUsed = usedSources.reduce((s, u) => s + u.amount, 0);
           const sourceList = usedSources.map((u) => `${u.ref} (${Rs(u.amount)})`).join(", ");
           rows.push({
-            date: e.date, ref: `${e.ref}Â·ADV`, type: "Advance Applied",
-            description: `${Rs(totalUsed)} of bill ${e.ref} (${Rs(amt)}) â† ${sourceList}`,
+            date: e.date, ref: `${e.ref} - ADV`, type: "Advance Applied",
+            description: `${Rs(totalUsed)} of bill ${e.ref} (${Rs(amt)}) <- ${sourceList}`,
             debit: 0, credit: -totalUsed, advanceBalance: poolBalance(), isAdvanceApplied: true,
             allocSources: usedSources, billRef: e.ref, billAmount: amt,
           });
@@ -133,8 +134,8 @@ export function SupplierProfilePage({ supplierId }: { supplierId: string }) {
           payable = 0;
           lots.push({ ref: e.ref, date: e.date, source: "Return", remaining: recredit });
           rows.push({
-            date: e.date, ref: `${e.ref}Â·ADV`, type: "Advance Re-credited",
-            description: `Approved return exceeded payable â€” ${Rs(recredit)} credited to advance pool`,
+            date: e.date, ref: `${e.ref} - ADV`, type: "Advance Re-credited",
+            description: `Approved return exceeded payable - ${Rs(recredit)} credited to advance pool`,
             debit: 0, credit: recredit, advanceBalance: poolBalance(), isAdvanceRecredit: true,
           });
         }
@@ -165,27 +166,31 @@ export function SupplierProfilePage({ supplierId }: { supplierId: string }) {
 
   return (
     <AppShell>
+      <PageMeta title={supplier.name} description="Supplier Profile" />
+      <Breadcrumbs title={supplier.name} />
+
       <div className="mb-4 flex items-center justify-end gap-3">
         <Link to="/purchases/suppliers" className="text-primary text-xs font-medium inline-flex items-center gap-1 hover:underline shrink-0">
           <ArrowLeft className="h-3.5 w-3.5" /> Back to Suppliers
         </Link>
       </div>
 
-      {/* Identity header â€” minimal, single line of meta */}
+      {/* Identity header - minimal, single line of meta */}
       <div className="rounded-xl bg-card border border-border/60 p-5 mb-4">
         <div className="flex items-start gap-4 flex-wrap">
           <div className="h-14 w-14 rounded-xl bg-primary/10 grid place-items-center text-primary text-lg font-semibold shrink-0">
             {String(supplier.name).split(" ").map((s: string) => s[0]).slice(0, 2).join("")}
           </div>
           <div className="flex-1 min-w-0">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Supplier Profile</div>
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-lg font-semibold text-foreground tracking-tight">{supplier.name}</h1>
               <Badge tone={supplier.status === "Active" ? "success" : supplier.status === "Blacklisted" ? "destructive" : "muted"}>{supplier.status}</Badge>
-              {supplier.type && <span className="text-[11px] font-medium text-muted-foreground">Â· {supplier.type}</span>}
+              {supplier.type && <span className="text-[11px] font-medium text-muted-foreground"> -  {supplier.type}</span>}
             </div>
             <div className="flex items-center gap-x-4 gap-y-1 mt-1.5 text-xs text-muted-foreground flex-wrap">
               <span className="font-medium">{supplier.code}</span>
-              {supplier.category && <span>Â· {supplier.category}</span>}
+              {supplier.category && <span> -  {supplier.category}</span>}
               {supplier.phone && <span className="inline-flex items-center gap-1"><Phone className="h-3 w-3" /> {supplier.phone}</span>}
               {supplier.email && <span className="inline-flex items-center gap-1"><Mail className="h-3 w-3" /> {supplier.email}</span>}
               {supplier.city && <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" /> {supplier.city}{supplier.country ? `, ${supplier.country}` : ""}</span>}
@@ -296,15 +301,15 @@ export function SupplierProfilePage({ supplierId }: { supplierId: string }) {
         </div>
       </div>
 
-      {/* KPI strip â€” flat, minimal */}
+      {/* KPI strip - flat, minimal */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
         <StatCard label="Total Purchases" value={Rs(totalPurchases)} icon={<KpiIcons.cart />} tone="primary" hint={`${sBills.length} bills`} />
         <StatCard label="Total Paid" value={Rs(totalPaid)} icon={<KpiIcons.wallet />} tone="success" hint={`${sPayments.length} payments`} />
         <StatCard label="Outstanding" value={Rs(outstanding)} icon={<KpiIcons.invoice />} tone={outstanding > 0 ? "warning" : "success"} hint="Payable balance" />
-        <StatCard label="On-Time Rate" value={`${onTime}%`} icon={<KpiIcon icon={ClipboardCheck} />} tone="primary" hint={`Lead ${supplier.leadTime || "â€”"} days`} />
+        <StatCard label="On-Time Rate" value={`${onTime}%`} icon={<KpiIcon icon={ClipboardCheck} />} tone="primary" hint={`Lead ${supplier.leadTime || "-"} days`} />
       </div>
 
-      {/* Tabs â€” underline style, SaaS standard */}
+      {/* Tabs - underline style, SaaS standard */}
       <div className="rounded-xl bg-card border border-border/60 overflow-hidden">
         <div className="flex border-b border-border px-2 overflow-x-auto">
           {TABS.map((t) => (
@@ -330,15 +335,15 @@ export function SupplierProfilePage({ supplierId }: { supplierId: string }) {
                   <dl className="space-y-1.5 text-sm">
                     {[
                       ["Legal Name", supplier.name],
-                      ["Display Name", supplier.displayName || "â€”"],
+                      ["Display Name", supplier.displayName || "-"],
                       ["Code", supplier.code],
-                      ["Type", supplier.supplierType || "â€”"],
-                      ["Origin", supplier.type || "â€”"],
-                      ["NTN", supplier.ntn || "â€”"],
-                      ["STRN / GST", supplier.strn || "â€”"],
-                      ["Industry", supplier.industry || "â€”"],
-                      ["Website", supplier.website || "â€”"],
-                      ["Contact Person", supplier.contactPerson || "â€”"],
+                      ["Type", supplier.supplierType || "-"],
+                      ["Origin", supplier.type || "-"],
+                      ["NTN", supplier.ntn || "-"],
+                      ["STRN / GST", supplier.strn || "-"],
+                      ["Industry", supplier.industry || "-"],
+                      ["Website", supplier.website || "-"],
+                      ["Contact Person", supplier.contactPerson || "-"],
                     ].map(([k, v]) => (
                       <div key={k as string} className="flex justify-between gap-4 py-1.5">
                         <dt className="text-muted-foreground">{k}</dt>
@@ -351,16 +356,16 @@ export function SupplierProfilePage({ supplierId }: { supplierId: string }) {
                   <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Banking & Commercial</h3>
                   <dl className="space-y-1.5 text-sm">
                     {[
-                      ["Bank", supplier.bankName || "â€”"],
-                      ["Account Title", supplier.accountTitle || "â€”"],
-                      ["Account #", supplier.accountNo || "â€”"],
-                      ["IBAN", supplier.iban || "â€”"],
+                      ["Bank", supplier.bankName || "-"],
+                      ["Account Title", supplier.accountTitle || "-"],
+                      ["Account #", supplier.accountNo || "-"],
+                      ["IBAN", supplier.iban || "-"],
                       ["Currency", supplier.currency || "PKR"],
                       ["Credit Limit", Rs(supplier.creditLimit)],
                       ["Opening Balance", `${Rs(supplier.balance)} ${supplier.balanceType || ""}`],
-                      ["Lead Time", `${supplier.leadTime || "â€”"} days`],
-                      ["MOQ", String(supplier.moq || "â€”")],
-                      ["Warehouse", supplier.warehouse || "â€”"],
+                      ["Lead Time", `${supplier.leadTime || "-"} days`],
+                      ["MOQ", String(supplier.moq || "-")],
+                      ["Warehouse", supplier.warehouse || "-"],
                     ].map(([k, v]) => (
                       <div key={k as string} className="flex justify-between gap-4 py-1.5">
                         <dt className="text-muted-foreground">{k}</dt>
@@ -390,7 +395,7 @@ export function SupplierProfilePage({ supplierId }: { supplierId: string }) {
                       {supplier.documents.map((d: any, i: number) => (
                         <li key={i} className="flex items-center justify-between py-1.5">
                           <span className="text-foreground font-medium">{d.name}</span>
-                          <span className="text-xs text-muted-foreground">{d.type}{d.expiry ? ` Â· exp ${d.expiry}` : ""}</span>
+                          <span className="text-xs text-muted-foreground">{d.type}{d.expiry ? ` - exp ${d.expiry}` : ""}</span>
                         </li>
                       ))}
                     </ul>
@@ -403,7 +408,7 @@ export function SupplierProfilePage({ supplierId }: { supplierId: string }) {
                     <Users className="h-3.5 w-3.5" /> Primary Contact
                   </h3>
                   <div className="text-sm space-y-1">
-                    <div className="text-foreground font-medium">{supplier.contactPerson || "â€”"}</div>
+                    <div className="text-foreground font-medium">{supplier.contactPerson || "-"}</div>
                     {supplier.phone && <div className="text-muted-foreground inline-flex items-center gap-1.5"><Phone className="h-3 w-3" /> {supplier.phone}</div>}
                     {supplier.email && <div className="text-muted-foreground inline-flex items-center gap-1.5"><Mail className="h-3 w-3" /> {supplier.email}</div>}
                   </div>
@@ -480,19 +485,19 @@ export function SupplierProfilePage({ supplierId }: { supplierId: string }) {
                   l.date,
                   (l.isAdvanceApplied || l.isAdvanceRecredit) ? <span key="r" className="text-primary">{l.ref}</span> : l.ref,
                   l.isAdvanceApplied
-                    ? <Badge key="t" tone="primary">â†“ Advance Applied</Badge>
+                    ? <Badge key="t" tone="primary">down Advance Applied</Badge>
                     : l.isAdvanceRecredit
-                    ? <Badge key="t" tone="success">â†‘ Advance Re-credited</Badge>
+                    ? <Badge key="t" tone="success">up Advance Re-credited</Badge>
                     : l.type === "Advance Paid"
                     ? <Badge key="t" tone="success">{l.type}</Badge>
                     : l.type,
                   l.description,
-                  l.debit ? Rs(l.debit) : "â€”",
+                  l.debit ? Rs(l.debit) : "-",
                   l.isAdvanceApplied
-                    ? <span key="c" className="text-primary font-semibold">âˆ’ {Rs(Math.abs(l.credit))}</span>
+                    ? <span key="c" className="text-primary font-semibold">- {Rs(Math.abs(l.credit))}</span>
                     : l.isAdvanceRecredit
                     ? <span key="c" className="text-success-foreground font-semibold">+ {Rs(l.credit)}</span>
-                    : l.credit ? Rs(l.credit) : "â€”",
+                    : l.credit ? Rs(l.credit) : "-",
                   <span key="a" className="text-xs font-mono text-muted-foreground">{Rs(l.advanceBalance)}</span>,
                   Rs(l.balance),
                 ])}
@@ -541,11 +546,11 @@ function PaymentTermsView({ supplier, payments, bills, onAddAdvance }: { supplie
           ["Payment Term", term],
           ["Currency", supplier.currency || "PKR"],
           ["Credit Limit", Rs(supplier.creditLimit || 0)],
-          ["Lead Time", `${supplier.leadTime || "â€”"} days`],
-          ["MOQ", String(supplier.moq || "â€”")],
+          ["Lead Time", `${supplier.leadTime || "-"} days`],
+          ["MOQ", String(supplier.moq || "-")],
           ["Preferred Method", supplier.paymentMethod || "Bank Transfer"],
-          ["Bank", supplier.bankName || "â€”"],
-          ["IBAN", supplier.iban || "â€”"],
+          ["Bank", supplier.bankName || "-"],
+          ["IBAN", supplier.iban || "-"],
           ["Late Fee", supplier.lateFee || "1.5% / month after due date"],
           ["Early Payment Discount", supplier.earlyPaymentDiscount || "2% if paid within 7 days"],
         ].map(([k, v]) => (
@@ -572,7 +577,7 @@ function _LegacyPaymentTermsView({ supplier, payments, bills, onAddAdvance }: { 
         <div className="rounded-xl border border-border bg-gradient-to-br from-primary/10 to-primary/5 p-5">
           <div className="flex items-center gap-2 mb-2"><Handshake className="h-4 w-4 text-primary" /><span className="text-xs uppercase tracking-wider font-bold text-muted-foreground">Active Term</span></div>
           <div className="text-2xl font-bold text-foreground">{term}</div>
-          <div className="text-xs text-muted-foreground mt-1.5">{supplier.currency || "PKR"} â€¢ Credit limit {Rs(supplier.creditLimit || 0)}</div>
+          <div className="text-xs text-muted-foreground mt-1.5">{supplier.currency || "PKR"} - Credit limit {Rs(supplier.creditLimit || 0)}</div>
         </div>
         <StatCard label="Advance Paid" value={Rs(advancePaid)} icon={<KpiIcons.trendUp />} tone="success" hint="Pre-paid to vendor" />
         <StatCard label="Advance Remaining" value={Rs(advanceRemaining)} icon={<KpiIcons.wallet />} tone={advanceRemaining > 0 ? "primary" : "muted" as any} hint="Auto-deducted as bills arrive" />
@@ -586,11 +591,11 @@ function _LegacyPaymentTermsView({ supplier, payments, bills, onAddAdvance }: { 
             ["Payment Term", term],
             ["Currency", supplier.currency || "PKR"],
             ["Credit Limit", Rs(supplier.creditLimit || 0)],
-            ["Lead Time", `${supplier.leadTime || "â€”"} days`],
-            ["MOQ", String(supplier.moq || "â€”")],
+            ["Lead Time", `${supplier.leadTime || "-"} days`],
+            ["MOQ", String(supplier.moq || "-")],
             ["Preferred Method", supplier.paymentMethod || "Bank Transfer"],
-            ["Bank", supplier.bankName || "â€”"],
-            ["IBAN", supplier.iban || "â€”"],
+            ["Bank", supplier.bankName || "-"],
+            ["IBAN", supplier.iban || "-"],
             ["Late Fee", supplier.lateFee || "1.5% / month after due date"],
             ["Early Payment Discount", supplier.earlyPaymentDiscount || "2% if paid within 7 days"],
           ].map(([k, v]) => (
@@ -731,7 +736,7 @@ function PolicyCalculator({
       <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="text-sm font-bold uppercase tracking-wider text-primary flex items-center gap-2">
-            <Percent className="h-4 w-4" /> Policies &amp; Terms Â· Preview Calculator
+            <Percent className="h-4 w-4" /> Policies &amp; Terms - Preview Calculator
           </h3>
           <p className="text-xs text-muted-foreground mt-1">See expected discount, advance deduction, and target impact before saving an order.</p>
         </div>
@@ -767,17 +772,17 @@ function PolicyCalculator({
         <div className="lg:col-span-3 space-y-2.5">
           <Row label="Gross order" value={Rs(gross)} muted />
           <Row
-            label={`Volume discount${matchedTier ? ` Â· ${matchedTier.qty}+ tier (${tierPct}%)` : ` Â· no tier (need ${sortedTiers[0]?.qty || 0}+)`}`}
-            value={`âˆ’ ${Rs(tierDiscount)}`}
+            label={`Volume discount${matchedTier ? ` - ${matchedTier.qty}+ tier (${tierPct}%)` : ` - no tier (need ${sortedTiers[0]?.qty || 0}+)`}`}
+            value={`- ${Rs(tierDiscount)}`}
             tone={tierPct > 0 ? "success" : "muted"}
           />
           <Row
-            label={`Early-payment discount${epQualifies ? ` Â· ${epPct}% (paid â‰¤ ${epWindow}d)` : ` Â· not qualifying (>${epWindow}d)`}`}
-            value={`âˆ’ ${Rs(earlyDiscount)}`}
+            label={`Early-payment discount${epQualifies ? ` - ${epPct}% (paid <= ${epWindow}d)` : ` - not qualifying (>${epWindow}d)`}`}
+            value={`- ${Rs(earlyDiscount)}`}
             tone={epQualifies ? "success" : "muted"}
           />
           <Row label="Net bill" value={Rs(netBill)} bold />
-          <Row label={`Advance applied${useAdvance ? "" : " (off)"}`} value={`âˆ’ ${Rs(advanceUsed)}`} tone="primary" />
+          <Row label={`Advance applied${useAdvance ? "" : " (off)"}`} value={`- ${Rs(advanceUsed)}`} tone="primary" />
           <div className="rounded-xl border-2 border-primary/40 bg-primary/10 p-3 flex items-center justify-between mt-2">
             <span className="text-xs uppercase tracking-wider font-bold text-muted-foreground">Cash Due Now</span>
             <span className="text-2xl font-bold text-primary">{Rs(cashDue)}</span>
@@ -805,7 +810,7 @@ function PolicyCalculator({
               </div>
               {crossesTarget && (
                 <div className="mt-2 text-[11px] text-success-foreground bg-success/15 rounded px-2 py-1.5 font-medium">
-                  âœ“ This order crosses the target â€” unlocks reward: <b>{annual.reward}</b>
+                  OK This order crosses the target - unlocks reward: <b>{annual.reward}</b>
                 </div>
               )}
             </div>
@@ -842,7 +847,7 @@ function AdvancePaymentForm({ supplier, advanceRemaining, onSubmit }: { supplier
   const [allowNegative, setAllowNegative] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // zod schema â€” validates shape, ranges, and enforces explicit override
+  // zod schema - validates shape, ranges, and enforces explicit override
   // when the resulting pool would be negative.
   const advanceSchema = useMemo(() => z.object({
     date: z.string().min(1, "Date is required"),
@@ -924,7 +929,7 @@ function AdvancePaymentForm({ supplier, advanceRemaining, onSubmit }: { supplier
           <Field label="Date">
             <input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} required className="w-full h-9 px-2.5 rounded-md border border-border bg-background text-sm" />
           </Field>
-          <Field label="Amount (Rs.) â€” negative to reverse">
+          <Field label="Amount (Rs.) - negative to reverse">
             <input type="number" step="0.01" value={form.amount} onChange={(e) => { setForm({ ...form, amount: e.target.value }); setError(null); }} placeholder="0" required className={`w-full h-9 px-2.5 rounded-md border bg-background text-sm font-semibold ${wouldGoNegative && !allowNegative ? "border-destructive" : "border-border"}`} />
           </Field>
           <Field label="Method">
@@ -970,7 +975,7 @@ function AdvancePaymentForm({ supplier, advanceRemaining, onSubmit }: { supplier
           <div className="md:col-span-2 lg:col-span-5 flex items-center justify-between gap-3 pt-2 mt-1 border-t border-border/60">
             <div className="text-xs text-muted-foreground">
               Current advance: <b className="text-foreground">{Rs(advanceRemaining)}</b>
-              <span className="mx-2 text-muted-foreground/50">â†’</span>
+              <span className="mx-2 text-muted-foreground/50">-&gt;</span>
               After this entry: <b className={wouldGoNegative ? "text-destructive" : "text-primary"}>{Rs(projected)}</b>
             </div>
             <div className="flex items-center gap-2">
@@ -1021,7 +1026,7 @@ function SupplierNotFound({ suppliers }: { suppliers: any[] }) {
         </div>
         <h2 className="text-base font-semibold text-foreground">We couldn't find that supplier</h2>
         <p className="text-sm text-muted-foreground mt-1 max-w-md">
-          Search by name, code, city, or category to jump straight to the right supplier â€” or browse the full list.
+          Search by name, code, city, or category to jump straight to the right supplier - or browse the full list.
         </p>
 
         <div className="w-full mt-5">
@@ -1031,7 +1036,7 @@ function SupplierNotFound({ suppliers }: { suppliers: any[] }) {
               autoFocus
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Search suppliersâ€¦"
+              placeholder="Search suppliers..."
               className="w-full h-10 pl-9 pr-3 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
             />
           </div>
@@ -1052,7 +1057,7 @@ function SupplierNotFound({ suppliers }: { suppliers: any[] }) {
                         <div className="min-w-0">
                           <div className="text-sm font-medium text-foreground truncate">{s.name}</div>
                           <div className="text-[11px] text-muted-foreground truncate">
-                            {s.code || "â€”"}{s.city ? ` â€¢ ${s.city}` : ""}{s.category ? ` â€¢ ${s.category}` : ""}
+                            {s.code || "-"}{s.city ? ` - ${s.city}` : ""}{s.category ? ` - ${s.category}` : ""}
                           </div>
                         </div>
                         <ArrowLeft className="h-4 w-4 rotate-180 text-muted-foreground shrink-0" />

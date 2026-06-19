@@ -1,12 +1,30 @@
-﻿import { createLegacyEntityRoutePage } from "@/pages/common/createLegacyEntityRoutePage";
+import { createLegacyEntityRoutePage } from "@/pages/common/createLegacyEntityRoutePage";
 
-export const StockOperationsPage = createLegacyEntityRoutePage(() => import("@/lib/entities/inventory").then((m) => m.stockConfig));
-export const StockOnHandPage = createLegacyEntityRoutePage(() => import("@/lib/entities/inventory").then((m) => m.stockConfig));
+export const StockOperationsPage = createLegacyEntityRoutePage(() =>
+  import("@/lib/entities/inventory").then((m) => ({
+    ...m.stockConfig,
+    title: "Stock Operations",
+    description: "Operational stock movement, availability and current inventory position.",
+  })),
+);
+export const StockOnHandPage = createLegacyEntityRoutePage(() =>
+  import("@/lib/entities/inventory").then((m) => ({
+    ...m.stockConfig,
+    title: "Stock on Hand",
+    description: "Current product quantities by warehouse, branch and stock status.",
+  })),
+);
 export const WarehousesPage = createLegacyEntityRoutePage(() => import("@/lib/entities/inventory").then((m) => m.warehousesConfig));
 export const StockTransfersPage = createLegacyEntityRoutePage(() => import("@/lib/entities/inventory").then((m) => m.transfersConfig));
 export const SerialsPage = createLegacyEntityRoutePage(() => import("@/lib/entities/inventory").then((m) => m.serialsConfig));
 export const BarcodeLabelsPage = createLegacyEntityRoutePage(() => import("@/lib/entities/inventory").then((m) => m.barcodeLabelsConfig));
-export const StockCenterPage = createLegacyEntityRoutePage(() => import("@/lib/entities/inventory").then((m) => m.openingStockConfig));
+export const StockCenterPage = createLegacyEntityRoutePage(() =>
+  import("@/lib/entities/inventory").then((m) => ({
+    ...m.stockConfig,
+    title: "Stock Center",
+    description: "Current stock visibility across products, warehouses and branches.",
+  })),
+);
 export const OpeningStockPage = createLegacyEntityRoutePage(() => import("@/lib/entities/inventory").then((m) => m.openingStockConfig));
 export const StockAdjustmentsPage = createLegacyEntityRoutePage(() => import("@/lib/entities/inventory").then((m) => m.stockAdjustmentConfig));
 export const PhysicalAuditPage = createLegacyEntityRoutePage(() => import("@/lib/entities/inventory").then((m) => m.physicalAuditConfig));

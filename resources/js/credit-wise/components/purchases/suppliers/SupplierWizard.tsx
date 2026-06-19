@@ -174,8 +174,8 @@ export function SupplierWizard({
           </FormRow>
           <FormRow label="Phone" required hint="Primary and alternate contact numbers">
             <FieldPair>
-              <WInput value={v.phone} onChange={(e) => set("phone", e.target.value)} placeholder="+92 300 1234567" />
-              <WInput value={v.altPhone} onChange={(e) => set("altPhone", e.target.value)} placeholder="Alt phone" />
+              <WInput type="tel" value={v.phone} onChange={(e) => set("phone", e.target.value)} placeholder="300 1234567" />
+              <WInput type="tel" value={v.altPhone} onChange={(e) => set("altPhone", e.target.value)} placeholder="Alt phone" />
             </FieldPair>
           </FormRow>
           <FormRowDouble
@@ -226,11 +226,11 @@ export function SupplierWizard({
           </FormRow>
           <FormRowDouble
             left={{ label: "Credit Limit", children: (
-              <WInput type="number" value={v.creditLimit} onChange={(e) => set("creditLimit", Number(e.target.value))} />
+              <WInput type="number" moneyField value={v.creditLimit} onChange={(e) => set("creditLimit", Number(e.target.value))} />
             )}}
             right={{ label: "Opening Balance", children: (
               <FieldPair>
-                <WInput type="number" value={v.balance} onChange={(e) => set("balance", Number(e.target.value))} />
+                <WInput type="number" moneyField value={v.balance} onChange={(e) => set("balance", Number(e.target.value))} />
                 <WSelect value={v.balanceType} onChange={(x) => set("balanceType", x)} options={["Dr", "Cr"]} />
               </FieldPair>
             )}}
@@ -462,7 +462,7 @@ function PoliciesEditor({ policies, onChange }: { policies: any[]; onChange: (p:
         <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
           <div className="sm:col-span-5"><WInput placeholder="Policy name (e.g. Early Payment Discount)" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} /></div>
           <div className="sm:col-span-2"><WSelect value={form.kind} onChange={(x) => setForm((f) => ({ ...f, kind: x }))} options={POLICY_KIND} /></div>
-          <div className="sm:col-span-2"><WInput type="number" placeholder="Value" value={form.value} onChange={(e) => setForm((f) => ({ ...f, value: Number(e.target.value) }))} /></div>
+          <div className="sm:col-span-2"><WInput type="number" moneyField={form.unit === "Rs"} placeholder="Value" value={form.value} onChange={(e) => setForm((f) => ({ ...f, value: Number(e.target.value) }))} /></div>
           <div className="sm:col-span-1"><WSelect value={form.unit} onChange={(x) => setForm((f) => ({ ...f, unit: x }))} options={POLICY_UNIT} /></div>
           <div className="sm:col-span-2">
             <button type="button" onClick={addPolicy} className="h-11 w-full inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90">

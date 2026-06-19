@@ -635,12 +635,12 @@ export function BillForm({
                 <div>
                   <label className="block text-xs text-muted-foreground mb-1">Prefix</label>
                   <input value={billPrefix} onChange={(e) => setBillPrefix(e.target.value)}
-                    className="h-9 w-full px-2.5 rounded-md border border-border bg-card text-sm" />
+                    className="h-9 w-full px-3 rounded-md border border-border bg-card text-sm" />
                 </div>
                 <div>
                   <label className="block text-xs text-muted-foreground mb-1">Next Number</label>
                   <input value={billNext} onChange={(e) => setBillNext(e.target.value)}
-                    className="h-9 w-full px-2.5 rounded-md border border-border bg-card text-sm" />
+                    className="h-9 w-full px-3 rounded-md border border-border bg-card text-sm" />
                 </div>
               </div>
             )}
@@ -707,13 +707,13 @@ function RowSplit({ left, right }: { left: { label: string; required?: boolean; 
   );
 }
 function BaseInput({ className = "", ...props }: React.InputHTMLAttributes<HTMLInputElement>) {
-  return <input {...props} className={`h-9 px-2.5 rounded-md border border-border bg-card text-sm w-full focus:outline-none focus:ring-1 focus:ring-primary ${className}`} />;
+  return <input {...props} className={`h-9 px-3 rounded-md border border-border bg-card text-sm w-full focus:outline-none focus:ring-1 focus:ring-primary ${className}`} />;
 }
 function NativeSelect({ value, onChange, options, placeholder, className = "" }: { value: string; onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void; options: string[]; placeholder?: string; className?: string }) {
   return (
     <div className={`relative ${className}`}>
       <select value={value} onChange={onChange}
-        className="appearance-none w-full h-9 pl-2.5 pr-8 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary">
+        className="appearance-none w-full h-9 pl-3 pr-8 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary">
         {placeholder && <option value="">{placeholder}</option>}
         {options.map((o) => <option key={o} value={o}>{o}</option>)}
       </select>
@@ -775,7 +775,7 @@ function DateInput({ value, onChange, placeholder, min }: { value: string; onCha
   return (
     <div className="max-w-sm">
       <input type="date" value={value} min={min} onChange={(e) => onChange(e.target.value)}
-        className="h-9 w-full px-2.5 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+        className="h-9 w-full px-3 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary"
         placeholder={placeholder} />
       {value && <div className="text-[11px] text-muted-foreground mt-1">{fmtDate(value)}</div>}
     </div>
@@ -834,13 +834,13 @@ function ProductPicker({ value, onChange, products }: { value: string; onChange:
     <div ref={ref} className="relative">
       <input value={value} readOnly onClick={() => setOpen((o) => !o)}
         placeholder="Type or click to select an item."
-        className="w-full h-9 px-2.5 pr-8 rounded-md border border-border bg-card text-sm cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary" />
+        className="w-full h-10 px-3 pr-8 rounded-md border border-border bg-card text-sm cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary" />
       <ChevronDown className="h-4 w-4 text-muted-foreground absolute right-2.5 top-[18px] -translate-y-1/2 pointer-events-none" />
       {open && (
         <div className="absolute z-40 left-0 right-0 mt-1 rounded-lg border border-border bg-popover shadow-xl overflow-hidden">
           <div className="p-2 border-b border-border">
             <input autoFocus value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search items"
-              className="h-9 w-full px-3 rounded-md border border-primary bg-card text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+              className="h-10 w-full px-3 rounded-md border border-primary bg-card text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
           </div>
           <ul className="max-h-72 overflow-auto">
             {filtered.length === 0 && <li className="px-3 py-3 text-sm text-muted-foreground">No items found</li>}

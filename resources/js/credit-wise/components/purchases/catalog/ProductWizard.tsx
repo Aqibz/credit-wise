@@ -199,10 +199,10 @@ export function ProductWizard({
         const margin = Number(v.cost) ? Math.round(((Number(v.sale || v.retail) - Number(v.cost)) / Number(v.sale || v.retail)) * 100) : 0;
         return (
           <WGrid>
-            <WField label="Cost Price"><WInput type="number" value={v.cost} onChange={(e) => set("cost", Number(e.target.value))} /></WField>
-            <WField label="MRP / Retail" required><WInput type="number" value={v.retail} onChange={(e) => set("retail", Number(e.target.value))} /></WField>
-            <WField label="Sale Price"><WInput type="number" value={v.sale} onChange={(e) => set("sale", Number(e.target.value))} /></WField>
-            <WField label="Installment Price (per mo, indicative)"><WInput type="number" value={v.rental} onChange={(e) => set("rental", Number(e.target.value))} /></WField>
+            <WField label="Cost Price"><WInput type="number" moneyField value={v.cost} onChange={(e) => set("cost", Number(e.target.value))} /></WField>
+            <WField label="MRP / Retail" required><WInput type="number" moneyField value={v.retail} onChange={(e) => set("retail", Number(e.target.value))} /></WField>
+            <WField label="Sale Price"><WInput type="number" moneyField value={v.sale} onChange={(e) => set("sale", Number(e.target.value))} /></WField>
+            <WField label="Installment Price (per mo, indicative)"><WInput type="number" moneyField value={v.rental} onChange={(e) => set("rental", Number(e.target.value))} /></WField>
             <WField label="Tax Class"><WSelect value={v.taxClass} onChange={(x) => set("taxClass", x)} options={TAX_CLASSES} /></WField>
             <WField label="Currency"><WSelect value={v.currency} onChange={(x) => set("currency", x)} options={["PKR", "USD"]} /></WField>
             <div className="sm:col-span-2 rounded-lg bg-slate-50 border border-slate-200 px-4 py-3 text-sm">
@@ -279,7 +279,7 @@ export function ProductWizard({
                     <tr key={i}>
                       <td className="px-3 py-2 font-medium">{row.name}</td>
                       <td className="px-3 py-2"><WInput value={row.sku} onChange={(e) => { const n = v.variants.slice(); n[i] = { ...n[i], sku: e.target.value }; set("variants", n); }} /></td>
-                      <td className="px-3 py-2"><WInput type="number" value={row.price} onChange={(e) => { const n = v.variants.slice(); n[i] = { ...n[i], price: Number(e.target.value) }; set("variants", n); }} /></td>
+                      <td className="px-3 py-2"><WInput type="number" moneyField value={row.price} onChange={(e) => { const n = v.variants.slice(); n[i] = { ...n[i], price: Number(e.target.value) }; set("variants", n); }} /></td>
                       <td className="px-3 py-2"><WInput type="number" value={row.stock} onChange={(e) => { const n = v.variants.slice(); n[i] = { ...n[i], stock: Number(e.target.value) }; set("variants", n); }} /></td>
                       <td className="px-2"><button onClick={() => set("variants", v.variants.filter((_: any, k: number) => k !== i))} className="text-rose-600"><Trash2 className="h-4 w-4" /></button></td>
                     </tr>
@@ -303,7 +303,7 @@ export function ProductWizard({
               </WField>
               <WGrid>
                 <WField label="Down Payment %"><WInput type="number" value={v.downPayment} onChange={(e) => set("downPayment", Number(e.target.value))} /></WField>
-                <WField label="Processing Fee"><WInput type="number" value={v.processingFee} onChange={(e) => set("processingFee", Number(e.target.value))} /></WField>
+                <WField label="Processing Fee"><WInput type="number" moneyField value={v.processingFee} onChange={(e) => set("processingFee", Number(e.target.value))} /></WField>
                 <WField label="Markup %"><WInput type="number" value={v.markup} onChange={(e) => set("markup", Number(e.target.value))} /></WField>
               </WGrid>
               <div className="flex flex-wrap gap-3">

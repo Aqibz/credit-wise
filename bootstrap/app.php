@@ -47,7 +47,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 'requestId' => app(RequestContext::class)->requestId(),
             ];
 
-            if ($request->is('api/*') || ! in_array($status, [403, 404, 419, 429, 500, 503], true)) {
+            if ($request->is('api/*') || ! in_array($status, [400, 401, 403, 404, 405, 408, 410, 413, 414, 419, 422, 429, 500, 502, 503, 504], true)) {
                 return $response;
             }
 

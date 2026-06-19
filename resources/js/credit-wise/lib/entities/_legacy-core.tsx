@@ -1,7 +1,7 @@
 ﻿import { Package, Tag, Layers, Boxes, ArrowLeftRight, Barcode, FileText, Truck, ShoppingCart, ClipboardCheck, ShoppingBag, CreditCard, Calendar, AlertTriangle, Settings as SettingsIcon, HandCoins, Users, UserCheck, UserX, Wallet, Receipt, Banknote, BookOpen, Briefcase, Clock, DollarSign, TrendingUp, Building2, Target, Bell, Palette, HardDrive, MemoryStick, Ruler, Monitor, Wind, Zap, Type, Hash, CheckCircle2, XCircle, Hourglass, Ban, ShieldCheck, ShieldAlert, ShieldX, FileEdit, Inbox, RotateCcw, Send, PauseCircle, MinusCircle, type LucideIcon } from "lucide-react";
 import { ReactNode, useState, useEffect } from "react";
 import { Link } from "@/shared/navigation";
-import { Badge } from "@/components/ui-kit";
+import { Badge, Avatar, StackedCell, tableCellText } from "@/components/ui-kit";
 import { SupplierLink } from "@/components/SupplierLink";
 import { RequirementsCell } from "@/components/RequirementsCell";
 import { VariantMatrixCell } from "@/components/VariantMatrixCell";
@@ -16,6 +16,11 @@ const STATUS_META: Record<string, { tone: "success" | "warning" | "destructive" 
   Active: { tone: "success", icon: CheckCircle2 },
   Inactive: { tone: "muted", icon: PauseCircle },
   Pending: { tone: "warning", icon: Hourglass },
+  New: { tone: "primary", icon: FileEdit },
+  Contacted: { tone: "warning", icon: Bell },
+  Qualified: { tone: "primary", icon: Target },
+  Converted: { tone: "success", icon: UserCheck },
+  Lost: { tone: "muted", icon: Ban },
   Approved: { tone: "success", icon: ShieldCheck },
   Rejected: { tone: "destructive", icon: ShieldX },
   Overdue: { tone: "destructive", icon: AlertTriangle },
@@ -71,10 +76,7 @@ const ADD_DAYS = (n: number) => {
 };
 
 const DateTimeCell = ({ date, time }: { date?: string; time?: string }) => (
-  <span className="inline-flex flex-col leading-tight">
-    <span className="text-foreground font-medium">{date || "â€”"}</span>
-    {time && <span className="text-[11px] text-muted-foreground font-medium">{time}</span>}
-  </span>
+  <StackedCell primary={date || "-"} secondary={time} />
 );
 
 const lookupPoDate = (poRef?: string): { date?: string; time?: string } => {
@@ -93,17 +95,10 @@ const lookupPoDate = (poRef?: string): { date?: string; time?: string } => {
 const RefWithDateCell = ({ refValue, lookup }: { refValue?: string; lookup: (ref?: string) => { date?: string; time?: string } }) => {
   const [info, setInfo] = useState<{ date?: string; time?: string }>({});
   useEffect(() => { setInfo(lookup(refValue)); }, [refValue, lookup]);
-  if (!refValue) return <span className="text-muted-foreground">â€”</span>;
+  if (!refValue) return <span className="text-muted-foreground"> - </span>;
   const { date, time } = info;
   return (
-    <span className="inline-flex flex-col leading-tight">
-      <span className="text-foreground font-medium">{refValue}</span>
-      {(date || time) && (
-        <span className="text-[11px] text-muted-foreground font-medium">
-          {date}{time ? ` â€¢ ${time}` : ""}
-        </span>
-      )}
-    </span>
+    <StackedCell primary={refValue} secondary={(date || time) ? `${date}${time ? ` - ${time}` : ""}` : undefined} />
   );
 };
 
@@ -152,7 +147,7 @@ export const categoriesConfig: EntityPageProps<any> = {
   kpis: [
     { label: "Total Categories", icon: <Layers className="h-5 w-5" />, tone: "primary", compute: (i) => i.length },
     STATUS_KPI("Active", "Active", "success", <Layers className="h-5 w-5" />),
-    { label: "Avg Products", icon: <Layers className="h-5 w-5" />, tone: "primary", compute: () => "â€”" },
+    { label: "Avg Products", icon: <Layers className="h-5 w-5" />, tone: "primary", compute: () => "-" },
     STATUS_KPI("Inactive", "Inactive", "warning", <Layers className="h-5 w-5" />),
   ],
   columns: [
@@ -414,7 +409,7 @@ export const productVariantsConfig: EntityPageProps<any> = {
       if (i.ram) tags.push({ label: "RAM", value: i.ram, tone: "bg-primary/10 text-primary" });
       if (i.size) tags.push({ label: "Size", value: i.size, tone: "bg-warning/15 text-warning" });
       if (i.capacity) tags.push({ label: "Capacity", value: i.capacity, tone: "bg-success/15 text-success" });
-      if (tags.length === 0) return <span className="text-muted-foreground text-xs">â€”</span>;
+      if (tags.length === 0) return <span className="text-muted-foreground text-xs"> - </span>;
       return (
         <div className="flex flex-wrap gap-1">
           {tags.map((t, k) => (
@@ -432,9 +427,9 @@ export const productVariantsConfig: EntityPageProps<any> = {
         const all = JSON.parse(localStorage.getItem("qcrm.products") || "[]");
         const parent = all.find((p: any) => p.name === i.product);
         const rental = Number(parent?.rental || 0);
-        if (!rental) return <span className="text-muted-foreground text-xs">â€”</span>;
+        if (!rental) return <span className="text-muted-foreground text-xs"> - </span>;
         return <span className="font-semibold text-primary">{Rs(rental)}<span className="text-[10px] text-muted-foreground font-normal">/mo</span></span>;
-      } catch { return <span className="text-muted-foreground text-xs">â€”</span>; }
+      } catch { return <span className="text-muted-foreground text-xs"> - </span>; }
     } },
     { key: "stock", header: "Stock", render: (i: any) => {
       const s = Number(i.stock || 0);
@@ -448,7 +443,7 @@ export const productVariantsConfig: EntityPageProps<any> = {
   ],
   fields: [
     sel("product", "Parent Product", ["Gree 1.5 Ton Inverter AC", "Samsung LED TV 55 Inch", "Haier Inverter Refrigerator", "Samsung Galaxy A55", "iPhone 15"], { required: true }),
-    text("variant", "Variant Name", { required: true, placeholder: "e.g. 128GB â€” Black" }),
+    text("variant", "Variant Name", { required: true, placeholder: "e.g. 128GB - Black" }),
     text("sku", "SKU / Barcode", { required: true }),
     text("color", "Color"),
     text("storage", "Storage"),
@@ -462,13 +457,13 @@ export const productVariantsConfig: EntityPageProps<any> = {
     status(),
   ],
   seed: [
-    { id: "1", product: "Gree 1.5 Ton Inverter AC", variant: "1.5 Ton â€” White", sku: "AC-15-GRE-WHT", color: "White", capacity: "1.5 Ton", price: 168000, cost: 145000, stock: 4, status: "Active" },
-    { id: "2", product: "Gree 1.5 Ton Inverter AC", variant: "1.5 Ton â€” Black", sku: "AC-15-GRE-BLK", color: "Black", capacity: "1.5 Ton", price: 172000, cost: 148000, stock: 2, status: "Active" },
-    { id: "3", product: "Haier Inverter Refrigerator", variant: "11 CFT â€” Silver", sku: "REF-11-HAI-SIL", color: "Silver", capacity: "11 CFT", price: 121500, cost: 105000, stock: 3, status: "Active" },
-    { id: "4", product: "Haier Inverter Refrigerator", variant: "13 CFT â€” Black", sku: "REF-13-HAI-BLK", color: "Black", capacity: "13 CFT", price: 142000, cost: 122000, stock: 0, status: "Active" },
-    { id: "5", product: "Samsung Galaxy A55", variant: "128GB / 8GB â€” Black", sku: "MOB-A55-128-BLK", color: "Black", storage: "128 GB", ram: "8 GB", price: 119000, cost: 102000, stock: 6, status: "Active" },
-    { id: "6", product: "Samsung Galaxy A55", variant: "256GB / 8GB â€” Blue", sku: "MOB-A55-256-BLU", color: "Blue", storage: "256 GB", ram: "8 GB", price: 134000, cost: 115000, stock: 3, status: "Active" },
-    { id: "7", product: "iPhone 15", variant: "128GB â€” Pink", sku: "MOB-IP15-128-PNK", color: "Pink", storage: "128 GB", ram: "6 GB", price: 339000, cost: 305000, stock: 2, status: "Active" },
+    { id: "1", product: "Gree 1.5 Ton Inverter AC", variant: "1.5 Ton - White", sku: "AC-15-GRE-WHT", color: "White", capacity: "1.5 Ton", price: 168000, cost: 145000, stock: 4, status: "Active" },
+    { id: "2", product: "Gree 1.5 Ton Inverter AC", variant: "1.5 Ton - Black", sku: "AC-15-GRE-BLK", color: "Black", capacity: "1.5 Ton", price: 172000, cost: 148000, stock: 2, status: "Active" },
+    { id: "3", product: "Haier Inverter Refrigerator", variant: "11 CFT - Silver", sku: "REF-11-HAI-SIL", color: "Silver", capacity: "11 CFT", price: 121500, cost: 105000, stock: 3, status: "Active" },
+    { id: "4", product: "Haier Inverter Refrigerator", variant: "13 CFT - Black", sku: "REF-13-HAI-BLK", color: "Black", capacity: "13 CFT", price: 142000, cost: 122000, stock: 0, status: "Active" },
+    { id: "5", product: "Samsung Galaxy A55", variant: "128GB / 8GB - Black", sku: "MOB-A55-128-BLK", color: "Black", storage: "128 GB", ram: "8 GB", price: 119000, cost: 102000, stock: 6, status: "Active" },
+    { id: "6", product: "Samsung Galaxy A55", variant: "256GB / 8GB - Blue", sku: "MOB-A55-256-BLU", color: "Blue", storage: "256 GB", ram: "8 GB", price: 134000, cost: 115000, stock: 3, status: "Active" },
+    { id: "7", product: "iPhone 15", variant: "128GB - Pink", sku: "MOB-IP15-128-PNK", color: "Pink", storage: "128 GB", ram: "6 GB", price: 339000, cost: 305000, stock: 2, status: "Active" },
   ],
 };
 
@@ -506,7 +501,7 @@ export const bundlesConfig: EntityPageProps<any> = {
     } },
     { key: "offer", header: "Offer", render: (i: any) => (
       <div className="flex flex-col gap-0.5 text-[11px]">
-        {i.limitedTime && <span className="text-warning font-semibold">â± {i.startDate || "â€”"} â†’ {i.endDate || "â€”"}</span>}
+        {i.limitedTime && <span className="text-warning font-semibold">Time {i.startDate || "-"} -&gt; {i.endDate || "-"}</span>}
         <div className="flex gap-1">
           {i.applyOnCash && <span className="inline-flex items-center rounded bg-muted text-foreground px-1.5 py-0.5 font-medium">Cash</span>}
           {i.applyOnInstallment && <span className="inline-flex items-center rounded bg-muted text-foreground px-1.5 py-0.5 font-medium">Installment{Array.isArray(i.eligiblePlans) && i.eligiblePlans.length > 0 ? ` (${i.eligiblePlans.length})` : ""}</span>}
@@ -523,15 +518,15 @@ export const bundlesConfig: EntityPageProps<any> = {
     { id: "1", name: "Living Room Combo", code: "BND-LR-01", category: "Home Appliances, Electronics", mrp: 320000, bundlePrice: 285000, status: "Active",
       applyOnCash: true, applyOnInstallment: true, eligiblePlans: ["12 Month Easy"], limitedTime: false,
       items: [
-        { variantId: "1", product: "Gree 1.5 Ton Inverter AC", variant: "1.5 Ton â€” White", sku: "AC-15-GRE-WHT", category: "Home Appliances", price: 168000, qty: 1 },
-        { variantId: "3", product: "Haier Inverter Refrigerator", variant: "11 CFT â€” Silver", sku: "REF-11-HAI-SIL", category: "Home Appliances", price: 121500, qty: 1 },
+        { variantId: "1", product: "Gree 1.5 Ton Inverter AC", variant: "1.5 Ton - White", sku: "AC-15-GRE-WHT", category: "Home Appliances", price: 168000, qty: 1 },
+        { variantId: "3", product: "Haier Inverter Refrigerator", variant: "11 CFT - Silver", sku: "REF-11-HAI-SIL", category: "Home Appliances", price: 121500, qty: 1 },
       ] },
     { id: "2", name: "Wedding Bundle", code: "BND-WED-01", category: "Home Appliances, Electronics, Mobiles", mrp: 580000, bundlePrice: 520000, status: "Active",
       applyOnCash: true, applyOnInstallment: false, eligiblePlans: [], limitedTime: true, startDate: "2026-05-01", endDate: "2026-12-31",
       items: [
-        { variantId: "1", product: "Gree 1.5 Ton Inverter AC", variant: "1.5 Ton â€” White", sku: "AC-15-GRE-WHT", category: "Home Appliances", price: 168000, qty: 1 },
-        { variantId: "3", product: "Haier Inverter Refrigerator", variant: "11 CFT â€” Silver", sku: "REF-11-HAI-SIL", category: "Home Appliances", price: 121500, qty: 1 },
-        { variantId: "5", product: "Samsung Galaxy A55", variant: "128GB / 8GB â€” Black", sku: "MOB-A55-128-BLK", category: "Mobiles", price: 119000, qty: 1 },
+        { variantId: "1", product: "Gree 1.5 Ton Inverter AC", variant: "1.5 Ton - White", sku: "AC-15-GRE-WHT", category: "Home Appliances", price: 168000, qty: 1 },
+        { variantId: "3", product: "Haier Inverter Refrigerator", variant: "11 CFT - Silver", sku: "REF-11-HAI-SIL", category: "Home Appliances", price: 121500, qty: 1 },
+        { variantId: "5", product: "Samsung Galaxy A55", variant: "128GB / 8GB - Black", sku: "MOB-A55-128-BLK", category: "Mobiles", price: 119000, qty: 1 },
       ] },
   ],
 };
@@ -604,7 +599,7 @@ export const collectionsConfig: EntityPageProps<any> = {
 
 export const installmentMatrixConfig: EntityPageProps<any> = {
   title: "Installment Matrix",
-  description: "Pre-defined tenure Ã— down-payment matrix mapping monthly EMI for each product/category.",
+  description: "Pre-defined tenure x down-payment matrix mapping monthly EMI for each product/category.",
   storageKey: "qcrm.installment-matrix",
   withAvatar: { nameKey: "product", subKey: "category" },
   searchKeys: ["product", "category", "plan"],
@@ -665,15 +660,15 @@ export const productsConfig: EntityPageProps<any> = {
   kpis: [
     { label: "Total Products", hint: "All products in inventory", icon: <Package className="h-5 w-5" />, tone: "primary", compute: (i) => i.length },
     { label: "Variants", hint: "Total variants across all products", icon: <Layers className="h-5 w-5" />, tone: "primary", compute: (i) => i.reduce((s: number, p: any) => s + (Array.isArray(p.variants) ? p.variants.length : 0), 0) },
-    { label: "Price Range", hint: "Min â€“ Max variant price", icon: <TrendingUp className="h-5 w-5" />, tone: "success", compute: (i) => {
+    { label: "Price Range", hint: "Min - Max variant price", icon: <TrendingUp className="h-5 w-5" />, tone: "success", compute: (i) => {
       const prices: number[] = [];
       i.forEach((p: any) => {
         if (Array.isArray(p.variants) && p.variants.length) p.variants.forEach((v: any) => { if (Number(v.price) > 0) prices.push(Number(v.price)); });
         else if (Number(p.retail) > 0) prices.push(Number(p.retail));
       });
-      if (!prices.length) return "â€”";
+      if (!prices.length) return "-";
       const fmt = (n: number) => n >= 100000 ? `${(n/100000).toFixed(1)}L` : n >= 1000 ? `${(n/1000).toFixed(0)}K` : `${n}`;
-      return `Rs. ${fmt(Math.min(...prices))} â€“ ${fmt(Math.max(...prices))}`;
+      return `Rs. ${fmt(Math.min(...prices))} - ${fmt(Math.max(...prices))}`;
     } },
     { label: "Out of Stock", hint: "Currently unavailable", icon: <AlertTriangle className="h-5 w-5" />, tone: "destructive", compute: (i) => i.filter((p: any) => {
       const vs = Array.isArray(p.variants) ? p.variants.reduce((s: number, v: any) => s + Number(v.stock || 0), 0) : Number(p.inventory || 0);
@@ -754,7 +749,7 @@ export const productsConfig: EntityPageProps<any> = {
               </span>
             ) : oosVariants > 0 ? (
               <span className="inline-flex items-center gap-1 rounded-md bg-warning/15 text-warning text-[10px] font-bold px-1.5 py-0.5 uppercase tracking-wide">
-                {oosVariants} OOS Â· {inStockVariants} live
+                {oosVariants} OOS - {inStockVariants} live
               </span>
             ) : (
               <span className="inline-flex items-center gap-1 rounded-md bg-success/15 text-success text-[10px] font-bold px-1.5 py-0.5 uppercase tracking-wide">
@@ -772,7 +767,7 @@ export const productsConfig: EntityPageProps<any> = {
               return (
                 <span
                   key={idx}
-                  title={`${name} Â· ${oos ? "Out of stock" : `${vStock} units`}`}
+                  title={`${name} - ${oos ? "Out of stock" : `${vStock} units`}`}
                   className={`inline-flex items-center gap-1 rounded-full border pl-0.5 pr-1.5 py-0.5 text-[10px] font-semibold ${
                     oos
                       ? "border-destructive/30 bg-destructive/10 text-destructive line-through opacity-70"
@@ -810,13 +805,13 @@ export const productsConfig: EntityPageProps<any> = {
         i.variants.forEach((v: any) => { if (Number(v.price) > 0) prices.push(Number(v.price)); });
       }
       if (!prices.length && Number(i.retail) > 0) prices.push(Number(i.retail));
-      if (!prices.length) return <span className="text-xs text-muted-foreground">â€”</span>;
+      if (!prices.length) return <span className="text-xs text-muted-foreground"> - </span>;
       const fmt = (n: number) => n >= 100000 ? `${(n/100000).toFixed(1)}L` : n >= 1000 ? `${(n/1000).toFixed(0)}K` : `${n}`;
       const min = Math.min(...prices), max = Math.max(...prices);
       return (
         <div className="flex flex-col">
           <span className="font-semibold text-foreground text-sm">
-            {min === max ? `Rs. ${fmt(min)}` : `Rs. ${fmt(min)} â€“ ${fmt(max)}`}
+            {min === max ? `Rs. ${fmt(min)}` : `Rs. ${fmt(min)} - ${fmt(max)}`}
           </span>
           <span className="text-[10px] text-muted-foreground">Cash price</span>
         </div>
@@ -824,7 +819,7 @@ export const productsConfig: EntityPageProps<any> = {
     } },
     { key: "emiFrom", header: "EMI Starts From", render: (i: any) => {
       const r = Number(i.rental || 0);
-      if (!r) return <span className="text-xs text-muted-foreground">â€” <span className="opacity-60">No plan</span></span>;
+      if (!r) return <span className="text-xs text-muted-foreground"> -  <span className="opacity-60">No plan</span></span>;
       return (
         <div className="flex flex-col">
           <span className="font-semibold text-success text-sm">Rs. {r.toLocaleString()}</span>
@@ -847,7 +842,7 @@ export const productsConfig: EntityPageProps<any> = {
       if (i.theme && i.theme !== "None") {
         tags.push({ label: i.theme, cls: "bg-primary/10 text-primary border-primary/30" });
       }
-      if (!tags.length) return <span className="text-xs text-muted-foreground">â€”</span>;
+      if (!tags.length) return <span className="text-xs text-muted-foreground"> - </span>;
       return (
         <div className="flex flex-wrap gap-1 max-w-[180px]">
           {tags.map((t, idx) => (
@@ -889,7 +884,7 @@ export const productsConfig: EntityPageProps<any> = {
     {
       name: "variants", label: "Variants", type: "variants", showWhen: { field: "hasVariants", equals: true },
       variantSchema: [
-        { name: "name", label: "Variant Name", type: "text", placeholder: "e.g. 1.5 Ton â€” White" },
+        { name: "name", label: "Variant Name", type: "text", placeholder: "e.g. 1.5 Ton - White" },
         { name: "sku", label: "SKU", type: "text", placeholder: "e.g. AC-15-WHT" },
         { name: "image", label: "Image URL", type: "text", placeholder: "https://..." },
         { name: "price", label: "Price (Rs.)", type: "number" },
@@ -951,7 +946,7 @@ export const productsConfig: EntityPageProps<any> = {
                     ? Math.ceil(((productEmi * price) / baseRetail) / 10) * 10
                     : 0;
                   // Spec extracted from name after dash, fallback to brand
-                  const spec = (v.name || "").includes("â€”") ? (v.name || "").split("â€”").slice(1).join("â€”").trim() : (v.spec || i.brand || "â€”");
+                  const spec = (v.name || "").includes("-") ? (v.name || "").split("-").slice(1).join("-").trim() : (v.spec || i.brand || "-");
                   return (
                     <tr key={k} className={oos ? "opacity-70 bg-destructive/[0.03]" : "hover:bg-muted/30"}>
                       <td className="px-3 py-2">
@@ -964,7 +959,7 @@ export const productsConfig: EntityPageProps<any> = {
                             </div>
                           )}
                           <div className="flex flex-col min-w-0">
-                            <span className={`font-bold text-foreground text-sm ${oos ? "line-through" : ""}`}>{(v.name || "").split("â€”")[0].trim() || v.name}</span>
+                            <span className={`font-bold text-foreground text-sm ${oos ? "line-through" : ""}`}>{(v.name || "").split("-")[0].trim() || v.name}</span>
                             <span className="text-[11px] font-semibold text-muted-foreground/90 uppercase tracking-wide">{i.brand}</span>
                           </div>
                         </div>
@@ -972,7 +967,7 @@ export const productsConfig: EntityPageProps<any> = {
                       <td className="px-3 py-2">
                         <div className="flex flex-col">
                           <span className="text-xs text-foreground font-medium">{spec}</span>
-                          <span className="text-[10px] text-muted-foreground font-mono">{v.sku || "â€”"}</span>
+                          <span className="text-[10px] text-muted-foreground font-mono">{v.sku || "-"}</span>
                         </div>
                       </td>
                       <td className="px-3 py-2 text-right">
@@ -1016,15 +1011,15 @@ export const productsConfig: EntityPageProps<any> = {
   seed: [
     { id: "1", name: "Gree 1.5 Ton Inverter AC", sku: "AC-15-GRE", category: "Home Appliances", brand: "Gree", retail: 168000, rental: 5200, cost: 145000, inventory: 6, reorder: 5, status: "Active",
       hasVariants: true, variants: [
-        { name: "1.5 Ton â€” White", sku: "AC-15-GRE-WHT", price: 168000, stock: 4 },
-        { name: "1.5 Ton â€” Black", sku: "AC-15-GRE-BLK", price: 172000, stock: 2 },
+        { name: "1.5 Ton - White", sku: "AC-15-GRE-WHT", price: 168000, stock: 4 },
+        { name: "1.5 Ton - Black", sku: "AC-15-GRE-BLK", price: 172000, stock: 2 },
       ] },
     { id: "2", name: "Samsung LED TV 55 Inch", sku: "LED-55-SAM", category: "Electronics", brand: "Samsung", retail: 149999, rental: 4500, cost: 130000, inventory: 8, reorder: 5, status: "Active" },
     { id: "3", name: "Haier Inverter Refrigerator", sku: "REF-INV-HAI", category: "Home Appliances", brand: "Haier", retail: 121500, rental: 3600, cost: 105000, inventory: 5, reorder: 5, status: "Active", season: "Summer", theme: "New Arrivals",
       hasVariants: true, variants: [
-        { name: "11 CFT â€” Silver", spec: "11 Cubic Feet Â· Silver", sku: "REF-11-HAI-SIL", price: 121500, stock: 3 },
-        { name: "13 CFT â€” Silver", spec: "13 Cubic Feet Â· Silver", sku: "REF-13-HAI-SIL", price: 138000, stock: 2 },
-        { name: "13 CFT â€” Black", spec: "13 Cubic Feet Â· Black", sku: "REF-13-HAI-BLK", price: 142000, stock: 0 },
+        { name: "11 CFT - Silver", spec: "11 Cubic Feet - Silver", sku: "REF-11-HAI-SIL", price: 121500, stock: 3 },
+        { name: "13 CFT - Silver", spec: "13 Cubic Feet - Silver", sku: "REF-13-HAI-SIL", price: 138000, stock: 2 },
+        { name: "13 CFT - Black", spec: "13 Cubic Feet - Black", sku: "REF-13-HAI-BLK", price: 142000, stock: 0 },
       ] },
   ],
   extraRowActions: (item: any, close: () => void) => (
@@ -1218,7 +1213,7 @@ export const serialsConfig: EntityPageProps<any> = {
     sel("status", "Status", ["In Stock", "Sold", "Repossessed", "Damaged", "Returned"], { defaultValue: "In Stock" }),
   ],
   seed: [
-    { id: "1", serial: "356789012345671", product: "Samsung LED TV 55", branch: "Model Town", customer: "â€”", saleDate: "", status: "In Stock" },
+    { id: "1", serial: "356789012345671", product: "Samsung LED TV 55", branch: "Model Town", customer: "-", saleDate: "", status: "In Stock" },
     { id: "2", serial: "GRE-AC-998812", product: "Gree 1.5 Ton AC", branch: "Gulberg", customer: "Imran Ali", saleDate: "2026-04-22", status: "Sold" },
   ],
 };
@@ -1358,7 +1353,7 @@ export const openingStockConfig: EntityPageProps<any> = {
 
 export const stockAdjustmentConfig: EntityPageProps<any> = {
   title: "Stock Adjustment",
-  description: "Increase or decrease stock with a reason â€” shrinkage, found, correction.",
+  description: "Increase or decrease stock with a reason - shrinkage, found, correction.",
   storageKey: "qcrm.stock-adjustments",
   withAvatar: { nameKey: "ref", subKey: "product" },
   searchKeys: ["ref", "product", "warehouse", "reason"],
@@ -1520,14 +1515,14 @@ export const barcodeLabelsConfig: EntityPageProps<any> = {
 
 export const lowStockAlertsConfig: EntityPageProps<any> = {
   title: "Low Stock Alerts",
-  description: "Products at or below their reorder level â€” restock priorities.",
+  description: "Products at or below their reorder level - restock priorities.",
   storageKey: "qcrm.low-stock-alerts",
   withAvatar: { nameKey: "product", subKey: "sku" },
   searchKeys: ["product", "sku", "warehouse"],
   kpis: [
     { label: "Alerts", icon: <Bell className="h-5 w-5" />, tone: "warning", compute: (i) => i.length },
     { label: "Out of Stock", icon: <AlertTriangle className="h-5 w-5" />, tone: "destructive", compute: (i) => i.filter((x: any) => Number(x.qty) === 0).length },
-    { label: "Critical (â‰¤2)", icon: <AlertTriangle className="h-5 w-5" />, tone: "destructive", compute: (i) => i.filter((x: any) => Number(x.qty) > 0 && Number(x.qty) <= 2).length },
+    { label: "Critical (<=2)", icon: <AlertTriangle className="h-5 w-5" />, tone: "destructive", compute: (i) => i.filter((x: any) => Number(x.qty) > 0 && Number(x.qty) <= 2).length },
     { label: "Reorder Needed", icon: <ShoppingCart className="h-5 w-5" />, tone: "warning", compute: (i) => i.reduce((s: number, x: any) => s + Math.max(0, Number(x.reorder || 0) - Number(x.qty || 0)), 0) },
   ],
   columns: [
@@ -1551,9 +1546,9 @@ export const lowStockAlertsConfig: EntityPageProps<any> = {
   ],
   seed: [
     { id: "1", product: "Haier Inverter Refrigerator", sku: "REF-13-HAI-BLK", warehouse: "Main Warehouse", qty: 0, reorder: 5, supplier: "Haier International" },
-    { id: "2", product: "Gree 1.5 Ton AC â€” Black", sku: "AC-15-GRE-BLK", warehouse: "Gulberg Outlet", qty: 2, reorder: 6, supplier: "DWP Group" },
-    { id: "3", product: "iPhone 15 â€” 128GB", sku: "MOB-IP15-128-PNK", warehouse: "Model Town Store", qty: 2, reorder: 4, supplier: "R&I Electronics" },
-    { id: "4", product: "Samsung Galaxy A55 â€” Blue", sku: "MOB-A55-256-BLU", warehouse: "Gulberg Outlet", qty: 3, reorder: 6, supplier: "R&I Electronics" },
+    { id: "2", product: "Gree 1.5 Ton AC - Black", sku: "AC-15-GRE-BLK", warehouse: "Gulberg Outlet", qty: 2, reorder: 6, supplier: "DWP Group" },
+    { id: "3", product: "iPhone 15 - 128GB", sku: "MOB-IP15-128-PNK", warehouse: "Model Town Store", qty: 2, reorder: 4, supplier: "R&I Electronics" },
+    { id: "4", product: "Samsung Galaxy A55 - Blue", sku: "MOB-A55-256-BLU", warehouse: "Gulberg Outlet", qty: 3, reorder: 6, supplier: "R&I Electronics" },
     { id: "5", product: "Microwave Oven", sku: "MW-25L", warehouse: "Main Warehouse", qty: 1, reorder: 5, supplier: "Dawlance Ltd" },
   ],
 };
@@ -1602,7 +1597,7 @@ export const vehicleRegistrationConfig: EntityPageProps<any> = {
     { id: "1", regNo: "LEH-1234", type: "Pickup", make: "Suzuki Ravi 2022", ownership: "Owned", owner: "CreditWise", driver: "Asif Khan", driverPhone: "+92 300 1234567", capacity: "0.8 Ton", fuel: "Petrol", fitnessExpiry: "2027-03-15", insuranceExpiry: "2026-12-01", tokenExpiry: "2026-08-30", status: "Active" },
     { id: "2", regNo: "LES-5621", type: "Mini Truck", make: "Hino 300 2021", ownership: "Owned", owner: "CreditWise", driver: "Bilal Hussain", driverPhone: "+92 321 7654321", capacity: "3 Ton", fuel: "Diesel", fitnessExpiry: "2026-09-10", insuranceExpiry: "2026-11-15", tokenExpiry: "2026-07-20", status: "Active" },
     { id: "3", regNo: "KHI-8899", type: "Truck", make: "Isuzu NPR 2019", ownership: "Contracted", owner: "TCS Logistics", driver: "Rashid Ali", driverPhone: "+92 333 9988776", capacity: "5 Ton", fuel: "Diesel", fitnessExpiry: "2026-06-30", insuranceExpiry: "2026-10-01", tokenExpiry: "2026-09-15", status: "Active" },
-    { id: "4", regNo: "LEB-2245", type: "Bike", make: "Honda CD-70", ownership: "Owned", owner: "CreditWise", driver: "Recovery Team", driverPhone: "+92 345 1112233", capacity: "â€”", fuel: "Petrol", fitnessExpiry: "2027-01-20", insuranceExpiry: "2026-12-30", tokenExpiry: "2026-08-15", status: "Active" },
+    { id: "4", regNo: "LEB-2245", type: "Bike", make: "Honda CD-70", ownership: "Owned", owner: "CreditWise", driver: "Recovery Team", driverPhone: "+92 345 1112233", capacity: "-", fuel: "Petrol", fitnessExpiry: "2027-01-20", insuranceExpiry: "2026-12-30", tokenExpiry: "2026-08-15", status: "Active" },
   ],
 };
 
@@ -1643,22 +1638,22 @@ export const suppliersConfig: EntityPageProps<any> = {
       header: "Contact",
       render: (i: any) => (
         <span className="inline-flex flex-col leading-tight">
-          <span className="font-medium text-foreground">{i.phone || "â€”"}</span>
+          <span className="font-medium text-foreground">{i.phone || "-"}</span>
           {i.email && <span className="text-xs text-muted-foreground font-medium">{i.email}</span>}
         </span>
       ),
     },
     { key: "balance", header: "Balance Due", render: (i: any) => <span className="font-medium text-foreground">{Rs(i.balance)}</span> },
-    { key: "paymentTerms", header: "Payment Terms", render: (i: any) => i.paymentTerms || "â€”" },
+    { key: "paymentTerms", header: "Payment Terms", render: (i: any) => i.paymentTerms || "-" },
     {
       key: "nextDue",
       header: "Next Due",
       render: (i: any) => {
         const terms = String(i.paymentTerms || "");
         const balance = Number(i.balance || 0);
-        if (!balance) return <span className="text-muted-foreground">â€”</span>;
+        if (!balance) return <span className="text-muted-foreground"> - </span>;
         const m = terms.match(/(\d+)/);
-        if (!m) return <span className="text-muted-foreground">â€”</span>;
+        if (!m) return <span className="text-muted-foreground"> - </span>;
         const base = i.lastBillDate ? new Date(i.lastBillDate) : new Date();
         base.setDate(base.getDate() + Number(m[1]));
         const due = base.toISOString().slice(0, 10);
@@ -1695,7 +1690,7 @@ export const suppliersConfig: EntityPageProps<any> = {
   seed: [
     { id: "1", name: "DWP Group", code: "SUP-001", category: "Air Conditioners", phone: "+92 42 35880100", email: "ap@dwp.com.pk", ntn: "1234567-8", type: "Local", balance: 850000, paymentTerms: "Net 30", lastBillDate: "2026-05-02", status: "Active" },
     { id: "2", name: "R&I Electronics", code: "SUP-002", category: "LED TVs", phone: "+92 21 34567890", email: "billing@rielectronics.pk", ntn: "9876543-2", type: "Local", balance: 320000, paymentTerms: "Net 15", lastBillDate: "2026-05-05", status: "Active" },
-    { id: "3", name: "Haier International", code: "SUP-003", category: "Mixed / Multi-Category", phone: "+86 532 8893", email: "export@haier.com", ntn: "â€”", type: "Import", balance: 1250000, paymentTerms: "Net 60", lastBillDate: "2026-04-20", status: "Active" },
+    { id: "3", name: "Haier International", code: "SUP-003", category: "Mixed / Multi-Category", phone: "+86 532 8893", email: "export@haier.com", ntn: "-", type: "Import", balance: 1250000, paymentTerms: "Net 60", lastBillDate: "2026-04-20", status: "Active" },
   ],
 };
 
@@ -1722,8 +1717,8 @@ export const purchaseOrdersConfig: EntityPageProps<any> = {
     { key: "date", header: "Date", render: (i: any) => <DateTimeCell date={i.date} time={i.time} /> },
     { key: "branch", header: "Branch" },
     { key: "items", header: "Items", render: (i: any) => <span className="tabular-nums text-muted-foreground">{i.items ?? 0}</span> },
-    { key: "expectedDelivery", header: "Expected Delivery", render: (i: any) => <span className="text-muted-foreground">{i.expectedDelivery ?? "â€”"}</span> },
-    { key: "paymentTerms", header: "Payment Terms", render: (i: any) => <span className="text-muted-foreground">{i.paymentTerms ?? "â€”"}</span> },
+    { key: "expectedDelivery", header: "Expected Delivery", render: (i: any) => <span className="text-muted-foreground">{i.expectedDelivery ?? "-"}</span> },
+    { key: "paymentTerms", header: "Payment Terms", render: (i: any) => <span className="text-muted-foreground">{i.paymentTerms ?? "-"}</span> },
     { key: "amount", header: "Amount", render: (i: any) => <span className="tabular-nums font-medium">{Rs(i.amount)}</span> },
     { key: "status", header: "Status", render: (i: any) => STATUS_BADGE(i.status) },
   ],
@@ -1772,13 +1767,13 @@ export const grnConfig: EntityPageProps<any> = {
     { key: "ref", header: "GRN #", render: (i: any) => (
       <div>
         <div className="font-semibold text-foreground">{i.ref}</div>
-        {(i.dateTime || i.date) && <div className="text-xs text-muted-foreground font-medium mt-0.5">{i.dateTime || `${i.date}${i.time ? ` â€¢ ${i.time}` : ""}`}</div>}
+        {(i.dateTime || i.date) && <div className="text-xs text-muted-foreground font-medium mt-0.5">{i.dateTime || `${i.date}${i.time ? ` - ${i.time}` : ""}`}</div>}
       </div>
     ) },
     { key: "po", header: "PO #", render: (i: any) => (
       <div>
-        <div className="font-semibold text-foreground">{i.po || "â€”"}</div>
-        {(i.dateTime || i.date) && <div className="text-xs text-muted-foreground font-medium mt-0.5">{i.dateTime || `${i.date}${i.time ? ` â€¢ ${i.time}` : ""}`}</div>}
+        <div className="font-semibold text-foreground">{i.po || "-"}</div>
+        {(i.dateTime || i.date) && <div className="text-xs text-muted-foreground font-medium mt-0.5">{i.dateTime || `${i.date}${i.time ? ` - ${i.time}` : ""}`}</div>}
       </div>
     ) },
     { key: "supplier", header: "Supplier", render: (i: any) => <SupplierLink name={i.supplier} /> },
@@ -1809,14 +1804,14 @@ export const grnConfig: EntityPageProps<any> = {
     area("notes", "Receiving Notes / Discrepancies"),
   ],
   seed: [
-    { id: "1", ref: "GRN-4001", po: "PO-3001", invoice: "INV-DWP-882", supplier: "DWP Group", warehouse: "Main Warehouse", date: "2026-05-12", time: "09:30 AM", dateTime: "2026-05-12 â€¢ 09:30 AM", vehicle: "LEC-2241 (Daewoo)", driver: "Asif Mehmood â€” 35202-XXXX", gatePass: "GP-1187", receivedBy: "Hamza Tariq", orderedQty: 24, receivedQty: 24, damagedQty: 0, itemsCount: 6, receivedCount: 6, amount: 1450000, qc: "Passed", status: "Received" },
-    { id: "2", ref: "GRN-4002", po: "PO-3002", invoice: "INV-RI-1043", supplier: "R&I Electronics", warehouse: "Model Town DC", date: "2026-05-13", time: "11:15 AM", dateTime: "2026-05-13 â€¢ 11:15 AM", vehicle: "LES-7780 (Hino)", driver: "Naveed Akhtar â€” 42101-XXXX", gatePass: "GP-1188", receivedBy: "Sana Iqbal", orderedQty: 18, receivedQty: 16, damagedQty: 2, itemsCount: 5, receivedCount: 5, amount: 780000, qc: "Partial", status: "Partially Received" },
-    { id: "3", ref: "GRN-4003", po: "PO-3005", invoice: "INV-HAIER-552", supplier: "Haier International", warehouse: "Karachi Port", date: "2026-05-14", time: "02:45 PM", dateTime: "2026-05-14 â€¢ 02:45 PM", vehicle: "TLC-9912 (Container)", driver: "Imran Shah â€” 42201-XXXX", gatePass: "GP-1190", receivedBy: "Bilal Khan", orderedQty: 60, receivedQty: 60, damagedQty: 0, itemsCount: 12, receivedCount: 12, amount: 4250000, qc: "Pending", status: "Pending QC" },
-    { id: "4", ref: "GRN-4004", po: "PO-3007", invoice: "INV-DAW-221", supplier: "Dawlance Ltd", warehouse: "Gulberg Hub", date: "2026-05-14", time: "04:20 PM", dateTime: "2026-05-14 â€¢ 04:20 PM", vehicle: "LEB-4471 (Shehzore)", driver: "Tariq Mehmood â€” 35201-XXXX", gatePass: "GP-1191", receivedBy: "Ayesha Noor", orderedQty: 30, receivedQty: 0, damagedQty: 0, itemsCount: 8, receivedCount: 0, amount: 0, qc: "Pending", status: "In Transit" },
-    { id: "5", ref: "GRN-4005", po: "PO-3009", invoice: "INV-PEL-118", supplier: "PEL", warehouse: "Main Warehouse", date: "2026-05-11", time: "10:05 AM", dateTime: "2026-05-11 â€¢ 10:05 AM", vehicle: "LEH-1188 (Mazda)", driver: "Faisal Iqbal â€” 35202-XXXX", gatePass: "GP-1184", receivedBy: "Hamza Tariq", orderedQty: 40, receivedQty: 38, damagedQty: 2, itemsCount: 10, receivedCount: 10, amount: 1860000, qc: "Failed", status: "Disputed", notes: "2 units of refrigerator dented; awaiting supplier credit note." },
-    { id: "6", ref: "GRN-4006", po: "PO-3011", invoice: "INV-TCL-770", supplier: "TCL Pakistan", warehouse: "DHA Phase 5", date: "2026-05-10", time: "01:30 PM", dateTime: "2026-05-10 â€¢ 01:30 PM", vehicle: "LXR-3320 (Hilux)", driver: "Owais Ali â€” 42102-XXXX", gatePass: "GP-1180", receivedBy: "Sana Iqbal", orderedQty: 22, receivedQty: 22, damagedQty: 0, itemsCount: 7, receivedCount: 7, amount: 1180000, qc: "Passed", status: "Closed" },
-    { id: "7", ref: "GRN-4007", po: "PO-3013", invoice: "INV-DWP-905", supplier: "DWP Group", warehouse: "Johar Town", date: "2026-05-09", time: "08:50 AM", dateTime: "2026-05-09 â€¢ 08:50 AM", vehicle: "LEH-2255 (Suzuki)", driver: "Kashif Raza â€” 35203-XXXX", gatePass: "GP-1178", receivedBy: "Bilal Khan", orderedQty: 12, receivedQty: 12, damagedQty: 0, itemsCount: 4, receivedCount: 4, amount: 540000, qc: "Passed", status: "Received" },
-    { id: "8", ref: "GRN-4008", po: "PO-3015", supplier: "Haier International", warehouse: "Main Warehouse", date: "2026-05-15", time: "â€”", dateTime: "2026-05-15 â€¢ Pending", vehicle: "â€”", driver: "â€”", gatePass: "â€”", receivedBy: "Ahmed Hassan", orderedQty: 50, receivedQty: 0, damagedQty: 0, itemsCount: 14, receivedCount: 0, amount: 0, qc: "Pending", status: "Draft" },
+    { id: "1", ref: "GRN-4001", po: "PO-3001", invoice: "INV-DWP-882", supplier: "DWP Group", warehouse: "Main Warehouse", date: "2026-05-12", time: "09:30 AM", dateTime: "2026-05-12 - 09:30 AM", vehicle: "LEC-2241 (Daewoo)", driver: "Asif Mehmood - 35202-XXXX", gatePass: "GP-1187", receivedBy: "Hamza Tariq", orderedQty: 24, receivedQty: 24, damagedQty: 0, itemsCount: 6, receivedCount: 6, amount: 1450000, qc: "Passed", status: "Received" },
+    { id: "2", ref: "GRN-4002", po: "PO-3002", invoice: "INV-RI-1043", supplier: "R&I Electronics", warehouse: "Model Town DC", date: "2026-05-13", time: "11:15 AM", dateTime: "2026-05-13 - 11:15 AM", vehicle: "LES-7780 (Hino)", driver: "Naveed Akhtar - 42101-XXXX", gatePass: "GP-1188", receivedBy: "Sana Iqbal", orderedQty: 18, receivedQty: 16, damagedQty: 2, itemsCount: 5, receivedCount: 5, amount: 780000, qc: "Partial", status: "Partially Received" },
+    { id: "3", ref: "GRN-4003", po: "PO-3005", invoice: "INV-HAIER-552", supplier: "Haier International", warehouse: "Karachi Port", date: "2026-05-14", time: "02:45 PM", dateTime: "2026-05-14 - 02:45 PM", vehicle: "TLC-9912 (Container)", driver: "Imran Shah - 42201-XXXX", gatePass: "GP-1190", receivedBy: "Bilal Khan", orderedQty: 60, receivedQty: 60, damagedQty: 0, itemsCount: 12, receivedCount: 12, amount: 4250000, qc: "Pending", status: "Pending QC" },
+    { id: "4", ref: "GRN-4004", po: "PO-3007", invoice: "INV-DAW-221", supplier: "Dawlance Ltd", warehouse: "Gulberg Hub", date: "2026-05-14", time: "04:20 PM", dateTime: "2026-05-14 - 04:20 PM", vehicle: "LEB-4471 (Shehzore)", driver: "Tariq Mehmood - 35201-XXXX", gatePass: "GP-1191", receivedBy: "Ayesha Noor", orderedQty: 30, receivedQty: 0, damagedQty: 0, itemsCount: 8, receivedCount: 0, amount: 0, qc: "Pending", status: "In Transit" },
+    { id: "5", ref: "GRN-4005", po: "PO-3009", invoice: "INV-PEL-118", supplier: "PEL", warehouse: "Main Warehouse", date: "2026-05-11", time: "10:05 AM", dateTime: "2026-05-11 - 10:05 AM", vehicle: "LEH-1188 (Mazda)", driver: "Faisal Iqbal - 35202-XXXX", gatePass: "GP-1184", receivedBy: "Hamza Tariq", orderedQty: 40, receivedQty: 38, damagedQty: 2, itemsCount: 10, receivedCount: 10, amount: 1860000, qc: "Failed", status: "Disputed", notes: "2 units of refrigerator dented; awaiting supplier credit note." },
+    { id: "6", ref: "GRN-4006", po: "PO-3011", invoice: "INV-TCL-770", supplier: "TCL Pakistan", warehouse: "DHA Phase 5", date: "2026-05-10", time: "01:30 PM", dateTime: "2026-05-10 - 01:30 PM", vehicle: "LXR-3320 (Hilux)", driver: "Owais Ali - 42102-XXXX", gatePass: "GP-1180", receivedBy: "Sana Iqbal", orderedQty: 22, receivedQty: 22, damagedQty: 0, itemsCount: 7, receivedCount: 7, amount: 1180000, qc: "Passed", status: "Closed" },
+    { id: "7", ref: "GRN-4007", po: "PO-3013", invoice: "INV-DWP-905", supplier: "DWP Group", warehouse: "Johar Town", date: "2026-05-09", time: "08:50 AM", dateTime: "2026-05-09 - 08:50 AM", vehicle: "LEH-2255 (Suzuki)", driver: "Kashif Raza - 35203-XXXX", gatePass: "GP-1178", receivedBy: "Bilal Khan", orderedQty: 12, receivedQty: 12, damagedQty: 0, itemsCount: 4, receivedCount: 4, amount: 540000, qc: "Passed", status: "Received" },
+    { id: "8", ref: "GRN-4008", po: "PO-3015", supplier: "Haier International", warehouse: "Main Warehouse", date: "2026-05-15", time: "-", dateTime: "2026-05-15 - Pending", vehicle: "-", driver: "-", gatePass: "-", receivedBy: "Ahmed Hassan", orderedQty: 50, receivedQty: 0, damagedQty: 0, itemsCount: 14, receivedCount: 0, amount: 0, qc: "Pending", status: "Draft" },
   ],
 };
 
@@ -1945,7 +1940,7 @@ export const billsConfig: EntityPageProps<any> = {
 
 export const paymentsMadeConfig: EntityPageProps<any> = {
   title: "Payments Made",
-  description: "Vendor payments â€” partial, full and advance payments.",
+  description: "Vendor payments - partial, full and advance payments.",
   storageKey: "qcrm.payments-made",
   addHref: "/purchases/payments/new",
   editHref: (i: any) => `/purchases/payments/${i.id}/edit`,
@@ -1986,13 +1981,13 @@ export const paymentsMadeConfig: EntityPageProps<any> = {
   seed: [
     { id: "1", ref: "PAY-8001", date: "2026-05-05", time: "12:18 PM", supplier: "DWP Group", bill: "BIL-7001", method: "Bank Transfer", type: "Partial", amount: 850000, status: "Paid" },
     { id: "2", ref: "PAY-8002", date: "2026-05-06", time: "09:55 AM", supplier: "Haier International", bill: "BIL-7003", method: "Bank Transfer", type: "Full", amount: 1250000, status: "Paid" },
-    { id: "3", ref: "PAY-8003", date: "2026-05-07", time: "03:11 PM", supplier: "Dawlance Ltd", bill: "â€”", method: "Cheque", type: "Advance", amount: 300000, status: "Paid" },
+    { id: "3", ref: "PAY-8003", date: "2026-05-07", time: "03:11 PM", supplier: "Dawlance Ltd", bill: "-", method: "Cheque", type: "Advance", amount: 300000, status: "Paid" },
   ],
 };
 
 export const expensesConfig: EntityPageProps<any> = {
   title: "Expenses",
-  description: "All operating expenses â€” one-time and recurring (rent, salaries, utilities, freight).",
+  description: "All operating expenses - one-time and recurring (rent, salaries, utilities, freight).",
   storageKey: "qcrm.expenses",
   addHref: "/purchases/expenses/new",
   editHref: (i: any) => `/purchases/expenses/${i.id}/edit`,
@@ -2086,7 +2081,7 @@ export const supplierLedgerConfig: EntityPageProps<any> = {
 
 export const salesConfig: EntityPageProps<any> = {
   title: "Sales",
-  description: "All sales â€” cash and installment.",
+  description: "All sales - cash and installment.",
   storageKey: "qcrm.sales",
   addHref: "/sales/invoices/new",
   addLabel: "Add Sale",
@@ -2174,10 +2169,11 @@ export const installmentSaleConfig: EntityPageProps<any> = {
 
 export const hpCasesConfig: EntityPageProps<any> = {
   title: "Contracts",
-  description: "Hire Purchase / installment contracts â€” funnel, approvals, KYC, schedule and lifecycle.",
+  description: "Hire Purchase / installment contracts - funnel, approvals, KYC, schedule and lifecycle.",
   storageKey: "qcrm.hp-cases",
   addHref: "/contracts/new",
   addLabel: "New Contract",
+  rowHref: (i: any) => `/contracts/${i.id}`,
   withAvatar: { nameKey: "ref", subKey: "customer" },
   searchKeys: ["ref", "customer", "cnic", "product"],
   kpis: [
@@ -2217,18 +2213,18 @@ export const hpCasesConfig: EntityPageProps<any> = {
     { id: "1", ref: "HP-2001", customer: "Sara Khan", cnic: "35202-1234567-8", guarantor: "Ali Khan", product: "Gree 1.5 Ton AC", totalPrice: 198000, down: 40000, financed: 158000, tenure: 12, monthly: 13500, startDate: "2026-04-01", status: "Active" },
     { id: "2", ref: "HP-2002", customer: "Ahmed Raza", cnic: "35202-9876543-2", guarantor: "Imran Raza", product: "Samsung LED TV 55", totalPrice: 165000, down: 35000, financed: 130000, tenure: 10, monthly: 13800, startDate: "2026-03-15", status: "Active" },
     { id: "3", ref: "HP-2003", customer: "Sara Khan", cnic: "35202-1234567-8", guarantor: "Ali Khan", product: "Haier Refrigerator", totalPrice: 142000, down: 30000, financed: 112000, tenure: 12, monthly: 9800, startDate: "2026-05-01", status: "Under Approval" },
-    { id: "4", ref: "HP-2004", customer: "Faisal Mehmood", cnic: "35202-1112223-3", guarantor: "â€”", product: "Honda 70 Bike", totalPrice: 165000, down: 25000, financed: 140000, tenure: 18, monthly: 8500, startDate: "2025-10-10", status: "Defaulter" },
+    { id: "4", ref: "HP-2004", customer: "Faisal Mehmood", cnic: "35202-1112223-3", guarantor: "-", product: "Honda 70 Bike", totalPrice: 165000, down: 25000, financed: 140000, tenure: 18, monthly: 8500, startDate: "2025-10-10", status: "Defaulter" },
     { id: "5", ref: "HP-2005", customer: "Hira Tariq", cnic: "35202-3344556-1", guarantor: "Tariq Mehmood", product: "Dawlance Microwave", totalPrice: 58000, down: 10000, financed: 48000, tenure: 6, monthly: 8200, startDate: "2026-05-12", status: "Under Process" },
     { id: "6", ref: "HP-2006", customer: "Adnan Pervaiz", cnic: "35202-7788991-0", guarantor: "Bilal Pervaiz", product: "Infinix Note 30 Pro", totalPrice: 78000, down: 15000, financed: 63000, tenure: 9, monthly: 7100, startDate: "2026-05-08", status: "Under Verification" },
     { id: "7", ref: "HP-2007", customer: "Fatima Noor", cnic: "35202-4422111-7", guarantor: "Noor Ahmed", product: "Orient Washing Machine", totalPrice: 92000, down: 18000, financed: 74000, tenure: 10, monthly: 7600, startDate: "2026-05-15", status: "Approved" },
-    { id: "8", ref: "HP-2008", customer: "Bilal Khan", cnic: "35202-1199883-4", guarantor: "â€”", product: "HP Pavilion Laptop", totalPrice: 235000, down: 50000, financed: 185000, tenure: 18, monthly: 11000, startDate: "2026-04-20", status: "Rejected" },
+    { id: "8", ref: "HP-2008", customer: "Bilal Khan", cnic: "35202-1199883-4", guarantor: "-", product: "HP Pavilion Laptop", totalPrice: 235000, down: 50000, financed: 185000, tenure: 18, monthly: 11000, startDate: "2026-04-20", status: "Rejected" },
     { id: "9", ref: "HP-2009", customer: "Rashid Mehmood", cnic: "35202-5566778-9", guarantor: "Junaid Khan", product: 'Samsung 55" Crystal UHD', totalPrice: 178000, down: 35000, financed: 143000, tenure: 12, monthly: 12000, startDate: "2024-08-01", status: "Settled" },
   ],
 };
 
 export const deliveriesConfig: EntityPageProps<any> = {
   title: "Deliveries",
-  description: "Outbound deliveries to customers â€” schedule, vehicle, driver and proof of delivery.",
+  description: "Outbound deliveries to customers - schedule, vehicle, driver and proof of delivery.",
   storageKey: "qcrm.deliveries.v2",
   withAvatar: { nameKey: "ref", subKey: "customer" },
   searchKeys: ["ref", "customer", "invoice", "driver"],
@@ -2319,7 +2315,7 @@ export const salesReturnsConfig: EntityPageProps<any> = {
 
 export const receiptsConfig: EntityPageProps<any> = {
   title: "Receipts / Payments Received",
-  description: "All money received from customers â€” cash sales, EMI collections, advances.",
+  description: "All money received from customers - cash sales, EMI collections, advances.",
   storageKey: "qcrm.receipts",
   withAvatar: { nameKey: "ref", subKey: "customer" },
   searchKeys: ["ref", "customer", "invoice", "method"],
@@ -2430,11 +2426,11 @@ export const paymentsReceivedConfig: EntityPageProps<any> = {
     area("notes", "Notes"),
   ],
   seed: [
-    { id: "1", ref: "PR-9001", date: "2026-05-01", at: "2026-05-01 Â· 12:18 PM", contract: "HP-2001", customer: "Sara Khan", customerId: "CUS-1001", installment: "2 of 12", due: 13500, paid: 13500, mode: "EasyPaisa", reference: "EP-44812", collectedBy: "Recovery Agent", status: "Cleared" },
-    { id: "2", ref: "PR-9002", date: "2026-05-03", at: "2026-05-03 Â· 09:55 AM", contract: "HP-2002", customer: "Ahmed Raza", customerId: "CUS-1002", installment: "3 of 10", due: 13800, paid: 13800, mode: "JazzCash", reference: "JC-90112", collectedBy: "Recovery Agent", status: "Cleared" },
-    { id: "3", ref: "PR-9003", date: "2026-05-05", at: "2026-05-05 Â· 03:11 PM", contract: "HP-2001", customer: "Sara Khan", customerId: "CUS-1001", installment: "3 of 12", due: 13500, paid: 10000, mode: "Cash", collectedBy: "Bilal", status: "Cleared" },
-    { id: "4", ref: "PR-9004", date: "2026-05-08", at: "2026-05-08 Â· 11:02 AM", contract: "HP-2004", customer: "Faisal Mehmood", customerId: "CUS-1004", installment: "8 of 18", due: 8500, paid: 8500, mode: "Bank Transfer", reference: "HBL-7781", collectedBy: "Counter", status: "Pending" },
-    { id: "5", ref: "PR-9005", date: "2026-05-10", at: "2026-05-10 Â· 04:45 PM", contract: "HP-2009", customer: "Rashid Mehmood", customerId: "CUS-1009", installment: "12 of 12", due: 12000, paid: 12000, mode: "Cheque", reference: "CHQ-22310", collectedBy: "Counter", status: "Cleared" },
+    { id: "1", ref: "PR-9001", date: "2026-05-01", at: "2026-05-01 - 12:18 PM", contract: "HP-2001", customer: "Sara Khan", customerId: "CUS-1001", installment: "2 of 12", due: 13500, paid: 13500, mode: "EasyPaisa", reference: "EP-44812", collectedBy: "Recovery Agent", status: "Cleared" },
+    { id: "2", ref: "PR-9002", date: "2026-05-03", at: "2026-05-03 - 09:55 AM", contract: "HP-2002", customer: "Ahmed Raza", customerId: "CUS-1002", installment: "3 of 10", due: 13800, paid: 13800, mode: "JazzCash", reference: "JC-90112", collectedBy: "Recovery Agent", status: "Cleared" },
+    { id: "3", ref: "PR-9003", date: "2026-05-05", at: "2026-05-05 - 03:11 PM", contract: "HP-2001", customer: "Sara Khan", customerId: "CUS-1001", installment: "3 of 12", due: 13500, paid: 10000, mode: "Cash", collectedBy: "Bilal", status: "Cleared" },
+    { id: "4", ref: "PR-9004", date: "2026-05-08", at: "2026-05-08 - 11:02 AM", contract: "HP-2004", customer: "Faisal Mehmood", customerId: "CUS-1004", installment: "8 of 18", due: 8500, paid: 8500, mode: "Bank Transfer", reference: "HBL-7781", collectedBy: "Counter", status: "Pending" },
+    { id: "5", ref: "PR-9005", date: "2026-05-10", at: "2026-05-10 - 04:45 PM", contract: "HP-2009", customer: "Rashid Mehmood", customerId: "CUS-1009", installment: "12 of 12", due: 12000, paid: 12000, mode: "Cheque", reference: "CHQ-22310", collectedBy: "Counter", status: "Cleared" },
   ],
 };
 
@@ -2744,7 +2740,6 @@ export const customersConfig: EntityPageProps<any> = {
   title: "Customers",
   description: "All customers with CNIC, KYC and risk score.",
   storageKey: "qcrm.customers",
-  addHref: "/customers/new",
   rowHref: (i: any) => `/customers/${i.id}`,
   editHref: (i: any) => `/customers/${i.id}/edit`,
   withAvatar: { nameKey: "name", subKey: "cnic", nameHref: (i: any) => `/customers/${i.id}` },
@@ -2765,7 +2760,7 @@ export const customersConfig: EntityPageProps<any> = {
         : null;
       return (
         <span className="inline-flex items-center gap-1">
-          <span>{i.name || "â€”"}</span>
+          <span>{i.name || "-"}</span>
           {tick && (
             <svg viewBox="0 0 24 24" className={`h-4 w-4 shrink-0 ${tick.cls}`} aria-label={tick.title}>
               <title>{tick.title}</title>
@@ -2776,60 +2771,41 @@ export const customersConfig: EntityPageProps<any> = {
         </span>
       );
     } },
-    { key: "phone", header: "Phone", render: (i: any) => <span className="font-medium text-foreground">{i.phone || "â€”"}</span> },
+    { key: "phone", header: "Phone", render: (i: any) => <span className={tableCellText.primary}>{i.phone || "-"}</span> },
     { key: "area", header: "Area / City", render: (i: any) => (
-      <div className="flex flex-col leading-tight">
-        <span className="font-medium text-foreground">{i.area || "â€”"}</span>
-        <span className="text-xs text-muted-foreground font-medium mt-0.5">{i.city || "â€”"}</span>
-      </div>
+      <StackedCell primary={i.area || "-"} secondary={i.city || "-"} />
     ) },
     { key: "receivable", header: "Receivable", render: (i: any) => {
       const v = Number(i.receivable || 0);
       const overdue = Number(i.overdue || 0);
       return (
-        <div className="flex flex-col leading-tight">
-          <span className={`font-semibold tabular-nums ${v > 0 ? "text-foreground" : "text-muted-foreground"}`}>{v > 0 ? Rs(v) : "â€”"}</span>
-          {overdue > 0 && (
-            <span className="text-[11px] text-destructive font-semibold mt-0.5">{Rs(overdue)} overdue</span>
-          )}
-        </div>
+        <StackedCell
+          primary={<span className={`tabular-nums ${v > 0 ? "text-foreground" : "text-muted-foreground"}`}>{v > 0 ? Rs(v) : Rs(0)}</span>}
+          secondary={overdue > 0 ? `${Rs(overdue)} overdue` : undefined}
+          secondaryTone="danger"
+        />
       );
     } },
     { key: "assignedTo", header: "Assigned To", render: (i: any) => {
       const name = String(i.assignedTo || "").trim();
-      if (!name) return <span className="text-muted-foreground">â€”</span>;
-      const initials = name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
+      if (!name) return <span className="text-muted-foreground"> - </span>;
       return (
         <div className="flex items-center gap-2 min-w-0">
-          <span className="h-6 w-6 shrink-0 rounded-full grid place-items-center text-[10px] font-bold bg-primary-soft text-primary">{initials}</span>
-          <div className="flex flex-col leading-tight min-w-0">
-            <span className="font-medium text-foreground truncate">{name}</span>
-            {i.assignedRole && <span className="text-[11px] text-muted-foreground font-medium truncate">{i.assignedRole}</span>}
-          </div>
+          <Avatar name={name} color="info" />
+          <StackedCell primary={name} secondary={i.assignedRole} className="min-w-0" primaryClassName="truncate" secondaryClassName="truncate" />
         </div>
       );
     } },
     { key: "credit", header: "Credit Score", render: (i: any) => {
       const v = Number(i.credit || 0);
-      if (v <= 0) return <span className="text-muted-foreground">â€”</span>;
+      if (v <= 0) return <span className="text-muted-foreground"> - </span>;
       const color = v >= 750 ? "text-emerald-600"
                   : v >= 650 ? "text-primary"
                   : v >= 550 ? "text-amber-600"
                   :            "text-destructive";
       return <span className={`font-semibold tabular-nums ${color}`}>{v}</span>;
     } },
-    { key: "status", header: "Status", render: (i: any) => {
-      const s = String(i.status || "");
-      const level = s === "Blacklisted" ? { dot: "bg-destructive", text: "text-destructive", ring: "ring-destructive/30" }
-                  : s === "Inactive"    ? { dot: "bg-muted-foreground", text: "text-muted-foreground", ring: "ring-border" }
-                  :                       { dot: "bg-success", text: "text-success", ring: "ring-success/30" };
-      return (
-        <span className={`inline-flex items-center gap-1.5 rounded-full bg-background px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ring-1 ${level.ring} ${level.text}`}>
-          <span className={`h-1.5 w-1.5 rounded-full ${level.dot}`} />
-          {s || "â€”"}
-        </span>
-      );
-    } },
+    { key: "status", header: "Status", render: (i: any) => STATUS_BADGE(i.status) },
   ],
   fields: [
     text("name", "Full Name", { required: true }),
@@ -2864,9 +2840,154 @@ export const customersConfig: EntityPageProps<any> = {
   ],
 };
 
+export const leadsConfig: EntityPageProps<any> = {
+  title: "Leads",
+  description: "Single-page inquiry pipeline for walk-ins, follow-ups and unconverted prospects.",
+  storageKey: "qcrm.leads",
+  addLabel: "Add Lead",
+  addHref: "/leads/new",
+  editHref: (i: any) => `/leads/${i.id}/edit`,
+  withAvatar: { nameKey: "name", subKey: "phone" },
+  searchKeys: ["name", "phone", "source", "city", "interest", "assignedTo"],
+  filters: [
+    { key: "status", label: "Status" },
+    { key: "source", label: "Source" },
+    { key: "city", label: "City" },
+  ],
+  kpis: [
+    { label: "Total Leads", icon: <Users className="h-5 w-5" />, tone: "primary", compute: (i) => i.length },
+    {
+      label: "Open Pipeline",
+      icon: <Target className="h-5 w-5" />,
+      tone: "primary",
+      compute: (i) => i.filter((x: any) => !["Converted", "Lost"].includes(String(x.status || ""))).length,
+    },
+    {
+      label: "Follow Up Due",
+      icon: <Clock className="h-5 w-5" />,
+      tone: "warning",
+      compute: (i) => {
+        const today = TODAY_ISO();
+        return i.filter((x: any) =>
+          x.followUpDate &&
+          String(x.followUpDate) <= today &&
+          !["Converted", "Lost"].includes(String(x.status || ""))
+        ).length;
+      },
+    },
+    STATUS_KPI("Converted", "Converted", "success", <UserCheck className="h-5 w-5" />),
+  ],
+  columns: [
+    { key: "name", header: "Lead" },
+    {
+      key: "phone",
+      header: "Phone / Source",
+      render: (i: any) => <StackedCell primary={i.phone || "-"} secondary={i.source || "-"} />,
+    },
+    {
+      key: "interest",
+      header: "Interest",
+      render: (i: any) => <StackedCell primary={i.interest || "-"} secondary={i.budget ? Rs(i.budget) : "Budget not set"} />,
+    },
+    {
+      key: "area",
+      header: "Area / City",
+      render: (i: any) => <StackedCell primary={i.area || "-"} secondary={i.city || "-"} />,
+    },
+    {
+      key: "assignedTo",
+      header: "Assigned To",
+      render: (i: any) => {
+        const name = String(i.assignedTo || "").trim();
+        if (!name) return <span className="text-muted-foreground"> - </span>;
+        return (
+          <div className="flex items-center gap-2 min-w-0">
+            <Avatar name={name} color="info" />
+            <StackedCell primary={name} secondary={i.branch || undefined} className="min-w-0" primaryClassName="truncate" secondaryClassName="truncate" />
+          </div>
+        );
+      },
+    },
+    {
+      key: "followUpDate",
+      header: "Follow Up",
+      render: (i: any) => <StackedCell primary={i.followUpDate || "-"} secondary={i.lastContact || undefined} />,
+    },
+    { key: "status", header: "Status", render: (i: any) => STATUS_BADGE(i.status) },
+  ],
+  fields: [
+    text("name", "Lead Name", { required: true }),
+    text("phone", "Mobile", { required: true }),
+    text("whatsapp", "WhatsApp"),
+    text("email", "Email"),
+    text("interest", "Interested In", { required: true, placeholder: "Product or category" }),
+    num("budget", "Budget (Rs.)"),
+    text("area", "Area / Zone"),
+    text("city", "City"),
+    sel("source", "Source", ["Walk-in", "WhatsApp", "Facebook", "Referral", "Call", "Website"], { defaultValue: "Walk-in" }),
+    text("assignedTo", "Assigned To"),
+    text("branch", "Branch"),
+    { name: "lastContact", label: "Last Contact", type: "date" },
+    { name: "followUpDate", label: "Follow Up Date", type: "date" },
+    sel("status", "Lead Status", ["New", "Contacted", "Qualified", "Converted", "Lost"], { defaultValue: "New" }),
+    area("notes", "Notes"),
+  ],
+  extraRowActions: (
+    item: any,
+    close: () => void,
+    helpers?: { update: (patch: Partial<any>) => void; entityName: string },
+  ) => {
+    const statusActionClassName = "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[13px] font-medium text-foreground transition-colors hover:bg-muted";
+    const currentStatus = String(item.status || "New");
+
+    const updateStatus = (nextStatus: string) => {
+      if (!helpers || currentStatus === nextStatus) return;
+      helpers.update({ status: nextStatus });
+      close();
+    };
+
+    return (
+      <>
+        {currentStatus !== "Contacted" && (
+          <button type="button" onClick={() => updateStatus("Contacted")} className={statusActionClassName}>
+            <Bell className="h-3.5 w-3.5" /> Mark Contacted
+          </button>
+        )}
+        {currentStatus !== "Qualified" && (
+          <button type="button" onClick={() => updateStatus("Qualified")} className={statusActionClassName}>
+            <Target className="h-3.5 w-3.5" /> Mark Qualified
+          </button>
+        )}
+        {currentStatus !== "Converted" && (
+          <button type="button" onClick={() => updateStatus("Converted")} className={statusActionClassName}>
+            <UserCheck className="h-3.5 w-3.5" /> Mark Converted
+          </button>
+        )}
+        {currentStatus !== "Lost" && (
+          <button type="button" onClick={() => updateStatus("Lost")} className={statusActionClassName}>
+            <Ban className="h-3.5 w-3.5" /> Mark Lost
+          </button>
+        )}
+        {(currentStatus === "Lost" || currentStatus === "Converted") && (
+          <button type="button" onClick={() => updateStatus("New")} className={statusActionClassName}>
+            <RotateCcw className="h-3.5 w-3.5" /> Re-open as New
+          </button>
+        )}
+      </>
+    );
+  },
+  seed: [
+    { id: "1", name: "Umar Farooq", phone: "+92 300 4567890", whatsapp: "+92 300 4567890", email: "", interest: "Gree 1.5 Ton Inverter AC", budget: 180000, area: "Model Town", city: "Lahore", source: "Walk-in", assignedTo: "Bilal Ahmed", branch: "Model Town", lastContact: "2026-06-15", followUpDate: "2026-06-16", status: "Qualified", notes: "Asked for 12 month plan and CNIC requirements." },
+    { id: "2", name: "Ayesha Noor", phone: "+92 333 9081726", whatsapp: "", email: "ayesha.noor@gmail.com", interest: "Samsung LED TV 55 Inch", budget: 140000, area: "Johar Town", city: "Lahore", source: "WhatsApp", assignedTo: "Sana Tariq", branch: "Johar Town", lastContact: "2026-06-14", followUpDate: "2026-06-17", status: "Contacted", notes: "Wants branch visit after salary date." },
+    { id: "3", name: "Zain Ali", phone: "+92 301 2233445", whatsapp: "+92 301 2233445", email: "", interest: "Honda CD 70 Motorcycle", budget: 210000, area: "DHA", city: "Karachi", source: "Referral", assignedTo: "Tariq Mahmood", branch: "DHA", lastContact: "2026-06-10", followUpDate: "2026-06-12", status: "Lost", notes: "Moved to cash purchase elsewhere." },
+    { id: "4", name: "Maria Saleem", phone: "+92 312 7788990", whatsapp: "+92 312 7788990", email: "", interest: "Haier Refrigerator", budget: 130000, area: "Gulberg", city: "Lahore", source: "Facebook", assignedTo: "Hira Saleem", branch: "Gulberg", lastContact: "2026-06-16", followUpDate: "2026-06-18", status: "New", notes: "First inquiry, requested brochure and installment estimate." },
+    { id: "5", name: "Hamza Khalid", phone: "+92 345 8899001", whatsapp: "", email: "hamza.khalid@outlook.com", interest: "Orient Washing Machine 10kg", budget: 95000, area: "Bahria Town", city: "Islamabad", source: "Walk-in", assignedTo: "Bilal Ahmed", branch: "Model Town", lastContact: "2026-06-13", followUpDate: "2026-06-16", status: "Converted", notes: "Moved into contract desk for formal processing." },
+  ],
+};
+
 export const guarantorsConfig: EntityPageProps<any> = {
   title: "Guarantors",
-  description: "Co-signers backing customer contracts â€” KYC, linked contracts and exposure.",
+  description: "Co-signers backing customer contracts - KYC, linked contracts and exposure.",
   storageKey: "qcrm.guarantors",
   withAvatar: { nameKey: "name", subKey: "cnic" },
   searchKeys: ["name", "cnic", "phone", "customer", "caseRef", "city"],
@@ -2897,8 +3018,8 @@ export const guarantorsConfig: EntityPageProps<any> = {
       header: "Contact",
       render: (i: any) => (
         <div className="leading-tight">
-          <div className="text-sm font-medium text-foreground">{i.phone || "â€”"}</div>
-          <div className="text-[11px] text-muted-foreground">{i.city || "â€”"}</div>
+          <div className="text-sm font-medium text-foreground">{i.phone || "-"}</div>
+          <div className="text-[11px] text-muted-foreground">{i.city || "-"}</div>
         </div>
       ),
     },
@@ -2907,8 +3028,8 @@ export const guarantorsConfig: EntityPageProps<any> = {
       header: "For Customer",
       render: (i: any) => (
         <div className="leading-tight">
-          <div className="text-sm font-medium text-foreground">{i.customer || "â€”"}</div>
-          <div className="text-[11px] text-muted-foreground">{i.relation || "â€”"}</div>
+          <div className="text-sm font-medium text-foreground">{i.customer || "-"}</div>
+          <div className="text-[11px] text-muted-foreground">{i.relation || "-"}</div>
         </div>
       ),
     },
@@ -2922,7 +3043,7 @@ export const guarantorsConfig: EntityPageProps<any> = {
         >
           <span className="text-sm font-semibold">{i.caseRef}</span>
           <span className="text-[11px] text-muted-foreground font-sans">
-            {i.contractStatus || "â€”"}
+            {i.contractStatus || "-"}
           </span>
         </Link>
       ) : <span className="text-muted-foreground text-xs">Unlinked</span>,
@@ -2933,7 +3054,7 @@ export const guarantorsConfig: EntityPageProps<any> = {
       render: (i: any) => (
         <div className="leading-tight text-right">
           <div className="text-sm font-semibold text-foreground">{Rs(i.exposure || 0)}</div>
-          <div className="text-[11px] text-muted-foreground">{i.tenure ? `${i.tenure} mo` : "â€”"}</div>
+          <div className="text-[11px] text-muted-foreground">{i.tenure ? `${i.tenure} mo` : "-"}</div>
         </div>
       ),
     },
@@ -3017,8 +3138,8 @@ export const blacklistConfig: EntityPageProps<any> = {
       header: "Contact",
       render: (i: any) => (
         <div className="leading-tight">
-          <div className="text-sm font-medium text-foreground">{i.phone || "â€”"}</div>
-          <div className="text-[11px] text-muted-foreground">{i.city || "â€”"}</div>
+          <div className="text-sm font-medium text-foreground">{i.phone || "-"}</div>
+          <div className="text-[11px] text-muted-foreground">{i.city || "-"}</div>
         </div>
       ),
     },
@@ -3028,9 +3149,9 @@ export const blacklistConfig: EntityPageProps<any> = {
       render: (i: any) => i.caseRef ? (
         <Link to="/contracts" className="inline-flex flex-col leading-tight font-mono text-primary hover:underline">
           <span className="text-sm font-semibold">{i.caseRef}</span>
-          <span className="text-[11px] text-muted-foreground font-sans">{i.product || "â€”"}</span>
+          <span className="text-[11px] text-muted-foreground font-sans">{i.product || "-"}</span>
         </Link>
-      ) : <span className="text-muted-foreground text-xs">â€”</span>,
+      ) : <span className="text-muted-foreground text-xs"> - </span>,
     },
     {
       key: "reason",
@@ -3039,7 +3160,7 @@ export const blacklistConfig: EntityPageProps<any> = {
         <div className="leading-tight">
           <div className="text-sm font-medium text-foreground">{i.reason}</div>
           <div className="text-[11px] text-muted-foreground">
-            {i.severity ? `${i.severity} severity` : ""}{i.daysOverdue ? ` â€¢ ${i.daysOverdue}d overdue` : ""}
+            {i.severity ? `${i.severity} severity` : ""}{i.daysOverdue ? ` - ${i.daysOverdue}d overdue` : ""}
           </div>
         </div>
       ),
@@ -3067,8 +3188,8 @@ export const blacklistConfig: EntityPageProps<any> = {
     },
     { key: "date", header: "Blocked", render: (i: any) => (
       <div className="leading-tight">
-        <div className="text-sm text-foreground">{i.date || "â€”"}</div>
-        <div className="text-[11px] text-muted-foreground">by {i.blockedBy || "â€”"}</div>
+        <div className="text-sm text-foreground">{i.date || "-"}</div>
+        <div className="text-[11px] text-muted-foreground">by {i.blockedBy || "-"}</div>
       </div>
     ) },
   ],
@@ -3094,10 +3215,10 @@ export const blacklistConfig: EntityPageProps<any> = {
     area("notes", "Notes / Action Log"),
   ],
   seed: [
-    { id: "1", name: "Faisal Mehmood", cnic: "35202-1112223-3", phone: "+92 333 8877665", city: "Lahore", caseRef: "HP-2004", product: "Honda 70 Bike", loss: 95000, recovered: 30000, daysOverdue: 124, reason: "Cheque Bounced", severity: "High", recoveryStatus: "Legal Action", blockedBy: "Manager Tariq", date: "2026-04-12", notes: "3 cheques bounced â€¢ absconded after 4th installment. Legal notice issued 2026-05-01." },
+    { id: "1", name: "Faisal Mehmood", cnic: "35202-1112223-3", phone: "+92 333 8877665", city: "Lahore", caseRef: "HP-2004", product: "Honda 70 Bike", loss: 95000, recovered: 30000, daysOverdue: 124, reason: "Cheque Bounced", severity: "High", recoveryStatus: "Legal Action", blockedBy: "Manager Tariq", date: "2026-04-12", notes: "3 cheques bounced - absconded after 4th installment. Legal notice issued 2026-05-01." },
     { id: "2", name: "Kashif Iqbal", cnic: "35202-9988776-5", phone: "+92 300 1122334", city: "Faisalabad", caseRef: "HP-1987", product: "LG Inverter AC", loss: 142000, recovered: 0, daysOverdue: 210, reason: "Absconded", severity: "Critical", recoveryStatus: "In Recovery", blockedBy: "Recovery Officer Hassan", date: "2026-02-28", notes: "Customer left registered address. Field agent tracing." },
     { id: "3", name: "Naveed Akhtar", cnic: "35202-5544332-1", phone: "+92 321 4567890", city: "Lahore", caseRef: "HP-1942", product: "Samsung Refrigerator", loss: 68000, recovered: 68000, daysOverdue: 0, reason: "Wilful Default", severity: "Medium", recoveryStatus: "Recovered", blockedBy: "Manager Tariq", date: "2025-11-15", notes: "Fully settled via guarantor. Still blacklisted from future contracts." },
-    { id: "4", name: "Imran Sheikh", cnic: "35202-7766554-3", phone: "+92 345 9988776", city: "Karachi", caseRef: "HP-1856", product: "Honda CD-70", loss: 78000, recovered: 12000, daysOverdue: 165, reason: "Fraudulent Documents", severity: "Critical", recoveryStatus: "Legal Action", blockedBy: "Compliance â€” Nadia", date: "2025-12-04", notes: "Fake CNIC photocopy submitted. FIR registered." },
+    { id: "4", name: "Imran Sheikh", cnic: "35202-7766554-3", phone: "+92 345 9988776", city: "Karachi", caseRef: "HP-1856", product: "Honda CD-70", loss: 78000, recovered: 12000, daysOverdue: 165, reason: "Fraudulent Documents", severity: "Critical", recoveryStatus: "Legal Action", blockedBy: "Compliance - Nadia", date: "2025-12-04", notes: "Fake CNIC photocopy submitted. FIR registered." },
     { id: "5", name: "Rizwan Ali", cnic: "35202-3344556-7", phone: "+92 333 2211009", city: "Multan", caseRef: "HP-1799", product: "Dawlance Microwave", loss: 24000, recovered: 6000, daysOverdue: 95, reason: "Repeated Late Payment", severity: "Low", recoveryStatus: "In Recovery", blockedBy: "Recovery Officer Hassan", date: "2026-03-22" },
     { id: "6", name: "Shahid Hussain", cnic: "35202-1199887-6", phone: "+92 300 5566778", city: "Lahore", caseRef: "HP-1721", product: "Infinix Hot 30", loss: 38000, recovered: 0, daysOverdue: 280, reason: "Repossession Failed", severity: "High", recoveryStatus: "Written Off", blockedBy: "Manager Tariq", date: "2025-08-19", notes: "Product not traceable. Written off in FY closing." },
   ],
@@ -3170,8 +3291,8 @@ export const vouchersConfig: EntityPageProps<any> = {
     sel("status", "Status", ["Draft", "Approved", "Posted"], { defaultValue: "Posted" }),
   ],
   seed: [
-    { id: "1", ref: "RV-5001", type: "Receipt", date: "2026-05-07", narration: "Installment receipt â€” Sara Khan", amount: 13500, status: "Posted" },
-    { id: "2", ref: "PV-5002", type: "Payment", date: "2026-05-06", narration: "Supplier payment â€” DWP Group", amount: 450000, status: "Posted" },
+    { id: "1", ref: "RV-5001", type: "Receipt", date: "2026-05-07", narration: "Installment receipt - Sara Khan", amount: 13500, status: "Posted" },
+    { id: "2", ref: "PV-5002", type: "Payment", date: "2026-05-06", narration: "Supplier payment - DWP Group", amount: 450000, status: "Posted" },
   ],
 };
 
@@ -3310,7 +3431,7 @@ export const attendanceConfig: EntityPageProps<any> = {
   ],
   seed: [
     { id: "1", employee: "Bilal Ahmed", date: "2026-05-08", checkIn: "09:05", checkOut: "18:20", status: "Present" },
-    { id: "2", employee: "Sana Khan", date: "2026-05-08", checkIn: "â€”", checkOut: "â€”", status: "Leave" },
+    { id: "2", employee: "Sana Khan", date: "2026-05-08", checkIn: "-", checkOut: "-", status: "Leave" },
   ],
 };
 
@@ -3952,7 +4073,7 @@ export const integrationSettingsConfig: EntityPageProps<any> = {
     sel("type", "Type", ["Payment Gateway", "SMS", "Email", "WhatsApp", "Accounting", "E-Commerce", "Logistics", "API"]),
     text("provider", "Provider", { required: true }),
     text("endpoint", "Endpoint / URL"),
-    text("apiKey", "API Key", { placeholder: "â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" }),
+    text("apiKey", "API Key", { placeholder: "********" }),
     { name: "lastSync", label: "Last Sync", type: "date" },
     sel("status", "Status", ["Connected", "Disconnected", "Error", "Pending"], { defaultValue: "Disconnected" }),
     area("notes", "Notes"),
@@ -4058,7 +4179,7 @@ export const customerComplaintsConfig: EntityPageProps<any> = {
 
 export const warrantyClaimsConfig: EntityPageProps<any> = {
   title: "Warranty Claims",
-  description: "Product warranty claims â€” verification, dispatch to brand and replacement tracking.",
+  description: "Product warranty claims - verification, dispatch to brand and replacement tracking.",
   storageKey: "qcrm.support.warranty",
   withAvatar: { nameKey: "ref", subKey: "product" },
   searchKeys: ["ref", "customer", "product", "brand", "serial", "invoice"],
