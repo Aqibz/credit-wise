@@ -267,6 +267,10 @@ export default function Login({ status, canResetPassword, uiOnlyAuth = false }) 
                         </div>
                     )}
                 </form>
+
+                <div className="pt-1 text-center text-xs font-medium text-slate-400">
+                    Copyright 2026 CreditWise
+                </div>
             </div>
         </GuestLayout>
     );
