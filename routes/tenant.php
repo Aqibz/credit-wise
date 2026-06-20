@@ -15,11 +15,13 @@ use Inertia\Inertia;
 |
 */
 
+$tenantAppMiddleware = config('app.ui_only_preview') ? [] : ['auth', 'verified'];
+
 Route::get('/dashboard', function () {
     return Inertia::render('CreditWiseApp');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware($tenantAppMiddleware)->name('dashboard');
 
-Route::middleware('auth')->group(function (): void {
+Route::middleware(config('app.ui_only_preview') ? [] : ['auth'])->group(function (): void {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -27,4 +29,4 @@ Route::middleware('auth')->group(function (): void {
 
 Route::get('/{path}', function () {
     return Inertia::render('CreditWiseApp');
-})->middleware(['auth', 'verified'])->where('path', '.*');
+})->middleware($tenantAppMiddleware)->where('path', '.*');

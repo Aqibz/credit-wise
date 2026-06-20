@@ -54,6 +54,8 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
+    'ui_only_preview' => (bool) env('UI_ONLY_PREVIEW', false),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone

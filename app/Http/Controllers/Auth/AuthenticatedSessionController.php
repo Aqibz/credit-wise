@@ -22,7 +22,7 @@ class AuthenticatedSessionController extends Controller
         return Inertia::render('Auth/Login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => session('status'),
-            'uiOnlyAuth' => app()->environment('local'),
+            'uiOnlyAuth' => config('app.ui_only_preview'),
         ]);
     }
 
@@ -31,10 +31,14 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
+        if (config('app.ui_only_preview')) {
+            return redirect()->intended(route('dashboard', absolute: false));
+        }
+
         try {
             $request->authenticate();
         } catch (QueryException $exception) {
-            if (app()->environment('local')) {
+            if (config('app.ui_only_preview')) {
                 return back()->withErrors([
                     'email' => 'Authentication is unavailable in this local UI build because the database connection is not active.',
                 ])->onlyInput('email');
