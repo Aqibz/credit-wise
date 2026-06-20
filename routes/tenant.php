@@ -27,4 +27,4 @@ Route::middleware('auth')->group(function (): void {
 
 Route::get('/{path}', function () {
     return Inertia::render('CreditWiseApp');
-})->where('path', '.*');
+})->middleware(['auth', 'verified'])->where('path', '.*');
