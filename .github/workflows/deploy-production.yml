@@ -91,6 +91,7 @@ jobs:
           php artisan view:cache
           php artisan event:cache
           php artisan queue:restart || true
+          sudo -n systemctl reload php8.3-fpm || sudo -n systemctl reload php-fpm || true
           EOF
 
       - name: Upload built assets
